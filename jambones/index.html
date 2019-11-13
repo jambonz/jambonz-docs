@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>jambones call control JSON - Jambones API</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "jambones call control JSON";
+    var mkdocs_page_input_path = "jambones.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Jambones API</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">API</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">jambones call control JSON</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#overview">Overview</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#dial">"dial"</a></li>
+        
+            <li><a class="toctree-l4" href="#gather">"gather"</a></li>
+        
+            <li><a class="toctree-l4" href="#hangup">"hangup"</a></li>
+        
+            <li><a class="toctree-l4" href="#listen">"listen"</a></li>
+        
+            <li><a class="toctree-l4" href="#play">"play"</a></li>
+        
+            <li><a class="toctree-l4" href="#redirect">"redirect"</a></li>
+        
+            <li><a class="toctree-l4" href="#sipdecline">"sip:decline"</a></li>
+        
+            <li><a class="toctree-l4" href="#sipnotify">"sip:notify"</a></li>
+        
+            <li><a class="toctree-l4" href="#sipredirect">"sip:redirect"</a></li>
+        
+            <li><a class="toctree-l4" href="#talk">"talk"</a></li>
+        
+            <li><a class="toctree-l4" href="#transcribe">"transcribe"</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../rest/">REST API</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../about/">About</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Jambones API</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>API &raquo;</li>
+        
+      
+    
+    <li>jambones call control JSON</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="overview">Overview</h1>
+<p>jambones is a specification for issuing call control commands via JSON messages.  These messages are sent from your application to the jambones platform as instructions for the platform to carry out on specific calls or other resources.  When an incoming call is received by the platform, jmabones makes an HTTP request to the URL endpoint you configured for that dialed number. Your response to that request contains a JSON payload instructing jambones on what to do next.</p>
+<p>An outbound call that is initiated by the REST API are controlled in the same way.  When invoking the REST API to launch a call or create a resource, you provide a web callback to receive status on that request.  In your response to that callback, you can provide a JSON payload instructing the platform on what to do next.</p>
+<h2 id="dial">"dial"</h2>
+<p>The dial command is used to connect an existing call another call.  This is a blocking call; it will reach a completion state when a connected call is ended by a hangup from either side, or the call attempt is rejected, times out trying to connect, or the caller hangs up during the outdial.</p>
+<pre><code class="json">  &quot;dial&quot;: {
+    &quot;action&quot;: &quot;http://example.com/outdial&quot;,
+    &quot;from&quot;: &quot;16173331212&quot;,
+    &quot;timeout&quot;: 60,
+    &quot;headers&quot;: {
+      &quot;User-Agent&quot;: &quot;my own cpaas&quot;,
+      &quot;X-Client-ID&quot;: &quot;12udih&quot;
+    },
+    &quot;strategy&quot;: &quot;simring&quot;,
+    &quot;target&quot;: [
+      {
+        &quot;type&quot;: &quot;phone&quot;,
+        &quot;number&quot;: &quot;15083084809&quot;
+      },
+      {
+        &quot;type&quot;: &quot;sip&quot;,
+        &quot;uri&quot;: &quot;sip:1617333456@sip.trunk1.com&quot;,
+        &quot;auth&quot;: {
+          &quot;user&quot;: &quot;foo&quot;,
+          &quot;password&quot;: &quot;bar&quot;
+        }
+      },
+      {
+        &quot;type&quot;: &quot;user&quot;,
+        &quot;name&quot;: &quot;spike&quot;
+      }
+    ]
+  }
+</code></pre>
+
+<p>As the example above illustrates, when you execute the 'dial' command you are making one or more outbound call attempts in an effort to create one new call, which is bridged to the original call.  </p>
+<p>When you make multiple attempts, you can use either a 'sequential' strategy (one at a time, in order, until one answers), or a 'simring' strategy (blast outdial them all and accept the first one to answer, hanging up the others).</p>
+<blockquote>
+<p>Note: when using simring, if a dialed call returns early media (i.e. 183 Session Progress), then at that point all other calls will be canceled and only the call returning the early media will be allowed to complete.</p>
+</blockquote>
+<p>You also have three different types of destinations that you can dial:</p>
+<ul>
+<li>a telephone phone number,</li>
+<li>a sip endpoint, identified by a sip uri, or</li>
+<li>a webrtc or sip client that has registered directly with your application.</li>
+</ul>
+<p>You can use the following attributes in the <code>dial</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>from</td>
+<td>caller id to use on the outbound call; when calling to a PSTN number it must be one of your jambones numbers</td>
+<td>yes, if calling to PSTN</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>ring no answer timeout</td>
+<td>no (default: 60 secs)</td>
+</tr>
+<tr>
+<td>action</td>
+<td>webhook to invoke when call ends</td>
+<td>no (default: current document url)</td>
+</tr>
+<tr>
+<td>headers</td>
+<td>an object containing arbitrary sip headers to apply to the outbound call attempt(s)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>strategy</td>
+<td>"simring" or "hunt"</td>
+<td>no (default: "hunt" if multiple targets provided)</td>
+</tr>
+<tr>
+<td>target</td>
+<td>array of targeted <a href="#target-types">endpoints</a></td>
+<td>yes</td>
+</tr>
+<tr>
+<td>transcribe</td>
+<td>a nested <a href="#transcribe">transcribe</a> action, which will cause the call to be transcribed</td>
+<td>no</td>
+</tr>
+<tr>
+<td>listen</td>
+<td>a nested <a href="#listen">listen</a> action, which will cause audio from the call to be streamed to a remote server over a websocket connection</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<h5 id="target-types">target types</h5>
+<p><em>PSTN number</em></p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>phone</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>number</td>
+<td>E.164 number</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p><em>sip endpoint</em></p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>sip</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>uri</td>
+<td>sip uri</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>auth</td>
+<td>authentication credentials</td>
+<td>no</td>
+</tr>
+<tr>
+<td>auth.username</td>
+<td>sip username</td>
+<td>no</td>
+</tr>
+<tr>
+<td>auth.password</td>
+<td>sip password</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>Using this approach, it is possible to send calls out a sip trunk.  If the sip trunking provider enforces username/password authentication, then supply the credentials in the <code>auth</code> property.</p>
+<p><strong>a registered webrtc or sip user</strong></p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>user</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>name</td>
+<td>registered username</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>Note that you do not need to specify the fully-qualified address of record (e.g. <code>spike@myapp.myco.drachtio.org</code>); the domain is automatically applied to the name provided when searching active registrations.</p>
+<h2 id="gather">"gather"</h2>
+<p>The gather command is used to collect dtmf or speech input.  gather is a blocking command.</p>
+<pre><code class="json">&quot;gather&quot;: {
+  &quot;input&quot;: &quot;dtmf&quot;,
+  &quot;finishOnKey&quot;: &quot;#&quot;,
+  &quot;numDigits&quot;: 5,
+  &quot;timeout&quot;: 8,
+  &quot;action&quot;: &quot;http://example.com/collect&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>gather</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>action</td>
+<td>web callback to invoke with collected digits or speech</td>
+<td>no (defaults to current document url)</td>
+</tr>
+<tr>
+<td>actionOnEmptyResult</td>
+<td>whether to invoke the callback when no input is detected</td>
+<td>no (default: false)</td>
+</tr>
+<tr>
+<td>finishOnKey</td>
+<td>dmtf key that signals the end of input</td>
+<td>no</td>
+</tr>
+<tr>
+<td>hints</td>
+<td>array of words or phrases to help speech detection</td>
+<td>no</td>
+</tr>
+<tr>
+<td>input</td>
+<td>type of input: 'dtmf', 'speech', or ['dtmf', 'speech']</td>
+<td>no (default: dtmf)</td>
+</tr>
+<tr>
+<td>language</td>
+<td>language code to use for speech detection</td>
+<td>no (default: en-US)</td>
+</tr>
+<tr>
+<td>numDigits</td>
+<td>number of dtmf digits expected to gather</td>
+<td>no</td>
+</tr>
+<tr>
+<td>partialResultCallback</td>
+<td>url to send interim transcription results to (may not return content)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>speechTimeout</td>
+<td>seconds to wait for a final speech transcription</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="hangup">"hangup"</h2>
+<p>The hangup command terminates the call and ends the application.</p>
+<pre><code class="json">&quot;hangup&quot;: {
+  &quot;headers&quot;: {
+    &quot;X-Reason&quot; : &quot;maximum call length detected&quot;
+  }
+}
+</code></pre>
+
+<p>You can use the following options in the <code>playback</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>headers</td>
+<td>an object containing SIP headers to include in the BYE request</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="listen">"listen"</h2>
+<p>The listen action is used to stream audio in real-time to a server over a websocket connection.  The audio format will be linear 16-bit PCM encoding with a configurable sample rate. The websocket subprotocol name will be <code>audio.jambones.org</code>.  The listen action is a non-blocking action.</p>
+<p>(<em>TBD: link for more detail on the protocol, json metadata etc</em>)</p>
+<p>A listen command can also be nested in a <a href="#dial">dial</a> command, which allows the audio for the call to be streamed in real-time to a web service.</p>
+<pre><code class="json">&quot;listen&quot;: {
+  &quot;action&quot;: &quot;http://example.com/listen&quot;,
+  &quot;wsUrl&quot;: &quot;wss://myrecorder.example.com:4433&quot;,
+  &quot;mixType&quot; : &quot;stereo&quot;,
+  &quot;sampleRate&quot;: 8000,
+  &quot;metadata&quot;: {
+    &quot;clientId&quot;: &quot;12udih&quot;
+  }
+}
+</code></pre>
+
+<p>You can use the following options in the <code>listen</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>action</td>
+<td>web callback to invoke with status of websocket connection</td>
+<td>no</td>
+</tr>
+<tr>
+<td>wsUrl</td>
+<td>url of remote server to connect to</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>mixType</td>
+<td>"mono" (send single channel), "stereo" (send dual channel of both calls in a bridge), or "mixed" (send audio from both calls in a bridge in a single mixed audio stream)</td>
+<td>no (default: mono)</td>
+</tr>
+<tr>
+<td>sampleRate</td>
+<td>sample rate of audio to send (allowable values: 8000, 16000, 24000, 48000, or 64000</td>
+<td>no (default: 8000)</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>arbitrary JSON payload to send to remote server when websocket connection is established</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="play">"play"</h2>
+<p>The play command is used to stream recorded audio to a call.  This is a non-blocking call.</p>
+<pre><code class="json">&quot;play&quot;: {
+  &quot;url&quot;: &quot;https://example.com/example.mp3&quot;,
+  &quot;bargein&quot;: true,
+  &quot;loop&quot;: 2
+}
+</code></pre>
+
+<p>You can use the following options in the <code>playback</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>url</td>
+<td>a single url or array of urls (will play in sequence) to a wav or mp3 file</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>bargein</td>
+<td>if true, terminate playback when a dtmf entry is detected</td>
+<td>no (default: false)</td>
+</tr>
+<tr>
+<td>loop</td>
+<td>number of times to play the url(s), or "forever" to loop indefinitely</td>
+<td>no (default: 1)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="redirect">"redirect"</h2>
+<p>The redirect action is used to transfer control to another JSON document taht is retrieved from the specified url.  All actions after <code>redirect</code> are unreachable and ignored.</p>
+<pre><code class="json">&quot;redirect&quot;: {
+  &quot;url&quot;: &quot;https://example.com/?foo=bar&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>redirect</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>url</td>
+<td>url to retrieve document from</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sipdecline">"sip:decline"</h2>
+<p>The sip:decline action is used to reject an incoming call with a specific status.  This action must be the first and only action returned in the web callback for an incoming call, and the application must be configured to park incoming calls rather than automatically answer them.  The sip:decline action is a non-blocking action and the session ends immediately after the action is executed.</p>
+<pre><code class="json">&quot;sip:decline&quot;: {
+  &quot;status&quot;: 480,
+  &quot;reason&quot;: &quot;Gone Fishing&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>sip:decline</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>status</td>
+<td>a valid SIP status code in the range 4XX - 6XX</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>reason</td>
+<td>a brief description</td>
+<td>no (default: the well-known SIP reasons associated with the specified status code</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sipnotify">"sip:notify"</h2>
+<p>The sip:notify action is used to a SIP NOTIFY request to one or more registered users.  The sip:notify action is a non-blocking action.</p>
+<pre><code class="json">&quot;sip:notify&quot;: {
+  &quot;user&quot;: [&quot;spike&quot;],
+  &quot;contentType&quot;: &quot;application/simple-message-summary&quot;,
+  &quot;content&quot;: [
+    &quot;Messages-Waiting: yes&quot;,
+    &quot;Message-Account: sip:spike@sip.example.com&quot;,
+    &quot;Voice-Message: 2/8 (0/2)&quot;
+  ],
+  &quot;headers&quot;: {
+    &quot;Subscription-State&quot;: &quot;active&quot;
+  }
+}
+</code></pre>
+
+<p>You can use the following options in the <code>sip:notify</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>user, or array of users, to send NOTIFY requests to</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>contentType</td>
+<td>value of SIP Content-Type header in NOTIFY</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>content</td>
+<td>body of NOTIFY request</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>headers</td>
+<td>object specifying arbitrary headers to apply to SIP NOTIFY request</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sipredirect">"sip:redirect"</h2>
+<p>The sip:redirect command is used to redirect an incoming call to another sip server or network.  This must be the first and only command returned in the web callback for an incoming call.  A SIP 302 Moved response will be sent back to the caller.  </p>
+<p>The sip:redirect command is a non-blocking and the session ends immediately after the command is executed.</p>
+<pre><code class="json">&quot;sip:redirect&quot;: {
+  &quot;sipUri&quot;: &quot;sip:123@gateway.example.com&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>sip:decline</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sipUri</td>
+<td>a sip uri that will appear in the Contact header of the 302 response to the caller</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="talk">"talk"</h2>
+<p>The talk command is used to send synthesized speech to the remote party. The text provided may be either plain text or may use SSML tags.  This is a non-blocking action.</p>
+<p>A talk command can also be nested in a <a href="#dial">dial</a> command, which allows the complete audio stream for the call to be streamed in real-time to a web service over websockets.</p>
+<pre><code class="json">&quot;talk&quot;: {
+  &quot;text&quot;: &quot;hi there!&quot;,
+  &quot;vendor&quot; : &quot;google&quot;,
+  &quot;voice&quot;: &quot;en-AU-Wavenet-B&quot;,
+  &quot;bargein&quot;: false
+}
+</code></pre>
+
+<p>You can use the following options in the <code>talk</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>text</td>
+<td>text to speak; may contain SSML tags</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>vendor</td>
+<td>speech vendor to use</td>
+<td>no (default: google)</td>
+</tr>
+<tr>
+<td>voice</td>
+<td>name of voice to use; note this is vendor-dependent</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p><em>TBD: list of speech vendors supported (currently only google)</em></p>
+<p><a href="#google-tts-voices">list of google voices</a></p>
+<h2 id="transcribe">"transcribe"</h2>
+<p>The transcribe command is used to send real time transcriptions of speech (either caller, called party, or both) to your web callback.</p>
+<p>This is a non-blocking command.  When your web callback is invoked for a final transcription, it can optionally return a JSON document with further instructions; if provided, this will cause the current document to be flushed and execution to continue with the new document provided.</p>
+<p>A transcribe command can also be nested in a <a href="#dial">dial</a> command, which allows a long-running transcription to be triggered for an outbound call.</p>
+<pre><code class="json">&quot;transcribe&quot;: {
+  &quot;action&quot;: &quot;http://example.com/transcribe&quot;,
+  &quot;language&quot; : &quot;en-US&quot;,
+  &quot;target&quot; : &quot;both&quot;,
+  &quot;interim&quot;: true,
+  &quot;vendor&quot;: &quot;google&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>transcribe</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>action</td>
+<td>web callback to invoke with transcriptions</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>language</td>
+<td>language to use for speech transcription</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>target</td>
+<td>call uuid to perform transcription on, or "both" to transcribe both calls in a bridge</td>
+<td>no (default: original call)</td>
+</tr>
+<tr>
+<td>interim</td>
+<td>whether to send interim transcriptions</td>
+<td>no (default: false)</td>
+</tr>
+<tr>
+<td>vendor</td>
+<td>speech vendor to use</td>
+<td>no (default: google)</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../rest/" class="btn btn-neutral float-right" title="REST API">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../rest/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

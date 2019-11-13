@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <title>Home - Jambones API</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Home";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> Jambones API</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href=".">Home</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#welcome-to-jambones-api-documentation">Welcome to Jambones API documentation</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#overview">Overview</a></li>
+        
+            <li><a class="toctree-l3" href="#object-identifiers">Object Identifiers</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">API</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="jambones/">jambones call control JSON</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="rest/">REST API</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="about/">About</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">Jambones API</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="welcome-to-jambones-api-documentation">Welcome to Jambones API documentation</h1>
+<p>jambones is an open source CPAAS project based on <a href="https://drachtio.org">drachtio</a>, <a href="https://github.com/sipwise/rtpengine">rtpengine</a> and <a href="https://freeswitch.com/">freeswitch</a></p>
+<p>The origin of the name is unclear, but it is rumoured to either be an acronym for:</p>
+<p><em>just another mediocre boring object notational exercise in silliness</em></p>
+<p>or a nod to an obscure piece of 1980s-era Boston slang, meaning:</p>
+<p>jambones [jam-b&#333;nz]: to move fast, with reckless abandon: <em>Geraint Thomas was going jambones on that descent!</em></p>
+<h2 id="overview">Overview</h2>
+<p>A jambones application controls calls via web callbacks and an HTTP API.  The jambones platform notifies applications of incoming calls and call status changes via web callbacks containing JSON payloads.  An application can provide call control instructions both by responding to web callbacks, as well as invoking an HTTP REST API.</p>
+<p>Each application has an identifier (the application uuid) and an api token that is used for authentication.  When registering an application you provide the information below, and receive in return an application uuid and api token.</p>
+<table>
+<thead>
+<tr>
+<th>application option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>incoming call</td>
+<td>web callback that is invoked when a new call arrives</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>call status change</td>
+<td>web callback that is invoked when a call changes state (e.g. from 'ringing' to 'answered')</td>
+<td>no</td>
+</tr>
+<tr>
+<td>registration attempt</td>
+<td>web callback that is invoked when a sip device attempts to register or unregister</td>
+<td>no</td>
+</tr>
+<tr>
+<td>subscription attempt</td>
+<td>web callback that is invoked when a sip device sends a SUBSCRIBE request</td>
+<td>no</td>
+</tr>
+<tr>
+<td>sip domain</td>
+<td>a sip domain to be used for user registration with this application</td>
+<td>no</td>
+</tr>
+<tr>
+<td>incoming call early media support</td>
+<td>whether to playback media over an early media connection (i.e. 183) rather than answering and then playing media</td>
+<td>no (default: no)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="object-identifiers">Object Identifiers</h2>
+<p>There are several types of objects that are created or managed in jambones, and which need unique identifiers.  These are summarized below.</p>
+<table>
+<thead>
+<tr>
+<th>uuid</th>
+<th>description</th>
+<th>when used</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>application uuid</td>
+<td>identifies a jambones application</td>
+<td>when authenticating to REST api or configuring callbacks</td>
+</tr>
+<tr>
+<td>call uuid</td>
+<td>identifies a specific incoming or outbound call</td>
+<td>when creating calls using the REST api or managing them using callbacks</td>
+</tr>
+<tr>
+<td>parent call uuid</td>
+<td>identifies the call that created this call</td>
+<td>when creating an outbound call from an inbound call</td>
+</tr>
+<tr>
+<td>conference uuid</td>
+<td>identifies an audio bridge</td>
+<td>when creating conferences or placing calls into conference</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="jambones/" class="btn btn-neutral float-right" title="jambones call control JSON">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="jambones/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2019-11-13 20:12:36
+-->
