@@ -1,0 +1,8 @@
+site_name: Jambones API
+nav:
+    - Home: index.md
+    - API:
+        - jambones call control JSON: jambones.md
+        - REST API: rest.md
+    - About: about.md
+theme: readthedocs
