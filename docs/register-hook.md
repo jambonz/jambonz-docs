@@ -1,7 +1,7 @@
 # Overview
-The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared between activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, by means of the registration webhook.
+The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared  activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, which is notified of incoming REGISTER requests by means of the registration webhook.
 
-When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent.
+When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent back to the client.
 
 Otherwise, the platform will challenge the REGISTER request with a 401 Unauthorized response.
 
@@ -11,6 +11,7 @@ If the sip client then sends a REGISTER request, the platform generates an http 
   "method": "REGISTER",
   "realm": "example.com",
   "username": "foo",
+  "expires": 3600,
   "nonce": "InFriVGWVoKeCckYrTx7wg==",
   "uri": "sip:example.com",
   "algorithm": "MD5",
@@ -31,10 +32,18 @@ The JSON body in the response if the request is authenticated should simply cont
 }
 ```
 
-The JSON body in the response if the request is not authentication should contain a status of `fail`, and optionally a `msg` attribute, e.g.
+If the application wishes to enforce a shorter expires value, it may include that value in the response, e.g.:
 ```
 {
   "status": "ok",
+  "expires": 1800
+}
+```
+
+The JSON body in the response if the request is _not_ authentication should contain a status of `fail`, and optionally a `msg` attribute, e.g.
+```
+{
+  "status": "fail",
   "msg" : "invalid password"
 }
 ```
