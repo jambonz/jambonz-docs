@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Registering sip clients - Jambones API</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Registering sip clients";
+    var mkdocs_page_input_path = "register-hook.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Jambones API</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">API</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../jambones/">jambones Call Control JSON</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../rest/">REST API</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Registering sip clients</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#overview">Overview</a></li>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Jambones API</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Registering sip clients</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="overview">Overview</h1>
+<p>The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared between activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, by means of the registration webhook.</p>
+<p>When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent.</p>
+<p>Otherwise, the platform will challenge the REGISTER request with a 401 Unauthorized response.</p>
+<p>If the sip client then sends a REGISTER request, the platform generates an http POST request to the registered webhook.  The Content-Type of the POST is application/json and the body contains the following elements, as provided in  the Authorization sip header of the incoming REGISTER request.</p>
+<pre><code>{
+  &quot;method&quot;: &quot;REGISTER&quot;,
+  &quot;realm&quot;: &quot;example.com&quot;,
+  &quot;username&quot;: &quot;foo&quot;,
+  &quot;nonce&quot;: &quot;InFriVGWVoKeCckYrTx7wg==&quot;,
+  &quot;uri&quot;: &quot;sip:example.com&quot;,
+  &quot;algorithm&quot;: &quot;MD5&quot;,
+  &quot;qop&quot;: &quot;auth&quot;,
+  &quot;cnonce&quot;: &quot;03d8d2aafd5a975f2b07dc90fe5f4100&quot;,
+  &quot;nc&quot;: &quot;00000001&quot;,
+  &quot;response&quot;: &quot;db7b7dbec7edc0c427c1708031f67cc6&quot;
+}
+</code></pre>
+
+<p>The application, with knowledge of the password associated with the provided username and password, then performs <a href="https://tools.ietf.org/html/rfc2617">digest authentication</a> to authenticate the request using the information provided, including the calculated response value.</p>
+<p>Regardless of whether the request is authenticated or not, the application should respond with a 200 OK to the http POST and with a JSON body.</p>
+<p>The JSON body in the response if the request is authenticated should simply contain a <code>status</code> attribute with a value of <code>ok</code>, e.g.:</p>
+<pre><code>{
+  &quot;status&quot;: &quot;ok&quot;
+}
+</code></pre>
+
+<p>The JSON body in the response if the request is not authentication should contain a status of <code>fail</code>, and optionally a <code>msg</code> attribute, e.g.</p>
+<pre><code>{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;msg&quot; : &quot;invalid password&quot;
+}
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../rest/" class="btn btn-neutral" title="REST API"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../rest/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
