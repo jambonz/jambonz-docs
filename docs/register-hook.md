@@ -3,9 +3,9 @@ The platform allows sip clients to register, make and receive calls.  Managing s
 
 When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent back to the client.
 
-Otherwise, the platform will challenge the REGISTER request with a 401 Unauthorized response.
+Otherwise, the platform will challenge the REGISTER request with a 401 Unauthorized response containing a digest challenge.
 
-If the sip client then sends a REGISTER request, the platform generates an http POST request to the registered webhook.  The Content-Type of the POST is application/json and the body contains the following elements, as provided in  the Authorization sip header of the incoming REGISTER request.
+If the sip client then sends a REGISTER request with and Authorization header, the platform generates an http POST request to the registered webhook.  The Content-Type of the POST is application/json and the body contains the following elements, as provided in  the Authorization sip header of the incoming REGISTER request.
 ```
 {
   "method": "REGISTER",
