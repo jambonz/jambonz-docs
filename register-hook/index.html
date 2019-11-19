@@ -112,14 +112,15 @@
             <div class="section">
               
                 <h1 id="overview">Overview</h1>
-<p>The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared between activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, by means of the registration webhook.</p>
-<p>When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent.</p>
+<p>The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared  activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, which is notified of incoming REGISTER requests by means of the registration webhook.</p>
+<p>When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent back to the client.</p>
 <p>Otherwise, the platform will challenge the REGISTER request with a 401 Unauthorized response.</p>
 <p>If the sip client then sends a REGISTER request, the platform generates an http POST request to the registered webhook.  The Content-Type of the POST is application/json and the body contains the following elements, as provided in  the Authorization sip header of the incoming REGISTER request.</p>
 <pre><code>{
   &quot;method&quot;: &quot;REGISTER&quot;,
   &quot;realm&quot;: &quot;example.com&quot;,
   &quot;username&quot;: &quot;foo&quot;,
+  &quot;expires&quot;: 3600,
   &quot;nonce&quot;: &quot;InFriVGWVoKeCckYrTx7wg==&quot;,
   &quot;uri&quot;: &quot;sip:example.com&quot;,
   &quot;algorithm&quot;: &quot;MD5&quot;,
@@ -138,9 +139,16 @@
 }
 </code></pre>
 
-<p>The JSON body in the response if the request is not authentication should contain a status of <code>fail</code>, and optionally a <code>msg</code> attribute, e.g.</p>
+<p>If the application wishes to enforce a shorter expires value, it may include that value in the response, e.g.:</p>
 <pre><code>{
   &quot;status&quot;: &quot;ok&quot;,
+  &quot;expires&quot;: 1800
+}
+</code></pre>
+
+<p>The JSON body in the response if the request is <em>not</em> authentication should contain a status of <code>fail</code>, and optionally a <code>msg</code> attribute, e.g.</p>
+<pre><code>{
+  &quot;status&quot;: &quot;fail&quot;,
   &quot;msg&quot; : &quot;invalid password&quot;
 }
 </code></pre>
