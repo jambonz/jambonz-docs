@@ -1,7 +1,7 @@
 # Overview
 The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared  activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, which is notified of incoming REGISTER requests by means of the registration webhook.
 
-> This is designed so the privacy of sip credentials issued by a customer to their clients is assured; i.e. those credentials are never exposed to the platform provider entity, nor stored anywhere in the platform itself.
+> This is designed so the privacy of sip credentials issued by a customer to their clients is assured; i.e. those credentials are never exposed to the platform provider entity, nor stored anywhere in the platform itself .
 
 When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent back to the client.
 

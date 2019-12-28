@@ -39,7 +39,7 @@ Those interested would include:
 A jambones application controls calls via web callbacks and an HTTP API.  The jambones platform notifies applications of incoming calls and call status changes via web callbacks.  An application can provide call control instructions by responding to web callbacks with JSON payloads that include instructions, or by invoking a REST API.
 
 Additionally, jambones supports sip end-user devices and webRTC clients interacting with the platform.  
-> Note that in keeping with the data privacy design goal, the platform does not store customers' sip credentials.  Authentication of native sip clients is delegated to customer-side logic [as described here](/register-hook).
+> Note that in keeping with the data privacy design goal, the platform does not store customers' sip credentials.  Authentication of native sip clients is delegated to customer-side logic [as described here](/jambones-docs/register-hook).
 
 ## jambones data architecture
 
