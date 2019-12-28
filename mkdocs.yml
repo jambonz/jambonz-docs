@@ -4,5 +4,5 @@ nav:
     - API:
         - jambones Call Control JSON: jambones.md
         - REST API: rest.md
-    - Registering sip clients: register-hook.md
+    - Authenticating sip clients: register-hook.md
 theme: readthedocs
