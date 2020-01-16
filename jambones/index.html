@@ -66,27 +66,40 @@
     
         <ul>
         
-            <li><a class="toctree-l4" href="#dial">"dial"</a></li>
+            <li><a class="toctree-l4" href="#basic-json-message-structure">Basic JSON message structure</a></li>
         
-            <li><a class="toctree-l4" href="#gather">"gather"</a></li>
+            <li><a class="toctree-l4" href="#initial-state-of-incoming-calls">Initial state of incoming calls</a></li>
         
-            <li><a class="toctree-l4" href="#hangup">"hangup"</a></li>
+            <li><a class="toctree-l4" href="#speech">Speech</a></li>
         
-            <li><a class="toctree-l4" href="#listen">"listen"</a></li>
+        </ul>
+    
+
+    <li class="toctree-l3"><a href="#supported-verbs">Supported Verbs</a></li>
+    
+        <ul>
         
-            <li><a class="toctree-l4" href="#play">"play"</a></li>
+            <li><a class="toctree-l4" href="#dial">dial</a></li>
         
-            <li><a class="toctree-l4" href="#redirect">"redirect"</a></li>
+            <li><a class="toctree-l4" href="#gather">gather</a></li>
         
-            <li><a class="toctree-l4" href="#sipdecline">"sip:decline"</a></li>
+            <li><a class="toctree-l4" href="#hangup">hangup</a></li>
         
-            <li><a class="toctree-l4" href="#sipnotify">"sip:notify"</a></li>
+            <li><a class="toctree-l4" href="#listen">listen</a></li>
         
-            <li><a class="toctree-l4" href="#sipredirect">"sip:redirect"</a></li>
+            <li><a class="toctree-l4" href="#play">play</a></li>
         
-            <li><a class="toctree-l4" href="#talk">"talk"</a></li>
+            <li><a class="toctree-l4" href="#redirect">redirect</a></li>
         
-            <li><a class="toctree-l4" href="#transcribe">"transcribe"</a></li>
+            <li><a class="toctree-l4" href="#say">say</a></li>
+        
+            <li><a class="toctree-l4" href="#sipdecline">sip:decline</a></li>
+        
+            <li><a class="toctree-l4" href="#sipnotify">sip:notify</a></li>
+        
+            <li><a class="toctree-l4" href="#sipredirect">sip:redirect</a></li>
+        
+            <li><a class="toctree-l4" href="#transcribe">transcribe</a></li>
         
         </ul>
     
@@ -142,46 +155,176 @@
             <div class="section">
               
                 <h1 id="overview">Overview</h1>
-<p>jambones is a specification for issuing call control commands via JSON messages.  These messages are sent from your application to the jambones platform as instructions for the platform to carry out on specific calls or other resources.  When an incoming call is received by the platform, jmabones makes an HTTP request to the URL endpoint you configured for that dialed number. Your response to that request contains a JSON payload instructing jambones on what to do next.</p>
-<p>An outbound call that is initiated by the REST API are controlled in the same way.  When invoking the REST API to launch a call or create a resource, you provide a web callback to receive status on that request.  In your response to that callback, you can provide a JSON payload instructing the platform on what to do next.</p>
-<h2 id="dial">"dial"</h2>
-<p>The dial command is used to connect an existing call another call.  This is a blocking call; it will reach a completion state when a connected call is ended by a hangup from either side, or the call attempt is rejected, times out trying to connect, or the caller hangs up during the outdial.</p>
-<pre><code class="json">  &quot;dial&quot;: {
-    &quot;action&quot;: &quot;http://example.com/outdial&quot;,
-    &quot;from&quot;: &quot;16173331212&quot;,
-    &quot;timeout&quot;: 60,
-    &quot;headers&quot;: {
-      &quot;User-Agent&quot;: &quot;my own cpaas&quot;,
-      &quot;X-Client-ID&quot;: &quot;12udih&quot;
-    },
-    &quot;strategy&quot;: &quot;simring&quot;,
-    &quot;target&quot;: [
-      {
-        &quot;type&quot;: &quot;phone&quot;,
-        &quot;number&quot;: &quot;15083084809&quot;
-      },
-      {
-        &quot;type&quot;: &quot;sip&quot;,
-        &quot;uri&quot;: &quot;sip:1617333456@sip.trunk1.com&quot;,
-        &quot;auth&quot;: {
-          &quot;user&quot;: &quot;foo&quot;,
-          &quot;password&quot;: &quot;bar&quot;
-        }
-      },
-      {
-        &quot;type&quot;: &quot;user&quot;,
-        &quot;name&quot;: &quot;spike&quot;
-      }
-    ]
+<p>jambones is a specification for issuing call control commands via JSON messages.  These messages are sent from your application in response to web callbacks, and they provide the jambones platform with your instructions on how it should handle a call.  </p>
+<p>When an incoming call is received by the platform, jambones makes an HTTP request to the URL endpoint that is configured for that called number. Outbound calls that are initiated by the REST API are controlled in the same way -- when invoking the REST API to launch a call, you provide a web callback url and in your response to that callback you then return a JSON payload describing the application that should govern the outbound call.</p>
+<h2 id="basic-json-message-structure">Basic JSON message structure</h2>
+<p>The JSON object (aka the "application") that you provide in response to a callback must be an array of objects, with each object describing a task that the platform shall perform.  These tasks are executed sequentially in the order they appear in the array.  Each task is identified by a verb (e.g. "dial", "gather", "hangup" etc) with associated detail and these verbs are described in more detail below.</p>
+<p>If the caller (or called party, in the case of a REST-initiated outdial) hangs up during the execution of an application, the current task is allowed to complete and any remaining tasks in the application are ignored.</p>
+<p>Through additional callbacks that may be invoked during the execution of an application (typically as a result of those verbs which have an "action" property callback), the current application may be replaced with a new JSON application document.  In such a case, the new document begins executing, and any remaining tasks in the original document are discarded.</p>
+<p>Each task object in the JSON array must include a "verb" property that describes the action to take.  Any additional information that the task needs to operate are provided as properties as well, e.g.:</p>
+<pre><code>{
+  &quot;verb&quot;: &quot;say&quot;,
+  &quot;text&quot;: &quot;Hi there!  Please leave a message at the tone and we will get back to you shortly.&quot;,
+  &quot;synthesizer&quot;: {
+    &quot;vendor&quot;: &quot;google&quot;,
+    &quot;voice&quot;: &quot;en-US-Wavenet-C&quot;
   }
+}
 </code></pre>
 
-<p>As the example above illustrates, when you execute the 'dial' command you are making one or more outbound call attempts in an effort to create one new call, which is bridged to the original call.  </p>
-<p>When you make multiple attempts, you can use either a 'sequential' strategy (one at a time, in order, until one answers), or a 'simring' strategy (blast outdial them all and accept the first one to answer, hanging up the others).</p>
+<p>Some verbs allow other verbs to be nested; e.g. "gather" can have a nested "say" command in order to play a prompt and collect a response in one command:</p>
+<pre><code>{
+  &quot;verb&quot;: &quot;gather&quot;,
+  &quot;action&quot;: &quot;https://00dd977a.ngrok.io/gather&quot;,
+  &quot;input&quot;: [&quot;speech&quot;, &quot;dtmf&quot;],
+  &quot;timeout&quot;: 16,
+  &quot;numDigits&quot;: 6,
+  &quot;language&quot;: &quot;en-US&quot;,
+  &quot;say&quot;: {
+    &quot;text&quot;: &quot;Please say or enter your six digit card number now&quot;,
+    &quot;synthesizer&quot;: {
+      &quot;vendor&quot;: &quot;google&quot;,
+      &quot;voice&quot;: &quot;en-US-Wavenet-C&quot;
+    }
+  }
+}
+</code></pre>
+
+<p>Altogether then, a simple example application which provides the basics of a voicemail application with transcription included would look like this:</p>
+<pre><code>[
+  {
+    &quot;verb&quot;: &quot;say&quot;,
+    &quot;text&quot;: &quot;Hi there!  Please leave a message at the tone and we will get back to you shortly.  Thanks, and have a great day!&quot;,
+    &quot;synthesizer&quot;: {
+      &quot;vendor&quot;: &quot;google&quot;,
+      &quot;voice&quot;: &quot;en-US-Wavenet-C&quot;
+    }
+  },
+  {
+    &quot;verb&quot;: &quot;listen&quot;,
+    &quot;finishOnKey&quot;: &quot;#&quot;,
+    &quot;metadata&quot;: {
+      &quot;topic&quot;: &quot;voicemail&quot;
+    },
+    &quot;mixType&quot;: &quot;mono&quot;,
+    &quot;playBeep&quot;: true,
+    &quot;timeout&quot;: 20,
+    &quot;url&quot;: &quot;http://bd0bf038.ngrok.io&quot;,
+    &quot;transcribe&quot;: {
+      &quot;action&quot;: &quot;https://00dd977a.ngrok.io/transcription&quot;,
+      &quot;recognizer&quot;: {
+        &quot;vendor&quot;: &quot;google&quot;,
+        &quot;language&quot;: &quot;en-US&quot;
+      }
+    }
+  }
+]
+</code></pre>
+
+<h4 id="alternate-json-structure">Alternate JSON structure</h4>
+<p>For those who prefer the readability of seeing verbs appear as object keys, the following syntax is also allowed:</p>
+<pre><code>[
+  {
+    &quot;say&quot;: {
+      &quot;text&quot;: &quot;Hi there!  Please leave a message at the tone and we will get back to you shortly.  Thanks, and have a great day!&quot;,
+      &quot;synthesizer&quot;: {
+        &quot;vendor&quot;: &quot;google&quot;,
+        &quot;voice&quot;: &quot;en-US-Wavenet-C&quot;
+      }
+    }
+  },
+  {
+    &quot;listen&quot;: {
+      &quot;finishOnKey&quot;: &quot;#&quot;,
+      &quot;metadata&quot;: {
+        &quot;topic&quot;: &quot;voicemail&quot;
+      },
+      &quot;mixType&quot;: &quot;mono&quot;,
+      &quot;playBeep&quot;: true,
+      &quot;timeout&quot;: 20,
+      &quot;url&quot;: &quot;http://bd0bf038.ngrok.io&quot;,
+      &quot;transcribe&quot;: {
+        &quot;action&quot;: &quot;https://00dd977a.ngrok.io/transcription&quot;,
+        &quot;recognizer&quot;: {
+          &quot;vendor&quot;: &quot;google&quot;,
+          &quot;language&quot;: &quot;en-US&quot;
+        }
+      }
+    }
+  }
+]
+</code></pre>
+
+<h2 id="initial-state-of-incoming-calls">Initial state of incoming calls</h2>
+<p>When the jambones platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE:</p>
+<ul>
+<li>it can answer the call (i.e. generating a SIP 200 OK response, and connecting the call to a media endpoint that can play media and collect responses), </li>
+<li>it can simply reject the call, with a specified non-success SIP final response</li>
+<li>it can perform a SIP redirect (i.e. generating a SIP 302 response), or</li>
+<li>it can establish an early media connection (i.e. generating a SIP 183 Session Progress response, and connecting the call to a media endpoint).</li>
+</ul>
+<p>The last is interesting and worthy of further comment.  The intent is to let you play audio to callers without necessarily answering the call.  You signal this by including an "earlyMedia" property with a value of true in the application.  When receiving this, the jambones core will create an early media connection if possible as in the example below.</p>
 <blockquote>
-<p>Note: when using simring, if a dialed call returns early media (i.e. 183 Session Progress), then at that point all other calls will be canceled and only the call returning the early media will be allowed to complete.</p>
+<p>Note: an early media connection will not be possible if the call has already been answered.  In such a scenario, the earlyMedia property is ignored.</p>
 </blockquote>
-<p>You also have three different types of destinations that you can dial:</p>
+<pre><code>[
+  {
+    &quot;verb&quot;: &quot;say&quot;,
+    &quot;earlyMedia&quot;: true,
+    &quot;text&quot;: &quot;Please call back later, we are currently at lunch&quot;
+    &quot;synthesizer&quot;: {
+      &quot;vendor&quot;: &quot;google&quot;,
+      &quot;voice&quot;: &quot;en-US-Wavenet-F&quot;
+    },
+    {
+      &quot;verb&quot;: &quot;sip:decline&quot;,
+      &quot;status&quot;: 480,
+      &quot;headers&quot;: {
+        &quot;Retry-After&quot;: 1800
+      }
+    }
+  }
+]
+</code></pre>
+
+<p>The say, play, gather, listen, and transcribe verbs all support the "earlyMedia" property.  The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.</p>
+<h2 id="speech">Speech</h2>
+<p>The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.</p>
+<p>A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambones feature servers to enable tts and speech recognition.</p>
+<h1 id="supported-verbs">Supported Verbs</h1>
+<p>Each of the supported verbs are described below.</p>
+<h2 id="dial">dial</h2>
+<p>The dial command is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  </p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;dial&quot;,
+  &quot;action&quot;: &quot;http://example.com/outdial&quot;,
+  &quot;callerId&quot;: &quot;+16173331212&quot;,
+  &quot;answerOnBridge&quot;: true,
+  &quot;statusCallback&quot;: &quot;http://example.com/callStatus&quot;,
+  &quot;target&quot;: [
+    {
+      &quot;type&quot;: &quot;phone&quot;,
+      &quot;number&quot;: &quot;+15083084809&quot;
+    },
+    {
+      &quot;type&quot;: &quot;sip&quot;,
+      &quot;sipUri&quot;: &quot;sip:1617333456@sip.trunk1.com&quot;,
+      &quot;auth&quot;: {
+        &quot;user&quot;: &quot;foo&quot;,
+        &quot;password&quot;: &quot;bar&quot;
+      }
+    },
+    {
+      &quot;type&quot;: &quot;user&quot;,
+      &quot;name&quot;: &quot;spike@sip.example.com&quot;
+    }
+  ]
+}
+</code></pre>
+
+<p>As the example above illustrates, when you execute the 'dial' command you are making one or more outbound call attempts in an effort to create one new call, which can be bridged to a parent call. The <code>target</code> property specifies an array of call destinations (aka <a href="#target-types">endpoints</a>) that will be attempted simultaneously.  If only a single destination is to be called, the value of the <code>target</code> key can simply be an object specifying a single endpoint.</p>
+<p>If multiple endpoints are specified, the call will be connected to the first endpoint that answers the call or returns an early media response (i.e. 183 Session Progress).</p>
+<p>There are three types of endpoints:</p>
 <ul>
 <li>a telephone phone number,</li>
 <li>a sip endpoint, identified by a sip uri, or</li>
@@ -198,19 +341,24 @@
 </thead>
 <tbody>
 <tr>
-<td>from</td>
-<td>caller id to use on the outbound call; when calling to a PSTN number it must be one of your jambones numbers</td>
-<td>yes, if calling to PSTN</td>
-</tr>
-<tr>
-<td>timeout</td>
-<td>ring no answer timeout</td>
-<td>no (default: 60 secs)</td>
-</tr>
-<tr>
 <td>action</td>
 <td>webhook to invoke when call ends</td>
-<td>no (default: current document url)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>answerOnBridge</td>
+<td>If set to true, the inbound call will ring until the number that was dialed answers the call, and at that point a 200 OK will be sent on the inbound leg.  If false, the inbound call will be answered immediately as the outbound call is placed. <br/>Defaults to false.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>callerId</td>
+<td>The inbound caller's phone number, which is displayed to the number that was dialed. The caller ID must be a valid E.164 number. <br/>Defaults to caller id on inbound call.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dialMusic</td>
+<td>URL to a .wav or .mp3 file to play to caller during outdial</td>
+<td>no</td>
 </tr>
 <tr>
 <td>headers</td>
@@ -218,23 +366,43 @@
 <td>no</td>
 </tr>
 <tr>
-<td>strategy</td>
-<td>"simring" or "hunt"</td>
-<td>no (default: "hunt" if multiple targets provided)</td>
+<td>listen</td>
+<td>a nested <a href="#listen">listen</a> action, which will cause audio from the call to be streamed to a remote server over a websocket connection</td>
+<td>no</td>
+</tr>
+<tr>
+<td>method</td>
+<td>'GET', 'POST' - http method to use on 'action' callback.  <br/>Defaults to POST.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>statusCallback</td>
+<td>url to send call status events to for any new call legs generated</td>
+<td>no</td>
+</tr>
+<tr>
+<td>statusCallbackMethod</td>
+<td>'GET', 'POST' - http method to use on statusCallback callback. <br/>Defaults to POST.</td>
+<td>no</td>
 </tr>
 <tr>
 <td>target</td>
-<td>array of targeted <a href="#target-types">endpoints</a></td>
+<td>array of targeted <a href="#target-types">endpoints</a> (may be a single endpoint).  If multiple, all endpoints are attempted simultaneously</td>
 <td>yes</td>
+</tr>
+<tr>
+<td>timeLimit</td>
+<td>max length of call in seconds</td>
+<td>no</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>ring no answer timeout, in seconds.  <br/>Defaults to 60.</td>
+<td>no</td>
 </tr>
 <tr>
 <td>transcribe</td>
 <td>a nested <a href="#transcribe">transcribe</a> action, which will cause the call to be transcribed</td>
-<td>no</td>
-</tr>
-<tr>
-<td>listen</td>
-<td>a nested <a href="#listen">listen</a> action, which will cause audio from the call to be streamed to a remote server over a websocket connection</td>
 <td>no</td>
 </tr>
 </tbody>
@@ -252,12 +420,22 @@
 <tbody>
 <tr>
 <td>type</td>
-<td>phone</td>
+<td>must be "phone"</td>
 <td>yes</td>
 </tr>
 <tr>
+<td>url</td>
+<td>A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>method</td>
+<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
+<td>no</td>
+</tr>
+<tr>
 <td>number</td>
-<td>E.164 number</td>
+<td>a telephone numnber in E.164 number</td>
 <td>yes</td>
 </tr>
 </tbody>
@@ -274,12 +452,22 @@
 <tbody>
 <tr>
 <td>type</td>
-<td>sip</td>
+<td>must be "sip"</td>
 <td>yes</td>
 </tr>
 <tr>
-<td>uri</td>
-<td>sip uri</td>
+<td>url</td>
+<td>A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>method</td>
+<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>sipUri</td>
+<td>sip uri to send call to</td>
 <td>yes</td>
 </tr>
 <tr>
@@ -288,7 +476,7 @@
 <td>no</td>
 </tr>
 <tr>
-<td>auth.username</td>
+<td>auth.user</td>
 <td>sip username</td>
 <td>no</td>
 </tr>
@@ -312,25 +500,42 @@
 <tbody>
 <tr>
 <td>type</td>
-<td>user</td>
+<td>must be "user"</td>
 <td>yes</td>
 </tr>
 <tr>
+<td>url</td>
+<td>A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>method</td>
+<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
+<td>no</td>
+</tr>
+<tr>
 <td>name</td>
-<td>registered username</td>
+<td>registered sip user, including domain (e.g. "joeb@sip.jambones.org")</td>
 <td>yes</td>
 </tr>
 </tbody>
 </table>
-<p>Note that you do not need to specify the fully-qualified address of record (e.g. <code>spike@myapp.myco.drachtio.org</code>); the domain is automatically applied to the name provided when searching active registrations.</p>
-<h2 id="gather">"gather"</h2>
-<p>The gather command is used to collect dtmf or speech input.  gather is a blocking command.</p>
-<pre><code class="json">&quot;gather&quot;: {
-  &quot;input&quot;: &quot;dtmf&quot;,
+<h2 id="gather">gather</h2>
+<p>The gather command is used to collect dtmf or speech input.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;gather&quot;,
+  &quot;action&quot;: &quot;http://example.com/collect&quot;,
+  &quot;input&quot;: [&quot;dtmf&quot;],
   &quot;finishOnKey&quot;: &quot;#&quot;,
   &quot;numDigits&quot;: 5,
   &quot;timeout&quot;: 8,
-  &quot;action&quot;: &quot;http://example.com/collect&quot;
+  &quot;say&quot;: {
+    &quot;text&quot;: &quot;To speak to Sales press 1.  To speak to customer support press 2.&quot;,
+    &quot;synthesizer&quot;: {
+      &quot;vendor&quot;: &quot;google&quot;,
+      &quot;voice&quot;: &quot;en-US-Wavenet-F&quot;
+    }
+  }
 }
 </code></pre>
 
@@ -347,12 +552,7 @@
 <tr>
 <td>action</td>
 <td>web callback to invoke with collected digits or speech</td>
-<td>no (defaults to current document url)</td>
-</tr>
-<tr>
-<td>actionOnEmptyResult</td>
-<td>whether to invoke the callback when no input is detected</td>
-<td>no (default: false)</td>
+<td>yes</td>
 </tr>
 <tr>
 <td>finishOnKey</td>
@@ -361,18 +561,18 @@
 </tr>
 <tr>
 <td>hints</td>
-<td>array of words or phrases to help speech detection</td>
+<td>array of words or phrases to assist speech detection</td>
 <td>no</td>
 </tr>
 <tr>
 <td>input</td>
-<td>type of input: 'dtmf', 'speech', or ['dtmf', 'speech']</td>
-<td>no (default: dtmf)</td>
+<td>array, specifying allowed types of input: ['dtmf'], ['speech'], or ['dtmf', 'speech'].  Default: ['dtmf']</td>
+<td>no</td>
 </tr>
 <tr>
 <td>language</td>
-<td>language code to use for speech detection</td>
-<td>no (default: en-US)</td>
+<td>language code to use for speech detection.  Default: 'en-US'</td>
+<td>no</td>
 </tr>
 <tr>
 <td>numDigits</td>
@@ -381,26 +581,46 @@
 </tr>
 <tr>
 <td>partialResultCallback</td>
-<td>url to send interim transcription results to (may not return content)</td>
+<td>url to send interim transcription results to. Partial transcriptions are only generated if this property is set.</td>
 <td>no</td>
 </tr>
 <tr>
-<td>speechTimeout</td>
-<td>seconds to wait for a final speech transcription</td>
+<td>play</td>
+<td>nested <a href="#play">play</a> command that can be used to prompt the user</td>
+<td>no</td>
+</tr>
+<tr>
+<td>profanityFilter</td>
+<td>if true, filter profanity from speech transcription.  Default:  no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>say</td>
+<td>nested <a href="#say">say</a> command that can be used to prompt the user</td>
+<td>no</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>The number of seconds of silence or inaction that denote the end of caller input.  The timeout timer will begin after any nested play or say command completes.  Defaults to 5</td>
 <td>no</td>
 </tr>
 </tbody>
 </table>
-<h2 id="hangup">"hangup"</h2>
+<blockquote>
+<p>Note: an HTTP POST will be used for both the <code>action</code> and the <code>partialResultCallback</code> since the body may need to contain nested JSON objects for speech details.</p>
+<p>Note: the <code>partialResultCallback</code> web callback should not return content; any returned content will be discarded.</p>
+</blockquote>
+<h2 id="hangup">hangup</h2>
 <p>The hangup command terminates the call and ends the application.</p>
-<pre><code class="json">&quot;hangup&quot;: {
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;hangup&quot;,
   &quot;headers&quot;: {
-    &quot;X-Reason&quot; : &quot;maximum call length detected&quot;
+    &quot;X-Reason&quot; : &quot;maximum call duration exceeded&quot;
   }
 }
 </code></pre>
 
-<p>You can use the following options in the <code>playback</code> action:</p>
+<p>You can use the following options in the <code>hangup</code> action:</p>
 <table>
 <thead>
 <tr>
@@ -417,18 +637,20 @@
 </tr>
 </tbody>
 </table>
-<h2 id="listen">"listen"</h2>
-<p>The listen action is used to stream audio in real-time to a server over a websocket connection.  The audio format will be linear 16-bit PCM encoding with a configurable sample rate. The websocket subprotocol name will be <code>audio.jambones.org</code>.  The listen action is a non-blocking action.</p>
+<h2 id="listen">listen</h2>
+<p>jambones does not have a 'record' verb.    This is by design, for data privacy reasons.  </p>
+<blockquote>
+<p><em>Recordings can contain sensitive and confidential information, and such data is never stored at rest in the jambones core.</em></p>
+</blockquote>
+<p>Instead, jambones provides the 'listen' verb, where an audio stream(s) can be forked and sent in real-time to a customer application for processing.</p>
+<p>The listen verb includes a <code>url</code> property which is the remote url of a websocket server to send the audio to. The audio format is 16-bit PCM encoding, with a user-specified sample rate.  The audio is sent in binary frames over the websocket connection.  Optionally, text frames can be sent as well -- these are used to send user-specified metadata at the start of the call, and DTMF entries during the call.</p>
+<p>To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of audio.jambones.org.  </p>
 <p>(<em>TBD: link for more detail on the protocol, json metadata etc</em>)</p>
-<p>A listen command can also be nested in a <a href="#dial">dial</a> command, which allows the audio for the call to be streamed in real-time to a web service.</p>
-<pre><code class="json">&quot;listen&quot;: {
-  &quot;action&quot;: &quot;http://example.com/listen&quot;,
-  &quot;wsUrl&quot;: &quot;wss://myrecorder.example.com:4433&quot;,
-  &quot;mixType&quot; : &quot;stereo&quot;,
-  &quot;sampleRate&quot;: 8000,
-  &quot;metadata&quot;: {
-    &quot;clientId&quot;: &quot;12udih&quot;
-  }
+<p>The listen verb can also be nested in a <a href="#dial">dial</a> verb, which allows the audio for a call between two parties to be sent to a remote websocket server.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;listen&quot;,
+  &quot;url&quot;: &quot;wss://myrecorder.example.com/calls/271314e6-b463-4980-b007-80defc181058:4433&quot;,
+  &quot;mixType&quot; : &quot;stereo&quot;
 }
 </code></pre>
 
@@ -443,42 +665,66 @@
 </thead>
 <tbody>
 <tr>
-<td>action</td>
-<td>web callback to invoke with status of websocket connection</td>
+<td>finishOnKey</td>
+<td>The set of digits that can end the listen action</td>
 <td>no</td>
 </tr>
 <tr>
-<td>wsUrl</td>
-<td>url of remote server to connect to</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>mixType</td>
-<td>"mono" (send single channel), "stereo" (send dual channel of both calls in a bridge), or "mixed" (send audio from both calls in a bridge in a single mixed audio stream)</td>
-<td>no (default: mono)</td>
-</tr>
-<tr>
-<td>sampleRate</td>
-<td>sample rate of audio to send (allowable values: 8000, 16000, 24000, 48000, or 64000</td>
-<td>no (default: 8000)</td>
+<td>maxLength</td>
+<td>the maximum length of the listened audio stream, in secs</td>
+<td>no</td>
 </tr>
 <tr>
 <td>metadata</td>
-<td>arbitrary JSON payload to send to remote server when websocket connection is established</td>
+<td>arbitrary JSON payload to send to remote server when websocket connection is first connected</td>
 <td>no</td>
+</tr>
+<tr>
+<td>mixType</td>
+<td>"mono" (send single channel), "stereo" (send dual channel of both calls in a bridge), or "mixed" (send audio from both calls in a bridge in a single mixed audio stream) Default: mono</td>
+<td>no</td>
+</tr>
+<tr>
+<td>passDtmf</td>
+<td>if true, send JSON text messages over the websocket indicating when DMTF keys have been pressed.  Default: no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>playBeep</td>
+<td>true, false whether to play a beep at the start of the listen operation.  Default: false</td>
+<td>no</td>
+</tr>
+<tr>
+<td>sampleRate</td>
+<td>sample rate of audio to send (allowable values: 8000, 16000, 24000, 48000, or 64000).  Default: 8000</td>
+<td>no</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>the number of seconds of silence that terminates the listen operation.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>transcribe</td>
+<td>a nested <a href="#transcribe">transcribe</a> verb</td>
+<td>no</td>
+</tr>
+<tr>
+<td>url</td>
+<td>url of remote server to connect to</td>
+<td>yes</td>
 </tr>
 </tbody>
 </table>
-<h2 id="play">"play"</h2>
-<p>The play command is used to stream recorded audio to a call.  This is a non-blocking call.</p>
-<pre><code class="json">&quot;play&quot;: {
-  &quot;url&quot;: &quot;https://example.com/example.mp3&quot;,
-  &quot;bargein&quot;: true,
-  &quot;loop&quot;: 2
+<h2 id="play">play</h2>
+<p>The play command is used to stream recorded audio to a call.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;play&quot;,
+  &quot;url&quot;: &quot;https://example.com/example.mp3&quot;
 }
 </code></pre>
 
-<p>You can use the following options in the <code>playback</code> action:</p>
+<p>You can use the following options in the <code>play</code> action:</p>
 <table>
 <thead>
 <tr>
@@ -494,20 +740,21 @@
 <td>yes</td>
 </tr>
 <tr>
-<td>bargein</td>
-<td>if true, terminate playback when a dtmf entry is detected</td>
-<td>no (default: false)</td>
+<td>loop</td>
+<td>number of times to play the url(s)</td>
+<td>no (default: 1)</td>
 </tr>
 <tr>
-<td>loop</td>
-<td>number of times to play the url(s), or "forever" to loop indefinitely</td>
-<td>no (default: 1)</td>
+<td>earlyMedia</td>
+<td>if true and the call has not yet been answered, play the audio without answering call.  Defaults to false</td>
+<td>no</td>
 </tr>
 </tbody>
 </table>
-<h2 id="redirect">"redirect"</h2>
+<h2 id="redirect">redirect</h2>
 <p>The redirect action is used to transfer control to another JSON document taht is retrieved from the specified url.  All actions after <code>redirect</code> are unreachable and ignored.</p>
-<pre><code class="json">&quot;redirect&quot;: {
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;redirect&quot;,
   &quot;url&quot;: &quot;https://example.com/?foo=bar&quot;
 }
 </code></pre>
@@ -529,11 +776,68 @@
 </tr>
 </tbody>
 </table>
-<h2 id="sipdecline">"sip:decline"</h2>
-<p>The sip:decline action is used to reject an incoming call with a specific status.  This action must be the first and only action returned in the web callback for an incoming call, and the application must be configured to park incoming calls rather than automatically answer them.  The sip:decline action is a non-blocking action and the session ends immediately after the action is executed.</p>
-<pre><code class="json">&quot;sip:decline&quot;: {
+<h2 id="say">say</h2>
+<p>The say command is used to send synthesized speech to the remote party. The text provided may be either plain text or may use SSML tags.  </p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;say&quot;,
+  &quot;text&quot;: &quot;hi there!&quot;,
+  &quot;synthesizer&quot; : {
+    &quot;vendor&quot;: &quot;google&quot;,
+    &quot;voice&quot;: &quot;en-AU-Wavenet-B&quot;
+  }
+}
+</code></pre>
+
+<p>You can use the following options in the <code>say</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>text</td>
+<td>text to speak; may contain SSML tags</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>synthesizer.vendor</td>
+<td>speech vendor to use (currently only google supported)</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>synthesizer.voice</td>
+<td>voice to use</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>loop</td>
+<td>the number of times a text is to be repeated; 0 means repeat forever.  Defaults to 1.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>earlyMedia</td>
+<td>if true and the call has not yet been answered, play the audio without answering call.  Defaults to false</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p><em>TBD: list of speech vendors supported (currently only google)</em></p>
+<p><a href="#google-tts-voices">list of google voices</a></p>
+<h2 id="sipdecline">sip:decline</h2>
+<p>The sip:decline action is used to reject an incoming call with a specific status and, optionally, a reason and SIP headers to include on the response.  </p>
+<p>This action must be the first and only action returned in the JSON payload for an incoming call.  </p>
+<p>The sip:decline action is a non-blocking action and the session ends immediately after the action is executed.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;sip:decline&quot;,
   &quot;status&quot;: 480,
-  &quot;reason&quot;: &quot;Gone Fishing&quot;
+  &quot;reason&quot;: &quot;Gone Fishing&quot;,
+  &quot;headers&quot; : {
+    &quot;Retry-After&quot;: 1800
+  }
 }
 </code></pre>
 
@@ -557,11 +861,17 @@
 <td>a brief description</td>
 <td>no (default: the well-known SIP reasons associated with the specified status code</td>
 </tr>
+<tr>
+<td>headers</td>
+<td>SIP headers to include in the response</td>
+<td>no</td>
+</tr>
 </tbody>
 </table>
-<h2 id="sipnotify">"sip:notify"</h2>
+<h2 id="sipnotify">sip:notify</h2>
 <p>The sip:notify action is used to a SIP NOTIFY request to one or more registered users.  The sip:notify action is a non-blocking action.</p>
-<pre><code class="json">&quot;sip:notify&quot;: {
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;sip:notify&quot;,
   &quot;user&quot;: [&quot;spike&quot;],
   &quot;contentType&quot;: &quot;application/simple-message-summary&quot;,
   &quot;content&quot;: [
@@ -607,10 +917,11 @@
 </tr>
 </tbody>
 </table>
-<h2 id="sipredirect">"sip:redirect"</h2>
+<h2 id="sipredirect">sip:redirect</h2>
 <p>The sip:redirect command is used to redirect an incoming call to another sip server or network.  This must be the first and only command returned in the web callback for an incoming call.  A SIP 302 Moved response will be sent back to the caller.  </p>
 <p>The sip:redirect command is a non-blocking and the session ends immediately after the command is executed.</p>
-<pre><code class="json">&quot;sip:redirect&quot;: {
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;sip:redirect&quot;,
   &quot;sipUri&quot;: &quot;sip:123@gateway.example.com&quot;
 }
 </code></pre>
@@ -632,54 +943,14 @@
 </tr>
 </tbody>
 </table>
-<h2 id="talk">"talk"</h2>
-<p>The talk command is used to send synthesized speech to the remote party. The text provided may be either plain text or may use SSML tags.  This is a non-blocking action.</p>
-<p>A talk command can also be nested in a <a href="#dial">dial</a> command, which allows the complete audio stream for the call to be streamed in real-time to a web service over websockets.</p>
-<pre><code class="json">&quot;talk&quot;: {
-  &quot;text&quot;: &quot;hi there!&quot;,
-  &quot;vendor&quot; : &quot;google&quot;,
-  &quot;voice&quot;: &quot;en-AU-Wavenet-B&quot;,
-  &quot;bargein&quot;: false
-}
-</code></pre>
-
-<p>You can use the following options in the <code>talk</code> action:</p>
-<table>
-<thead>
-<tr>
-<th>option</th>
-<th>description</th>
-<th>required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>text</td>
-<td>text to speak; may contain SSML tags</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>vendor</td>
-<td>speech vendor to use</td>
-<td>no (default: google)</td>
-</tr>
-<tr>
-<td>voice</td>
-<td>name of voice to use; note this is vendor-dependent</td>
-<td>yes</td>
-</tr>
-</tbody>
-</table>
-<p><em>TBD: list of speech vendors supported (currently only google)</em></p>
-<p><a href="#google-tts-voices">list of google voices</a></p>
-<h2 id="transcribe">"transcribe"</h2>
-<p>The transcribe command is used to send real time transcriptions of speech (either caller, called party, or both) to your web callback.</p>
-<p>This is a non-blocking command.  When your web callback is invoked for a final transcription, it can optionally return a JSON document with further instructions; if provided, this will cause the current document to be flushed and execution to continue with the new document provided.</p>
-<p>A transcribe command can also be nested in a <a href="#dial">dial</a> command, which allows a long-running transcription to be triggered for an outbound call.</p>
-<pre><code class="json">&quot;transcribe&quot;: {
+<h2 id="transcribe">transcribe</h2>
+<p>The transcribe verb is used to send real time transcriptions of speech to a web callback.</p>
+<p>The transcribe command is only allowed as a nested verb within a dial or listen verb.  Using transcribe in a dial command allows a long-running transcription of a phone call to be made, while nesting within a listen verb allows transcriptions of recorded messages (e.g. voicemail to be created.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;transcribe&quot;,
   &quot;action&quot;: &quot;http://example.com/transcribe&quot;,
   &quot;language&quot; : &quot;en-US&quot;,
-  &quot;target&quot; : &quot;both&quot;,
+  &quot;source&quot; : &quot;both&quot;,
   &quot;interim&quot;: true,
   &quot;vendor&quot;: &quot;google&quot;
 }
@@ -701,24 +972,24 @@
 <td>yes</td>
 </tr>
 <tr>
+<td>interim</td>
+<td>if true interim transcriptions are sent</td>
+<td>no (default: false)</td>
+</tr>
+<tr>
 <td>language</td>
 <td>language to use for speech transcription</td>
 <td>yes</td>
 </tr>
 <tr>
-<td>target</td>
+<td>source</td>
 <td>call uuid to perform transcription on, or "both" to transcribe both calls in a bridge</td>
 <td>no (default: original call)</td>
 </tr>
 <tr>
-<td>interim</td>
-<td>whether to send interim transcriptions</td>
-<td>no (default: false)</td>
-</tr>
-<tr>
 <td>vendor</td>
-<td>speech vendor to use</td>
-<td>no (default: google)</td>
+<td>speech vendor to use (currently only google supported)</td>
+<td>no</td>
 </tr>
 </tbody>
 </table>
