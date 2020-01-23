@@ -1,13 +1,13 @@
 # Overview 
 
-jambones is a specification for issuing call control commands via JSON messages.  These messages are sent from your application in response to web callbacks, and they provide the jambones platform with your instructions on how it should handle a call.  
+jambones is a specification for issuing call control commands via JSON payloads over HTTP connections.  These messages are sent from your application in response to web callbacks from a jambones call control server, and they provide jambones with your instructions on how to handle a call.  
 
-When an incoming call is received by the platform, jambones makes an HTTP request to the URL endpoint that is configured for that called number. Outbound calls that are initiated by the REST API are controlled in the same way -- when invoking the REST API to launch a call, you provide a web callback url and in your response to that callback you then return a JSON payload describing the application that should govern the outbound call.
+When an incoming call is received by the platform, jambones makes an HTTP request to the URL endpoint that is configured for that called number. Outbound calls that are initiated by the REST API are controlled in a similar way -- when invoking the REST API to launch a call, you provide a web callback url and in your response to the subsequent HTTP GET or POST to that url you then return a JSON payload describing the application that should govern the outbound call.
 
 ## Basic JSON message structure
-The JSON object (aka the "application") that you provide in response to a callback must be an array of objects, with each object describing a task that the platform shall perform.  These tasks are executed sequentially in the order they appear in the array.  Each task is identified by a verb (e.g. "dial", "gather", "hangup" etc) with associated detail and these verbs are described in more detail below.
+The JSON payload (aka the "application") that you provide in response to a callback must be an array of objects, with each object describing a task that the platform shall perform.  These tasks are executed sequentially in the order they appear in the array.  Each task is identified by a verb (e.g. "dial", "gather", "hangup" etc) with associated detail and these verbs are described in more detail below.
 
-If the caller (or called party, in the case of a REST-initiated outdial) hangs up during the execution of an application, the current task is allowed to complete and any remaining tasks in the application are ignored.
+If the caller hangs up during the execution of an application for that call, the current task is allowed to complete and any remaining tasks in the application are ignored.
 
 Through additional callbacks that may be invoked during the execution of an application (typically as a result of those verbs which have an "action" property callback), the current application may be replaced with a new JSON application document.  In such a case, the new document begins executing, and any remaining tasks in the original document are discarded.
 
@@ -33,7 +33,10 @@ Some verbs allow other verbs to be nested; e.g. "gather" can have a nested "say"
   "input": ["speech", "dtmf"],
   "timeout": 16,
   "numDigits": 6,
-  "language": "en-US",
+  "recognizer": {
+    "vendor": "google",
+    "language": "en-US"
+  },
   "say": {
     "text": "Please say or enter your six digit card number now",
     "synthesizer": {
@@ -109,18 +112,39 @@ For those who prefer the readability of seeing verbs appear as object keys, the 
   }
 ]
 ```
+## HTTP connection details
+Each HTTP request that jambones makes to one of your callbacks will include (at least) the following query parameters:
+
+- callSid: a unique identifier for the call, in a [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) format.
+- parentCallSid: the callSid of a parent call to this call, if any
+- applicationSid: a unique identifier for the jambones application controlling this call
+- accountSid: a unique identifier for the jambones account associated with the application
+- direction: the direction of the call, either 'inbound' or 'outbound'
+- from: the calling party number
+- to: the called party number
+- callerId: the caller name, if known
+
+The HTTP request may be either a GET or a POST, generally depending on your specified preference, although in some cases a POST is always used due to the richness of the data being sent.
+
+You may optionally use [HTTP Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) to protect your endpoints.
+
+## Speech 
+The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.
+
+A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambones feature servers to enable tts and speech recognition.
 
 ## Initial state of incoming calls
-When the jambones platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE:
+When the jambones platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:
 
-- it can answer the call (i.e. generating a SIP 200 OK response, and connecting the call to a media endpoint that can play media and collect responses), 
-- it can simply reject the call, with a specified non-success SIP final response
-- it can perform a SIP redirect (i.e. generating a SIP 302 response), or
-- it can establish an early media connection (i.e. generating a SIP 183 Session Progress response, and connecting the call to a media endpoint).
+- answer the call, which connects the call to a media endpoint that can perform IVR functions on the call,
+- outdial a new call, and bridge the two calls together, 
+- reject the call, with a specified SIP status code and reason,
+- redirect the call (i.e. generating a SIP 302 response), or
+- establish an early media connection without answering the call.
 
-The last is interesting and worthy of further comment.  The intent is to let you play audio to callers without necessarily answering the call.  You signal this by including an "earlyMedia" property with a value of true in the application.  When receiving this, the jambones core will create an early media connection if possible as in the example below.
+The last is interesting and worthy of further comment.  The intent is to let you play audio to callers without necessarily answering the call.  You signal this by including an "earlyMedia" property with a value of true in the application.  When receiving this, the jambones core will create an early media connection (183 Session Progress) if possible, as shown in the example below.
 
-> Note: an early media connection will not be possible if the call has already been answered.  In such a scenario, the earlyMedia property is ignored.
+> Note: an early media connection will not be possible if the call has already been answered by an earlier verb in the application.  In such a scenario, the earlyMedia property is ignored.
 ```
 [
   {
@@ -141,12 +165,9 @@ The last is interesting and worthy of further comment.  The intent is to let you
   }
 ]
 ```
-The say, play, gather, listen, and transcribe verbs all support the "earlyMedia" property.  The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.
+The say, play, gather, listen, and transcribe verbs all support the "earlyMedia" property.  
 
-## Speech 
-The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.
-
-A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambones feature servers to enable tts and speech recognition.
+The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.
 
 # Supported Verbs
 Each of the supported verbs are described below.
@@ -181,9 +202,9 @@ The dial command is used to create a new call by dialing out to a number, a regi
   ]
 }
 ```
-As the example above illustrates, when you execute the 'dial' command you are making one or more outbound call attempts in an effort to create one new call, which can be bridged to a parent call. The `target` property specifies an array of call destinations (aka [endpoints](#target-types)) that will be attempted simultaneously.  If only a single destination is to be called, the value of the `target` key can simply be an object specifying a single endpoint.
+As the example above illustrates, when you execute the 'dial' command you are making one or more outbound call attempts in an effort to create one new call, which can be bridged to a parent call. The `target` property specifies an array of call destinations (aka [endpoints](#target-types)) that will be attempted simultaneously.  
 
-If multiple endpoints are specified, the call will be connected to the first endpoint that answers the call or returns an early media response (i.e. 183 Session Progress).
+If multiple endpoints are specified in the `target` array, all targets are outdialed at the same time (e.g., "simring", or "blast outdial" as some folks call it) and the call will be connected to the first endpoint that answers the call and, optionally, completes a call screening application as specified in the `url` property.
 
 There are three types of endpoints:
 
@@ -243,6 +264,9 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 | method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
 | name | registered sip user, including domain (e.g. "joeb@sip.jambones.org") | yes |
 
+The `url` property that can be optionally specified as part of a target is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.
+
+This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").
 
 ## gather
 
@@ -252,10 +276,14 @@ The gather command is used to collect dtmf or speech input.
 {
   "verb": "gather",
   "action": "http://example.com/collect",
-  "input": ["dtmf"],
+  "input": ["dtmf", "speech"],
   "finishOnKey": "#",
   "numDigits": 5,
   "timeout": 8,
+  "recognizer": {
+    "vendor": "google",
+    "language": "en_US"
+  },
   "say": {
     "text": "To speak to Sales press 1.  To speak to customer support press 2.",
     "synthesizer": {
@@ -272,13 +300,14 @@ You can use the following options in the `gather` command:
 | ------------- |-------------| -----|
 | action | web callback to invoke with collected digits or speech | yes |
 | finishOnKey | dmtf key that signals the end of input | no |
-| hints | array of words or phrases to assist speech detection | no |
 | input | array, specifying allowed types of input: ['dtmf'], ['speech'], or ['dtmf', 'speech'].  Default: ['dtmf'] | no |
-| language | language code to use for speech detection.  Default: 'en-US' | no |
 | numDigits | number of dtmf digits expected to gather | no |
 | partialResultCallback | url to send interim transcription results to. Partial transcriptions are only generated if this property is set. | no |
 | play | nested [play](#play) command that can be used to prompt the user | no |
-| profanityFilter | if true, filter profanity from speech transcription.  Default:  no| no |
+| recognizer.hints | array of words or phrases to assist speech detection | no |
+| recognizer.language | language code to use for speech detection.  Default: 'en-US' | no |
+| recognizer.profanityFilter | if true, filter profanity from speech transcription.  Default:  no| no |
+| recognizer.vendor | speech vendor to use (currently only google supported) | no |
 | say | nested [say](#say) command that can be used to prompt the user | no |
 | timeout | The number of seconds of silence or inaction that denote the end of caller input.  The timeout timer will begin after any nested play or say command completes.  Defaults to 5 | no |
 
@@ -489,16 +518,17 @@ You can use the following options in the `sip:decline` command:
 
 The transcribe verb is used to send real time transcriptions of speech to a web callback.
 
-The transcribe command is only allowed as a nested verb within a dial or listen verb.  Using transcribe in a dial command allows a long-running transcription of a phone call to be made, while nesting within a listen verb allows transcriptions of recorded messages (e.g. voicemail to be created.
+The transcribe command is only allowed as a nested verb within a dial or listen verb.  Using transcribe in a dial command allows a long-running transcription of a phone call to be made, while nesting within a listen verb allows transcriptions of recorded messages (e.g. voicemail).
 
 ```json
 {
   "verb": "transcribe",
-  "action": "http://example.com/transcribe",
-  "language" : "en-US",
-  "source" : "both",
-  "interim": true,
-  "vendor": "google"
+  "transcriptionCallback": "http://example.com/transcribe",
+  "recognizer": {
+    "vendor": "google",
+    "language" : "en-US",
+    "interim": true
+  }
 }
 ```
 
@@ -506,9 +536,10 @@ You can use the following options in the `transcribe` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | web callback to invoke with transcriptions | yes |
-| interim | if true interim transcriptions are sent | no (default: false) |
-| language | language to use for speech transcription | yes |
-| source | call uuid to perform transcription on, or "both" to transcribe both calls in a bridge | no (default: original call) |
-| vendor | speech vendor to use (currently only google supported) | no |
+| recognizer.dualChannel | if true, transcribe the parent call as well as the child call | no |
+| recognizer.interim | if true interim transcriptions are sent | no (default: false) |
+| recognizer.language | language to use for speech transcription | yes |
+| recognizer.profanityFilter | if true, filter profanity from speech transcription.  Default:  no| no |
+| recognizer.vendor | speech vendor to use (currently only google supported) | no |
+| transcriptionCallback | url to invoke with transcriptions.  An HTTP POST will be sent to this url. | yes |
 
