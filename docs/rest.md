@@ -1,12 +1,12 @@
 
 # Overview
-The jambones REST API allows applications to query, create, and manage calls and other resources. 
+The jambonz REST API allows applications to query, create, and manage calls and other resources. 
 
 **Base URL**
 
 All calls should use the following base URL:
 ```
-https://<domain>/api/jambones/v1
+https://<domain>/api/jambonz/v1
 ```
 where domain is set according to your installation.
 
@@ -29,7 +29,7 @@ An application represents a set of unified behaviors to be applied to phone call
 An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  When created, they are associated to one and only one application.
 
 ## Calls
-A call is a voice connection made between the jambones platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a parent call uuid attribute that references the inbound call.
+A call is a voice connection made between the jambonz platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a parent call uuid attribute that references the inbound call.
 
 Calls may created, modified, and deleted through the API.
 
@@ -40,7 +40,7 @@ Conference participants refer to calls that are actively connected to a conferen
 Conferences represent a common endpoint that can mix the audio from multiple calls.  Conferences can be created, modified and deleted through the API.
 
 ## Phone numbers
-Phone numbers represent phone numbers that route to the jambones platform, and may be associated with an application.  A Phone number may be associated with zero or one Application.  Phone numbers can be created and destroyed through the API, as well as being modified to point to a different application.
+Phone numbers represent phone numbers that route to the jambonz platform, and may be associated with an application.  A Phone number may be associated with zero or one Application.  Phone numbers can be created and destroyed through the API, as well as being modified to point to a different application.
 
 ## Queues
 Queues represent an ordered collection of active calls that are parked (not connected to a far end).  Queues may be created and deleted through the API.
