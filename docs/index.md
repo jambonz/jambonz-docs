@@ -51,5 +51,7 @@ Well, if you ***are*** using one of those fancy-pants CPAAS services, then you a
 
 A jambonz application controls calls via web callbacks and an HTTP API.  The jambonz platform notifies your application of incoming calls and call status changes via web callbacks.  Your application provides call control instructions by responding to web callbacks with [JSON payloads](/jambonz-docs/jambonz) that include instructions, or by invoking a [REST API](/jambonz-docs/rest).
 
+<blockquote><p style="font-size:smaller">Why JSON instead of XML?  Because its not the 1980's anymore, that's why.</p></blockquote>
+
 Additionally, jambonz supports sip end-user devices and webRTC clients registering with the platform and making and receiving calls.  
 > Note that in keeping with the focus on data privacy, the platform does not store customers' sip credentials.  Authentication of native sip clients is delegated to customer-side logic [as described here](/jambonz-docs/register-hook).
