@@ -38,7 +38,7 @@ d) **white-labelable**.<p style="margin-left:10px">Is that even a word?  Well, i
 Those interested would include:
 
 - customers that want to **save costs** vs a commercial CPAAS by using their own sip trunks rather than paying more expensive per-minute rates to a CPAAS provider.<br/><br/>
-- customers that need to **achieve stringent data privacy requirements** and wish to avoid exposing their customers' sensitive data to third parties.<br/><br/>
+- customers that need to **achieve stringent data privacy requirements** and wish to avoid exposing their customers' sensitive data to third parties that they can't effectively audit.<br/><br/>
 - customers that want **greater control and the ability to add features** themselves to their CPAAS platform.<br/><br/>
 - enterprises with **highly capable IT departments** that are already managing most of what is required for a hosted telephony solution (e.g. cloud storage, speech APIs, infrastructure as code, etc) and are starting to wonder why they are paying so much money to a third party for doing the same thing for them.<br/><br/>
 - **service providers that want a white-label product** that they can to offer as a branded solution to their customers.
