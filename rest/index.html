@@ -141,10 +141,10 @@
             <div class="section">
               
                 <h1 id="overview">Overview</h1>
-<p>The jambones REST API allows applications to query, create, and manage calls and other resources. </p>
+<p>The jambonz REST API allows applications to query, create, and manage calls and other resources. </p>
 <p><strong>Base URL</strong></p>
 <p>All calls should use the following base URL:</p>
-<pre><code>https://&lt;domain&gt;/api/jambones/v1
+<pre><code>https://&lt;domain&gt;/api/jambonz/v1
 </code></pre>
 
 <p>where domain is set according to your installation.</p>
@@ -159,14 +159,14 @@
 <h2 id="api-key">API Key</h2>
 <p>An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  When created, they are associated to one and only one application.</p>
 <h2 id="calls">Calls</h2>
-<p>A call is a voice connection made between the jambones platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a parent call uuid attribute that references the inbound call.</p>
+<p>A call is a voice connection made between the jambonz platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a parent call uuid attribute that references the inbound call.</p>
 <p>Calls may created, modified, and deleted through the API.</p>
 <h2 id="conference-participants">Conference participants</h2>
 <p>Conference participants refer to calls that are actively connected to a conference. You can mute or remove participants from a conference as well as retrieve a list of all participants, along with detailed information about each participant, in an active conference.</p>
 <h2 id="conferences">Conferences</h2>
 <p>Conferences represent a common endpoint that can mix the audio from multiple calls.  Conferences can be created, modified and deleted through the API.</p>
 <h2 id="phone-numbers">Phone numbers</h2>
-<p>Phone numbers represent phone numbers that route to the jambones platform, and may be associated with an application.  A Phone number may be associated with zero or one Application.  Phone numbers can be created and destroyed through the API, as well as being modified to point to a different application.</p>
+<p>Phone numbers represent phone numbers that route to the jambonz platform, and may be associated with an application.  A Phone number may be associated with zero or one Application.  Phone numbers can be created and destroyed through the API, as well as being modified to point to a different application.</p>
 <h2 id="queues">Queues</h2>
 <p>Queues represent an ordered collection of active calls that are parked (not connected to a far end).  Queues may be created and deleted through the API.</p>
 <h2 id="queued-calls">Queued calls</h2>
