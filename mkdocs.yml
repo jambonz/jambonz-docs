@@ -1,8 +1,8 @@
-site_name: Jambones API
+site_name: jambonz API
 nav:
     - Home: index.md
     - API:
-        - jambones Call Control JSON: jambones.md
+        - jambones Call Control JSON: jambonz.md
         - REST API: rest.md
     - Data architecture: data.md
     - Authenticating sip clients: register-hook.md
