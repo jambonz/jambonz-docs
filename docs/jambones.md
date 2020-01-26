@@ -47,7 +47,7 @@ Some verbs allow other verbs to be nested; e.g. "gather" can have a nested "say"
 }
 ```
 
-Altogether then, a simple example application which provides the basics of a voicemail application with transcription included would look like this:
+Altogether then, a simple example application which provides the basics of a voicemail application with transcription would look like this:
 ```
 [
   {
@@ -75,40 +75,17 @@ Altogether then, a simple example application which provides the basics of a voi
   }
 ]
 ```
-#### Alternate JSON structure
-For those who prefer the readability of seeing verbs appear as object keys, the following syntax is also allowed:
-```
-[
-  {
-    "say": {
-      "text": "Hi there!  Please leave a message at the tone and we will get back to you shortly.  Thanks, and have a great day!",
-      "synthesizer": {
-        "vendor": "google",
-        "voice": "en-US-Wavenet-C"
-      }
-    }
-  },
-  {
-    "listen": {
-      "finishOnKey": "#",
-      "metadata": {
-        "topic": "voicemail"
-      },
-      "mixType": "mono",
-      "playBeep": true,
-      "timeout": 20,
-      "url": "http://bd0bf038.ngrok.io",
-      "transcribe": {
-        "action": "https://00dd977a.ngrok.io/transcription",
-        "recognizer": {
-          "vendor": "google",
-          "language": "en-US"
-        }
-      }
-    }
-  }
-]
-```
+
+Hey, did you see what we did there?  It's a voicemail application, but where is the recording url?  How do you retrieve the recording after the call?
+
+There is none, and you don't.
+
+Let's rethink this: 
+
+Instead of making a recording -- which exposes your customer's PII since we now have to store sensitive data at rest in the platform -- how's about we instead send you a real-time audio stream over a websocket connection while the call is proceeding.  Annotate it with any metadata you need for tracking on your end, and we'll send that along as well.
+
+Thus, you get the audio in real-time and we don't ever store your customer's sensitive data at rest.  Bam. Done.
+
 ## HTTP connection details
 Each HTTP request that jambones makes to one of your callbacks will include (at least) the following query parameters:
 
