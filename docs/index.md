@@ -28,7 +28,7 @@ jambones differs from other solutions because it is:
 
 a) **open source**.  <p style="margin-left:10px">Oh, and we mean completely open source (none of that "yes, we have open source, but you really need to think about upgrading to our commercial offering if you're going to be serious about this relationship", haha). <br/><br/>All of the jambones core software and drachtio is available under the [MIT License](https://choosealicense.com/licenses/mit/).</p>
 
-b) a **self-hosted** solution: <p style="margin-left:10px">You run it on your own infrastructure.  Use your own SIP trunks.  Your own storage.  Your own cloud speech credentials.  Why pay someone to upcharge you for all of that when it's basically a one-click experience to provision them yourself?  <br/></br/>Let's put it this way: ask yourself -- what are you ***really*** getting of value from that fancy-pants CPAAS service you're paying for, when you take away all of the integrations that you can basically do yourself?  Just a nice API and application processing engine, that's what.  So why not get your own engine (hint: that's where jambonz comes in!) and bring your own everything else?</p> 
+b) a **self-hosted** solution: <p style="margin-left:10px">You run it on your own infrastructure.  Use your own SIP trunks.  Your own storage.  Your own cloud speech credentials.  Why pay someone to upcharge you for all of that when it's basically a one-click experience to provision them yourself?  <br/></br/>Let's put it this way: ask yourself -- what are you ***really*** getting of value from that fancy-pants CPAAS service you're paying for, when you take away all of the integrations that you can basically do yourself?  Just a nice API and application processing engine, that's what.  So why not get your own engine (hint: that's where jambonz comes in!) and bring your own everything else?  Just sayin...</p> 
 
 c) a **radical approach to privacy**.<p style="margin-left:10px">None of your customer's personally identifiable information (PII) is stored at rest within the jambonz platform itself.  Ever.<ul><li>Recordings or transcriptions that might contain sensitive information such as credit card numbers, HIPAA-related information, or social security numbers?  Nope.  Never stored to disk or in any database within the platform itself.</li><li style="margin-top:1em">How about SIP credentials for devices or webRTC clients that you want to be allow to register with the platform and make phone calls?  Sure, we allow all of that but we don't store the credentials -- you do.  We delegate the responsibility to your code and never hold any credentials that could be hacked or used by others to run up your bill.</li></ul></p>
 
@@ -42,6 +42,8 @@ Those interested would include:
 - customers that want **greater control and the ability to add features** themselves to their CPAAS platform.<br/><br/>
 - enterprises with **highly capable IT departments** that are already managing most of what is required for a hosted telephony solution (e.g. cloud storage, speech APIs, infrastructure as code, etc) and are starting to wonder why they are paying so much money to a third party for doing the same thing for them.<br/><br/>
 - **service providers that want a white-label product** that they can to offer as a branded solution to their customers.
+
+Come on people.  We can do this thing!
 
 ### What is a jambones application?
 
