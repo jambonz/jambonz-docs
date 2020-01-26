@@ -16,7 +16,7 @@ jambones [jam-b&#333;nz]: to move fast, to exhibit reckless and uncontrolled aba
 
 ## Overview
 
-There are a lot of CPAAS providers on the market today, and they all provide the same thing:
+There are a lot of CPAAS providers on the market today and they all provide the same thing:
 <ul><li/>A set of easy-to-use APIs that customers use to manage calls.</li></ul>
 
 So then.
@@ -26,11 +26,11 @@ Why do we need (yet another) CPAAS?
 ##### Well, since you asked..
 jambones differs from other solutions because it is:
 
-a) **open source**.  <p style="margin-left:10px">Oh, and we mean completely open source (none of that "yes, we have open source, but you really need to think about upgrading to our commercial offering if you're serious about this", haha). <br/><br/>All of the jambones core software and drachtio is available under the [MIT License](https://choosealicense.com/licenses/mit/).</p>
+a) **open source**.  <p style="margin-left:10px">Oh, and we mean completely open source (none of that "yes, we have open source, but you really need to think about upgrading to our commercial offering if you're going to be serious about this relationship", haha). <br/><br/>All of the jambones core software and drachtio is available under the [MIT License](https://choosealicense.com/licenses/mit/).</p>
 
-b) a **self-hosted** solution: <p style="margin-left:10px">You run it on your own infrastructure.  Use your own SIP trunks.  Your own storage.  Your own google speech credentials.  Why pay someone to upcharge you for all of that when it's basically a one-click experience to provision those things these days?  <br/></br/>Let's put it this way: ask yourself -- what are you ***really*** getting of value from that fancy-pants CPAAS company, when you take away all of the integrations that you can basically do yourself?  Just a nice API and application processing engine.  So why not get an engine yourself (that's what jambonz is!) and bring your own everything else?</p> 
+b) a **self-hosted** solution: <p style="margin-left:10px">You run it on your own infrastructure.  Use your own SIP trunks.  Your own storage.  Your own cloud speech credentials.  Why pay someone to upcharge you for all of that when it's basically a one-click experience to provision them yourself?  <br/></br/>Let's put it this way: ask yourself -- what are you ***really*** getting of value from that fancy-pants CPAAS service you're paying for, when you take away all of the integrations that you can basically do yourself?  Just a nice API and application processing engine, that's what.  So why not get your own engine (hint: that's where jambonz comes in!) and bring your own everything else?</p> 
 
-c) a **radical approach to privacy**.<p style="margin-left:10px">None of your customer's PII (personally identifiable information) is stored at rest within the jambonz platform itself.  Ever.<ul><li>Recordings or transcriptions that might contain sensitive information such as credit card numbers, HIPAA-related information, or social security numbers?  Nope.  Never stored to disk or in any database within the platform itself.</li><li style="margin-top:1em">How about SIP credentials for devices or webRTC clients that you want to be allow to register with the platform and make phone calls?  Sure, we allow all of that but we don't store the credentials -- you do.  We delegate the responsibility to your code and never hold any credentials that could be hacked or used by others to run up your bill.</li></ul></p>
+c) a **radical approach to privacy**.<p style="margin-left:10px">None of your customer's personally identifiable information (PII) is stored at rest within the jambonz platform itself.  Ever.<ul><li>Recordings or transcriptions that might contain sensitive information such as credit card numbers, HIPAA-related information, or social security numbers?  Nope.  Never stored to disk or in any database within the platform itself.</li><li style="margin-top:1em">How about SIP credentials for devices or webRTC clients that you want to be allow to register with the platform and make phone calls?  Sure, we allow all of that but we don't store the credentials -- you do.  We delegate the responsibility to your code and never hold any credentials that could be hacked or used by others to run up your bill.</li></ul></p>
 
 d) **white-labelable**.<p style="margin-left:10px">Is that even a word?  Well, in any case, jambones is service-provider friendly -- it can operate in a multi-tenant configuration for service providers that want to provide a hosted service for customers who are interested in enjoying the privacy and other features of jambonz without running their own hardware. 
 
