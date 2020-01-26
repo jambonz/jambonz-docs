@@ -162,8 +162,8 @@
             <div class="section">
               
                 <h1 id="overview">Overview</h1>
-<p>jambones is a specification for issuing call control commands via JSON payloads over HTTP connections.  These messages are sent from your application in response to web callbacks from a jambones call control server, and they provide jambones with your instructions on how to handle a call.  </p>
-<p>When an incoming call is received by the platform, jambones makes an HTTP request to the URL endpoint that is configured for that called number. Outbound calls that are initiated by the REST API are controlled in a similar way -- when invoking the REST API to launch a call, you provide a web callback url and in your response to the subsequent HTTP GET or POST to that url you then return a JSON payload describing the application that should govern the outbound call.</p>
+<p>jambonz is a specification for issuing call control commands via JSON payloads over HTTP connections.  These messages are sent from your application in response to web callbacks from a jambonz call control server, and they provide jambonz with your instructions on how to handle a call.  </p>
+<p>When an incoming call is received by the platform, jambonz makes an HTTP request to the URL endpoint that is configured for that called number. Outbound calls that are initiated by the REST API are controlled in a similar way -- when invoking the REST API to launch a call, you provide a web callback url and in your response to the subsequent HTTP GET or POST to that url you then return a JSON payload describing the application that should govern the outbound call.</p>
 <h2 id="basic-json-message-structure">Basic JSON message structure</h2>
 <p>The JSON payload (aka the "application") that you provide in response to a callback must be an array of objects, with each object describing a task that the platform shall perform.  These tasks are executed sequentially in the order they appear in the array.  Each task is identified by a verb (e.g. "dial", "gather", "hangup" etc) with associated detail and these verbs are described in more detail below.</p>
 <p>If the caller hangs up during the execution of an application for that call, the current task is allowed to complete and any remaining tasks in the application are ignored.</p>
@@ -234,11 +234,11 @@
 <p>Instead of making a recording -- which exposes your customer's PII since we now have to store sensitive data at rest in the platform -- how's about we instead send you a real-time audio stream over a websocket connection while the call is proceeding.  Annotate it with any metadata you need for tracking on your end, and we'll send that along as well.</p>
 <p>Thus, you get the audio in real-time and we don't ever store your customer's sensitive data at rest.  Bam. Done.</p>
 <h2 id="http-connection-details">HTTP connection details</h2>
-<p>Each HTTP request that jambones makes to one of your callbacks will include (at least) the following query parameters:</p>
+<p>Each HTTP request that jambonz makes to one of your callbacks will include (at least) the following query parameters:</p>
 <ul>
 <li>callSid: a unique identifier for the call, in a <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">uuid</a> format.</li>
-<li>applicationSid: a unique identifier for the jambones application controlling this call</li>
-<li>accountSid: a unique identifier for the jambones account associated with the application</li>
+<li>applicationSid: a unique identifier for the jambonz application controlling this call</li>
+<li>accountSid: a unique identifier for the jambonz account associated with the application</li>
 <li>direction: the direction of the call, either 'inbound' or 'outbound'</li>
 <li>from: the calling party number</li>
 <li>to: the called party number</li>
@@ -261,7 +261,7 @@
 <p>The HTTP request may be either a GET or a POST, generally depending on your specified preference, although in some cases a POST is always used due to the richness of the data being sent.</p>
 <p>You may optionally use <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">HTTP Basic Authentication</a> to protect your endpoints.</p>
 <h2 id="initial-state-of-incoming-calls">Initial state of incoming calls</h2>
-<p>When the jambones platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:</p>
+<p>When the jambonz platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:</p>
 <ul>
 <li>answer the call, which connects the call to a media endpoint that can perform IVR functions on the call,</li>
 <li>outdial a new call, and bridge the two calls together, </li>
@@ -269,7 +269,7 @@
 <li>redirect the call (i.e. generating a SIP 302 response), or</li>
 <li>establish an early media connection without answering the call.</li>
 </ul>
-<p>The last is interesting and worthy of further comment.  The intent is to let you play audio to callers without necessarily answering the call.  You signal this by including an "earlyMedia" property with a value of true in the application.  When receiving this, the jambones core will create an early media connection (183 Session Progress) if possible, as shown in the example below.</p>
+<p>The last is interesting and worthy of further comment.  The intent is to let you play audio to callers without necessarily answering the call.  You signal this by including an "earlyMedia" property with a value of true in the application.  When receiving this, the jambonz core will create an early media connection (183 Session Progress) if possible, as shown in the example below.</p>
 <blockquote>
 <p>Note: an early media connection will not be possible if the call has already been answered by an earlier verb in the application.  In such a scenario, the earlyMedia property is ignored.</p>
 </blockquote>
@@ -297,7 +297,7 @@
 <p>The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.</p>
 <h2 id="speech-integration">Speech integration</h2>
 <p>The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.</p>
-<p>A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambones feature servers to enable tts and speech recognition.</p>
+<p>A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition.</p>
 <p>As part of the definition of an application, you can set defaults for the voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties</p>
 <h1 id="supported-verbs">Supported Verbs</h1>
 <p>Each of the supported verbs are described below.</p>
@@ -522,7 +522,7 @@
 </tr>
 <tr>
 <td>name</td>
-<td>registered sip user, including domain (e.g. "joeb@sip.jambones.org")</td>
+<td>registered sip user, including domain (e.g. "joeb@sip.jambonz.org")</td>
 <td>yes</td>
 </tr>
 </tbody>
@@ -656,11 +656,11 @@
 </tbody>
 </table>
 <h2 id="listen">listen</h2>
-<p>jambones does not have a 'record' verb.    This is by design, for data privacy reasons.  </p>
+<p>jambonz does not have a 'record' verb.    This is by design, for data privacy reasons.  </p>
 <blockquote>
-<p><em>Recordings can contain sensitive and confidential information, and such data is never stored at rest in the jambones core.</em></p>
+<p><em>Recordings can contain sensitive and confidential information, and such data is never stored at rest in the jambonz core.</em></p>
 </blockquote>
-<p>Instead, jambones provides the 'listen' verb, where an audio stream(s) can be forked and sent in real-time to a customer application for processing.</p>
+<p>Instead, jambonz provides the 'listen' verb, where an audio stream(s) can be forked and sent in real-time to a customer application for processing.</p>
 <p>The listen verb includes a <code>url</code> property which is the remote url of a websocket server to send the audio to. The audio format is 16-bit PCM encoding, with a user-specified sample rate.  The audio is sent in binary frames over the websocket connection.  Optionally, text frames can be sent as well -- these are used to send user-specified metadata at the start of the call, and DTMF entries during the call.</p>
 <p>To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of audio.drachtio.org.  </p>
 <p>(<em>TBD: link for more detail on the protocol, json metadata etc</em>)</p>
