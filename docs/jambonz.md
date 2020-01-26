@@ -82,7 +82,7 @@ There is none, and you don't.
 
 Let's rethink this: 
 
-Instead of making a recording -- which exposes your customer's PII since we now have to store sensitive data at rest in the platform -- how's about we instead send you a real-time audio stream over a websocket connection while the call is proceeding.  Annotate it with any metadata you need for tracking on your end, and we'll send that along as well.
+Instead of making a recording -- which exposes your customer's PII since we now have to store sensitive data at rest in the platform -- how's about we instead send you a real-time audio stream over a secure websocket connection while the call is proceeding.  Annotate it with any metadata you need for tracking on your end, and we'll send that along as well.
 
 Thus, you get the audio in real-time and we don't ever store your customer's sensitive data at rest.  Bam. Done.
 
