@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Authenticating sip clients - Jambones API</title>
+  <title>Data architecture - Jambones API</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Authenticating sip clients";
-    var mkdocs_page_input_path = "register-hook.md";
+    var mkdocs_page_name = "Data architecture";
+    var mkdocs_page_input_path = "data.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -68,20 +68,26 @@
     </ul>
 	    </li>
           
-            <li class="toctree-l1">
-		
-    <a class="" href="../data/">Data architecture</a>
-	    </li>
-          
             <li class="toctree-l1 current">
 		
-    <a class="current" href="./">Authenticating sip clients</a>
+    <a class="current" href="./">Data architecture</a>
     <ul class="subnav">
             
-    <li class="toctree-l2"><a href="#overview">Overview</a></li>
+    <li class="toctree-l2"><a href="#jambones-data-architecture">jambones data architecture</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#data-element-identifiers">data element identifiers</a></li>
+        
+        </ul>
     
 
     </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../register-hook/">Authenticating sip clients</a>
 	    </li>
           
         </ul>
@@ -106,7 +112,7 @@
     
       
     
-    <li>Authenticating sip clients</li>
+    <li>Data architecture</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -116,50 +122,28 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="overview">Overview</h1>
-<p>The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared  activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, which is notified of incoming REGISTER requests by means of the registration webhook.</p>
-<blockquote>
-<p>This is designed so the privacy of sip credentials issued by a customer to their clients is assured; i.e. those credentials are never exposed to the platform provider entity, nor stored anywhere in the platform itself .</p>
-</blockquote>
-<p>When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent back to the client.</p>
-<p>Otherwise, the platform will challenge the REGISTER request with a 401 Unauthorized response containing a digest challenge.</p>
-<p>If the sip client then sends a REGISTER request with an Authorization header, the platform generates an http POST request to the registered webhook.  The Content-Type of the POST is application/json and the body contains the following elements, as provided in  the Authorization sip header of the incoming REGISTER request.</p>
-<pre><code>{
-  &quot;method&quot;: &quot;REGISTER&quot;,
-  &quot;realm&quot;: &quot;example.com&quot;,
-  &quot;username&quot;: &quot;foo&quot;,
-  &quot;expires&quot;: 3600,
-  &quot;nonce&quot;: &quot;InFriVGWVoKeCckYrTx7wg==&quot;,
-  &quot;uri&quot;: &quot;sip:example.com&quot;,
-  &quot;algorithm&quot;: &quot;MD5&quot;,
-  &quot;qop&quot;: &quot;auth&quot;,
-  &quot;cnonce&quot;: &quot;03d8d2aafd5a975f2b07dc90fe5f4100&quot;,
-  &quot;nc&quot;: &quot;00000001&quot;,
-  &quot;response&quot;: &quot;db7b7dbec7edc0c427c1708031f67cc6&quot;
-}
-</code></pre>
-
-<p>The application, with knowledge of the password associated with the provided username and password, then performs <a href="https://tools.ietf.org/html/rfc2617">digest authentication</a> to authenticate the request using the information provided, including the calculated response value.</p>
-<p>Regardless of whether the request is authenticated or not, the application should respond with a 200 OK to the http POST and with a JSON body.</p>
-<p>The JSON body in the response if the request is authenticated should simply contain a <code>status</code> attribute with a value of <code>ok</code>, e.g.:</p>
-<pre><code>{
-  &quot;status&quot;: &quot;ok&quot;
-}
-</code></pre>
-
-<p>If the application wishes to enforce a shorter expires value, it may include that value in the response, e.g.:</p>
-<pre><code>{
-  &quot;status&quot;: &quot;ok&quot;,
-  &quot;expires&quot;: 1800
-}
-</code></pre>
-
-<p>The JSON body in the response if the request is <em>not</em> authentication should contain a status of <code>fail</code>, and optionally a <code>msg</code> attribute, e.g.</p>
-<pre><code>{
-  &quot;status&quot;: &quot;fail&quot;,
-  &quot;msg&quot; : &quot;invalid password&quot;
-}
-</code></pre>
+                <h1 id="jambones-data-architecture">jambones data architecture</h1>
+<p>jambones is designed to be deployed either by an end-user customer on their own behalf or by a service provider that hosts a jambones platform and provides service to multiple enterprises.</p>
+<p>The data model therefore distinguishes the following high-level data entities:</p>
+<ul>
+<li><em>platform owner</em> - the entity that operates an instance of the jambones platform.</li>
+<li><em>service provider</em> - an organization that provides service to one or more enterprises: a single instance of the platform may support multiple service providers.</li>
+<li><em>account</em> - the credentials and information for a single enterprise that is using the platform for telephony service.</li>
+<li><em>application</em> - a set of defined call control behaviors to apply to calls managed by an account.</li>
+<li><em>carrier</em> - a VoIP carrier that provides call origination/termination services and DIDs (aka DDIs or telephone numbers) to customers.</li>
+<li><em>sip gateways</em> - the signaling gateways for a carrier.</li>
+<li><em>calls</em> - an instance of a phone call that is controlled via a jambones application.</li>
+<li><em>registered user</em> - an authenticated sip client that belongs to an account.</li>
+</ul>
+<h2 id="data-element-identifiers">data element identifiers</h2>
+<p>Instances of data model entities are publicly identified with a unique value known as a "sid".  The documentation will therefore frequently refer to the following identifiers:</p>
+<ul>
+<li><em>Account Sid</em> - identifies an account.</li>
+<li><em>Application Sid</em> - identifies an application.</li>
+<li><em>Call Sid</em> - identifies a specific call.</li>
+<li><em>Parent Call Sid</em> - identifies the call that another call is bridged to.</li>
+</ul>
+<p>This is not an exhaustive list, since all data elements have a similar unique identifier (e.g. a service provider sid uniqely identifies a service provider, a carrier sid identifies a specific voip carrier, etc).</p>
               
             </div>
           </div>
@@ -167,8 +151,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="../register-hook/" class="btn btn-neutral float-right" title="Authenticating sip clients">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-        <a href="../data/" class="btn btn-neutral" title="Data architecture"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+        <a href="../rest/" class="btn btn-neutral" title="REST API"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -194,8 +180,10 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../data/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../rest/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
+      
+        <span style="margin-left: 15px"><a href="../register-hook/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
