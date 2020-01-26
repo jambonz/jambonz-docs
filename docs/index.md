@@ -24,15 +24,15 @@ So then.
 Why do we need (yet another) CPAAS?
 
 ##### Well, since you asked..
-jambones differs from other solutions because it is:
+jambonz differs from other solutions because it is:
 
-a) **open source**.  <p style="margin-left:10px">Oh, and we mean completely open source (none of that "yes, we have open source, but you really need to think about upgrading to our commercial offering if you're going to be serious about this relationship", haha). <br/><br/>All of the jambones core software and drachtio is available under the [MIT License](https://choosealicense.com/licenses/mit/).</p>
+a) **open source**.  <p style="margin-left:10px">Oh, and we mean completely open source (none of that "yes, we have open source, but you really need to think about upgrading to our commercial offering if you're going to be serious about this relationship", haha). <br/><br/>All of the jambonz core software and drachtio is available under the [MIT License](https://choosealicense.com/licenses/mit/).</p>
 
 b) a **self-hosted** solution: <p style="margin-left:10px">You run it on your own infrastructure.  Use your own SIP trunks.  Your own storage.  Your own cloud speech credentials.  Why pay someone to upcharge you for all of that when it's basically a one-click experience to provision them yourself?  <br/></br/>Let's put it this way: ask yourself -- what are you ***really*** getting of value from that fancy-pants CPAAS service you're paying for, when you take away all of the integrations that you can basically do yourself?  Just a nice API and application processing engine, that's what.  So why not get your own engine (hint: that's where jambonz comes in!) and bring your own everything else?  Just sayin...</p> 
 
 c) a **radical approach to privacy**.<p style="margin-left:10px">None of your customer's personally identifiable information (PII) is stored at rest within the jambonz platform itself.  Ever.<ul><li>Recordings or transcriptions that might contain sensitive information such as credit card numbers, HIPAA-related information, or social security numbers?  Nope.  Never stored to disk or in any database within the platform itself.</li><li style="margin-top:1em">How about SIP credentials for devices or webRTC clients that you want to be allow to register with the platform and make phone calls?  Sure, we allow all of that but we don't store the credentials -- you do.  We delegate the responsibility to your code and never hold any credentials that could be hacked or used by others to run up your bill.</li></ul></p>
 
-d) **white-labelable**.<p style="margin-left:10px">Is that even a word?  Well, in any case, jambones is service-provider friendly -- it can operate in a multi-tenant configuration for service providers that want to provide a hosted service for customers who are interested in enjoying the privacy and other features of jambonz without running their own hardware. 
+d) **white-labelable**.<p style="margin-left:10px">Is that even a word?  Well, in any case, jambonz is service-provider friendly -- it can operate in a multi-tenant configuration for service providers that want to provide a hosted service for customers who are interested in enjoying the privacy and other features of jambonz without running their own hardware. 
 
 ##### Who should be interested?
 Those interested would include:
@@ -45,11 +45,11 @@ Those interested would include:
 
 Come on people.  We can do this thing!
 
-### What is a jambones application?
+### What is a jambonz application?
 
 Well, if you ***are*** using one of those fancy-pants CPAAS services, then you are already familiar with how this works:
 
-A jambones application controls calls via web callbacks and an HTTP API.  The jambones platform notifies your application of incoming calls and call status changes via web callbacks.  Your application provides call control instructions by responding to web callbacks with [JSON payloads](/jambonz-docs/jambones) that include instructions, or by invoking a [REST API](/jambonz-docs/rest).
+A jambonz application controls calls via web callbacks and an HTTP API.  The jambonz platform notifies your application of incoming calls and call status changes via web callbacks.  Your application provides call control instructions by responding to web callbacks with [JSON payloads](/jambonz-docs/jambonz) that include instructions, or by invoking a [REST API](/jambonz-docs/rest).
 
-Additionally, jambones supports sip end-user devices and webRTC clients registering with the platform and making and receiving calls.  
+Additionally, jambonz supports sip end-user devices and webRTC clients registering with the platform and making and receiving calls.  
 > Note that in keeping with the focus on data privacy, the platform does not store customers' sip credentials.  Authentication of native sip clients is delegated to customer-side logic [as described here](/jambonz-docs/register-hook).
