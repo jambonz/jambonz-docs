@@ -231,7 +231,7 @@
 <p>Hey, did you see what we did there?  It's a voicemail application, but where is the recording url?  How do you retrieve the recording after the call?</p>
 <p>There is none, and you don't.</p>
 <p>Let's rethink this: </p>
-<p>Instead of making a recording -- which exposes your customer's PII since we now have to store sensitive data at rest in the platform -- how's about we instead send you a real-time audio stream over a websocket connection while the call is proceeding.  Annotate it with any metadata you need for tracking on your end, and we'll send that along as well.</p>
+<p>Instead of making a recording -- which exposes your customer's PII since we now have to store sensitive data at rest in the platform -- how's about we instead send you a real-time audio stream over a secure websocket connection while the call is proceeding.  Annotate it with any metadata you need for tracking on your end, and we'll send that along as well.</p>
 <p>Thus, you get the audio in real-time and we don't ever store your customer's sensitive data at rest.  Bam. Done.</p>
 <h2 id="http-connection-details">HTTP connection details</h2>
 <p>Each HTTP request that jambonz makes to one of your callbacks will include (at least) the following query parameters:</p>
