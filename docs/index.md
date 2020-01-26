@@ -1,30 +1,38 @@
-# Welcome to Jambones API documentation
+# Welcome to jambonz API documentation
 
-jambones is an open source CPAAS project based on [drachtio](https://drachtio.org), [rtpengine](https://github.com/sipwise/rtpengine) and [freeswitch](https://freeswitch.com/).  The origin of the name is unclear, but is rumoured to either be an acronym for:
+jambonz is an open source CPAAS project brought to you by the same people that brought you [drachtio](https://drachtio.org), the open source project for creating SIP server applications.  
 
-*just another mediocre boring object notational exercise in silliness*,
+The origin of the name jambonz is unclear, but it is rumoured to either be an acronym for:
 
-or a nod to an obscure 1980s-era Boston slang term:
+*just another mediocre boring object notational exercise in silliness*
 
-jambones [jam-b&#333;nz]: to move fast, with reckless abandon: *Geraint Thomas was going jambones on that descent!*
+<p style="margin-left:10px">or</p>
+
+a nod to an obscure 1980s-era Boston slang term:
+
+<div>
+jambones [jam-b&#333;nz]: to move fast, to exhibit reckless and uncontrolled abandon. <p style="margin:5px 0px 20px 10px;font-style:italic">Geraint Thomas was going jambones on that descent!</p>
+</div>
 
 ## Overview
 
-There are a lot of CPAAS providers on the market today, and they all provide a similar service: a set of easy-to-use APIs that customers can use to drive telephony applications. So..
+There are a lot of CPAAS providers on the market today, and they all provide the same thing:
+<ul><li/>A set of easy-to-use APIs that customers use to manage calls.</li></ul>
 
-How is jambones different and why do we need (yet another) CPAAS?
+So then.
 
-##### How does jambones differ from other CPAAS solutions?
+Why do we need (yet another) CPAAS?
+
+##### Well, since you asked..
 jambones differs from other solutions because it is:
 
-a) an **open source** CPAAS: all the jambones core software is available under the permissive [MIT License](https://choosealicense.com/licenses/mit/). 
+a) **open source**.  <p style="margin-left:10px">Oh, and we mean completely open source (none of that "yes, we have open source, but you really need to think about upgrading to our commercial offering if you're serious about this", haha). <br/><br/>All of the jambones core software and drachtio is available under the [MIT License](https://choosealicense.com/licenses/mit/).</p>
 
-b) a **self-hosted** solution: i.e., customers can run on their own infrastructure.  
+b) a **self-hosted** solution: <p style="margin-left:10px">You run it on your own infrastructure.  Use your own SIP trunks.  Your own storage.  Your own google speech credentials.  Why pay someone to upcharge you for all of that when it's basically a one-click experience to provision those things these days?  <br/></br/>Let's put it this way: ask yourself -- what are you ***really*** getting of value from that fancy-pants CPAAS company, when you take away all of the integrations that you can basically do yourself?  Just a nice API and application processing engine.  So why not get an engine yourself (that's what jambonz is!) and bring your own everything else?</p> 
 
-c) a **privacy-first** solution: no sensitive customer information is held within the platform itself.
+c) a **radical approach to privacy**.<p style="margin-left:10px">None of your customer's PII (personally identifiable information) is stored at rest within the jambonz platform itself.  Ever.<ul><li>Recordings or transcriptions that might contain sensitive information such as credit card numbers, HIPAA-related information, or social security numbers?  Nope.  Never stored to disk or in any database within the platform itself.</li><li style="margin-top:1em">How about SIP credentials for devices or webRTC clients that you want to be allow to register with the platform and make phone calls?  Sure, we allow all of that but we don't store the credentials -- you do.  We delegate the responsibility to your code and never hold any credentials that could be hacked or used by others to run up your bill.</li></ul></p>
 
-> Note: it can also be deployed in a multi-tenant configuration for use by service providers.
-
+d) **white-labelable**.<p style="margin-left:10px">Is that even a word?  Well, in any case, jambones is service-provider friendly -- it can operate in a multi-tenant configuration for service providers that want to provide a hosted service for customers who are interested in enjoying the privacy and other features of jambonz without running their own hardware. 
 
 ##### Who should be interested?
 Those interested would include:
@@ -32,36 +40,14 @@ Those interested would include:
 - customers that want to **save costs** vs a commercial CPAAS by using their own sip trunks rather than paying more expensive per-minute rates to a CPAAS provider.<br/><br/>
 - customers that need to **achieve stringent data privacy requirements** and wish to avoid exposing their customers' sensitive data to third parties.<br/><br/>
 - customers that want **greater control and the ability to add features** themselves to their CPAAS platform.<br/><br/>
-- enterprises with **highly capable IT departments** that are already managing most of what is required for a hosted telephony solution (e.g. cloud storage, speech APIs, infrastructure as code, etc).<br/><br/>
+- enterprises with **highly capable IT departments** that are already managing most of what is required for a hosted telephony solution (e.g. cloud storage, speech APIs, infrastructure as code, etc) and are starting to wonder why they are paying so much money to a third party for doing the same thing for them.<br/><br/>
 - **service providers that want a white-label product** that they can to offer as a branded solution to their customers.
 
 ### What is a jambones application?
-A jambones application controls calls via web callbacks and an HTTP API.  The jambones platform notifies applications of incoming calls and call status changes via web callbacks.  An application can provide call control instructions by responding to web callbacks with JSON payloads that include instructions, or by invoking a REST API.
 
-Additionally, jambones supports sip end-user devices and webRTC clients interacting with the platform.  
-> Note that in keeping with the data privacy design goal, the platform does not store customers' sip credentials.  Authentication of native sip clients is delegated to customer-side logic [as described here](/jambones-docs/register-hook).
+Well, if you ***are*** using one of those fancy-pants CPAAS services, then you are already familiar with how this works:
 
-## jambones data architecture
+A jambones application controls calls via web callbacks and an HTTP API.  The jambones platform notifies your application of incoming calls and call status changes via web callbacks.  Your application provides call control instructions by responding to web callbacks with [JSON payloads](/jambones) that include instructions, or by invoking a [REST API](/rest).
 
-jambones is designed to be deployed either by an end-user customer on their own behalf or by a service provider that hosts a jambones platform and provides service to multiple enterprises.
-
-The data model therefore distinguishes the following high-level data entities:
-
-- *platform owner* - the entity that operates an instance of the jambones platform.
-- *service provider* - an organization that provides service to one or more enterprises: a single instance of the platform may support multiple service providers.
-- *account* - the credentials and information for a single enterprise that is using the platform for telephony service.
-- *application* - a set of defined call control behaviors to apply to calls managed by an account.
-- *carrier* - a VoIP carrier that provides call origination/termination services and DIDs (aka DDIs or telephone numbers) to customers.
-- *sip gateways* - the signaling gateways for a carrier.
-- *calls* - an instance of a phone call that is controlled via a jambones application.
-- *registered user* - an authenticated sip client that belongs to an account.
-
-### data element identifiers
-Instances of data model entities are publicly identified with a unique value known as a "sid".  The documentation will therefore frequently refer to the following identifiers:
-
-- *Account Sid* - identifies an account.
-- *Application Sid* - identifies an application.
-- *Call Sid* - identifies a specific call.
-- *Parent Call Sid* - identifies the call that another call is bridged to.
-
-This is not an exhaustive list, since all data elements have a similar unique identifier (e.g. a service provider sid uniqely identifies a service provider, a carrier sid identifies a specific voip carrier, etc).
+Additionally, jambones supports sip end-user devices and webRTC clients registering with the platform and making and receiving calls.  
+> Note that in keeping with the focus on data privacy, the platform does not store customers' sip credentials.  Authentication of native sip clients is delegated to customer-side logic [as described here](/register-hook).

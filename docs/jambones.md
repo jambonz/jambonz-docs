@@ -52,14 +52,12 @@ Altogether then, a simple example application which provides the basics of a voi
 [
   {
     "verb": "say",
-    "text": "Hi there!  Please leave a message at the tone and we will get back to you shortly.  Thanks, and have a great day!",
-    "synthesizer": {
-      "vendor": "google",
-      "voice": "en-US-Wavenet-C"
-    }
+    "text": "Hi there!  Please leave a message at the tone and we will get back to you shortly.  Thanks, and have a great day!"
   },
   {
     "verb": "listen",
+    "action": "http://example.com/voicemail",
+    "url": "http://ws.example.com",
     "finishOnKey": "#",
     "metadata": {
       "topic": "voicemail"
@@ -67,14 +65,13 @@ Altogether then, a simple example application which provides the basics of a voi
     "mixType": "mono",
     "playBeep": true,
     "timeout": 20,
-    "url": "http://bd0bf038.ngrok.io",
     "transcribe": {
-      "action": "https://00dd977a.ngrok.io/transcription",
-      "recognizer": {
-        "vendor": "google",
-        "language": "en-US"
-      }
+      "transcriptionCallback": "http://example.com/transcription"
     }
+  },
+  {
+    "verb": "say",
+    "text": "Thanks for your message.  We'll get back to you"
   }
 ]
 ```
@@ -116,7 +113,6 @@ For those who prefer the readability of seeing verbs appear as object keys, the 
 Each HTTP request that jambones makes to one of your callbacks will include (at least) the following query parameters:
 
 - callSid: a unique identifier for the call, in a [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) format.
-- parentCallSid: the callSid of a parent call to this call, if any
 - applicationSid: a unique identifier for the jambones application controlling this call
 - accountSid: a unique identifier for the jambones account associated with the application
 - direction: the direction of the call, either 'inbound' or 'outbound'
@@ -124,14 +120,23 @@ Each HTTP request that jambones makes to one of your callbacks will include (at 
 - to: the called party number
 - callerId: the caller name, if known
 
+Additionally, the request **MAY** include
+
+- parentCallSid: the callSid of a parent call to this call, if this call is a child call
+
+Finally, the initial HTTP request to retrieve the application for a new incoming call will have:
+
+- originatingSipTrunkName: name of the SIP trunk that originated the call to the platform
+- originatingSipIP: the ip address and port of the sip gateway that originated the call
+
+and a call status notification for an outbound call to a phone number will have:
+
+- terminatingSipTrunkName: name of the SIP trunk that terminated the call to the PSTN
+- terminatingSipIP: the ip address (or DNS name) and port of the sip gateway that terminated the call
+
 The HTTP request may be either a GET or a POST, generally depending on your specified preference, although in some cases a POST is always used due to the richness of the data being sent.
 
 You may optionally use [HTTP Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) to protect your endpoints.
-
-## Speech 
-The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.
-
-A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambones feature servers to enable tts and speech recognition.
 
 ## Initial state of incoming calls
 When the jambones platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:
@@ -169,6 +174,13 @@ The say, play, gather, listen, and transcribe verbs all support the "earlyMedia"
 
 The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.
 
+## Speech integration
+The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.
+
+A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambones feature servers to enable tts and speech recognition.
+
+As part of the definition of an application, you can set defaults for the voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties
+
 # Supported Verbs
 Each of the supported verbs are described below.
 
@@ -181,7 +193,6 @@ The dial command is used to create a new call by dialing out to a number, a regi
   "action": "http://example.com/outdial",
   "callerId": "+16173331212",
   "answerOnBridge": true,
-  "statusCallback": "http://example.com/callStatus",
   "target": [
     {
       "type": "phone",
@@ -219,13 +230,13 @@ You can use the following attributes in the `dial` command:
 | action | webhook to invoke when call ends | no |
 | answerOnBridge | If set to true, the inbound call will ring until the number that was dialed answers the call, and at that point a 200 OK will be sent on the inbound leg.  If false, the inbound call will be answered immediately as the outbound call is placed. <br/>Defaults to false. | no |
 | callerId | The inbound caller's phone number, which is displayed to the number that was dialed. The caller ID must be a valid E.164 number. <br/>Defaults to caller id on inbound call. | no |
-| dialMusic | URL to a .wav or .mp3 file to play to caller during outdial | no |
+| confirmMethod | 'GET', 'POST' - http method to use on 'confirmUrl' callback. | no |
+| confirmUrl | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested [target](#target-types) object.  | no |
+| dialMusic | url that specifies a .wav or .mp3 audio file of custom audio or ringback to play to the caller while the outbound call is ringing. | no |
 | headers | an object containing arbitrary sip headers to apply to the outbound call attempt(s) | no |
 | listen | a nested [listen](#listen) action, which will cause audio from the call to be streamed to a remote server over a websocket connection | no |
 | method | 'GET', 'POST' - http method to use on 'action' callback.  <br/>Defaults to POST.| no|
-| statusCallback | url to send call status events to for any new call legs generated | no |
-| statusCallbackMethod | 'GET', 'POST' - http method to use on statusCallback callback. <br/>Defaults to POST. | no |
-| target | array of targeted [endpoints](#target-types) (may be a single endpoint).  If multiple, all endpoints are attempted simultaneously | yes |
+| target | array of to 10 [destinations](#target-types) to simultaneously dial. The first person (or entity) to answer the call will be connected to the caller and the rest of the called numbers will be hung up.| yes |
 | timeLimit | max length of call in seconds | no |
 | timeout | ring no answer timeout, in seconds.  <br/>Defaults to 60. | no |
 | transcribe | a nested [transcribe](#transcribe) action, which will cause the call to be transcribed | no |
@@ -237,7 +248,7 @@ You can use the following attributes in the `dial` command:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | type | must be "phone" | yes |
-| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. | no |
+| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.| no |
 | method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
 | number | a telephone numnber in E.164 number | yes |
 
@@ -246,7 +257,7 @@ You can use the following attributes in the `dial` command:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | type | must be "sip" | yes |
-| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. | no |
+| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.| no |
 | method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
 | sipUri | sip uri to send call to | yes |
 | auth | authentication credentials | no |
@@ -260,7 +271,7 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 | option        | description | required  |
 | ------------- |-------------| -----|
 | type | must be "user" | yes |
-| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. | no |
+| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.| no |
 | method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
 | name | registered sip user, including domain (e.g. "joeb@sip.jambones.org") | yes |
 
@@ -305,7 +316,7 @@ You can use the following options in the `gather` command:
 | partialResultCallback | url to send interim transcription results to. Partial transcriptions are only generated if this property is set. | no |
 | play | nested [play](#play) command that can be used to prompt the user | no |
 | recognizer.hints | array of words or phrases to assist speech detection | no |
-| recognizer.language | language code to use for speech detection.  Default: 'en-US' | no |
+| recognizer.language | language code to use for speech detection.  Defaults to the application level setting, or 'en-US' if not set | no |
 | recognizer.profanityFilter | if true, filter profanity from speech transcription.  Default:  no| no |
 | recognizer.vendor | speech vendor to use (currently only google supported) | no |
 | say | nested [say](#say) command that can be used to prompt the user | no |
@@ -344,7 +355,7 @@ Instead, jambones provides the 'listen' verb, where an audio stream(s) can be fo
 
 The listen verb includes a `url` property which is the remote url of a websocket server to send the audio to. The audio format is 16-bit PCM encoding, with a user-specified sample rate.  The audio is sent in binary frames over the websocket connection.  Optionally, text frames can be sent as well -- these are used to send user-specified metadata at the start of the call, and DTMF entries during the call.
 
-To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of audio.jambones.org.  
+To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of audio.drachtio.org.  
 
 (*TBD: link for more detail on the protocol, json metadata etc*)
 
@@ -367,7 +378,6 @@ You can use the following options in the `listen` action:
 | maxLength | the maximum length of the listened audio stream, in secs | no |
 | metadata | arbitrary JSON payload to send to remote server when websocket connection is first connected | no |
 | mixType | "mono" (send single channel), "stereo" (send dual channel of both calls in a bridge), or "mixed" (send audio from both calls in a bridge in a single mixed audio stream) Default: mono | no |
-| passDtmf | if true, send JSON text messages over the websocket indicating when DMTF keys have been pressed.  Default: no | no |
 | playBeep | true, false whether to play a beep at the start of the listen operation.  Default: false | no |
 | sampleRate | sample rate of audio to send (allowable values: 8000, 16000, 24000, 48000, or 64000).  Default: 8000 | no |
 | timeout | the number of seconds of silence that terminates the listen operation.| no |
@@ -409,6 +419,8 @@ You can use the following options in the `redirect` action:
 | ------------- |-------------| -----|
 | url | url to retrieve document from | yes |
 
+> **Note**: the redirect verb is not currently implemented.
+
 ## say
 
 The say command is used to send synthesized speech to the remote party. The text provided may be either plain text or may use SSML tags.  
@@ -429,15 +441,10 @@ You can use the following options in the `say` action:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | text | text to speak; may contain SSML tags | yes |
-| synthesizer.vendor | speech vendor to use (currently only google supported)| yes |
-| synthesizer.voice | voice to use  | yes |
+| synthesizer.vendor | speech vendor to use (currently only google supported)| no |
+| synthesizer.voice | voice to use.  Defaults to application setting.  | no |
 | loop | the number of times a text is to be repeated; 0 means repeat forever.  Defaults to 1. | no |
 | earlyMedia | if true and the call has not yet been answered, play the audio without answering call.  Defaults to false | no |
-
-*TBD: list of speech vendors supported (currently only google)*
-
-[list of google voices](#google-tts-voices)
-
 
 ## sip:decline
 
@@ -495,6 +502,8 @@ You can use the following options in the `sip:notify` action:
 | content | body of NOTIFY request | yes |
 | headers | object specifying arbitrary headers to apply to SIP NOTIFY request | no
 
+> **Note**: the sip:notify verb is not currently implemented.
+
 ## sip:redirect
 
 The sip:redirect command is used to redirect an incoming call to another sip server or network.  This must be the first and only command returned in the web callback for an incoming call.  A SIP 302 Moved response will be sent back to the caller.  
@@ -513,6 +522,8 @@ You can use the following options in the `sip:decline` command:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | sipUri | a sip uri that will appear in the Contact header of the 302 response to the caller | yes |
+
+> **Note**: the sip:redirect verb is not currently implemented.
 
 ## transcribe
 
@@ -543,3 +554,4 @@ You can use the following options in the `transcribe` command:
 | recognizer.vendor | speech vendor to use (currently only google supported) | no |
 | transcriptionCallback | url to invoke with transcriptions.  An HTTP POST will be sent to this url. | yes |
 
+> **Note**: the `dualChannel` property is not currently implemented.
