@@ -157,6 +157,8 @@ jambones [jam-b&#333;nz]: to move fast, to exhibit reckless and uncontrolled aba
 <h3 id="what-is-a-jambonz-application">What is a jambonz application?</h3>
 <p>Well, if you <strong><em>are</em></strong> using one of those fancy-pants CPAAS services, then you are already familiar with how this works:</p>
 <p>A jambonz application controls calls via web callbacks and an HTTP API.  The jambonz platform notifies your application of incoming calls and call status changes via web callbacks.  Your application provides call control instructions by responding to web callbacks with <a href="/jambonz-docs/jambonz">JSON payloads</a> that include instructions, or by invoking a <a href="/jambonz-docs/rest">REST API</a>.</p>
+<blockquote><p style="font-size:smaller">Why JSON instead of XML?  Because its not the 1980's anymore, that's why.</p></blockquote>
+
 <p>Additionally, jambonz supports sip end-user devices and webRTC clients registering with the platform and making and receiving calls.  </p>
 <blockquote>
 <p>Note that in keeping with the focus on data privacy, the platform does not store customers' sip credentials.  Authentication of native sip clients is delegated to customer-side logic <a href="/jambonz-docs/register-hook">as described here</a>.</p>
@@ -209,5 +211,5 @@ jambones [jam-b&#333;nz]: to move fast, to exhibit reckless and uncontrolled aba
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2020-01-26 06:07:50
+Build Date UTC : 2020-01-26 06:10:50
 -->
