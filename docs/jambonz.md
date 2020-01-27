@@ -386,7 +386,12 @@ The redirect action is used to transfer control to another JSON document taht is
 ```json
 {
   "verb": "redirect",
-  "url": "https://example.com/?foo=bar"
+  "action": "https://example.com/?foo=bar",
+  "method": "GET",
+  "action": {
+    "username": "foo",
+    "password": "bar"
+  }
 }
 ```
 
@@ -394,7 +399,10 @@ You can use the following options in the `redirect` action:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| url | url to retrieve document from | yes |
+| action | url to retrieve document from | yes |
+| method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
+| auth.user | HTTP Basic Authorization username | no|
+| auth.password | HTTP Basic Authorization password | no|
 
 > **Note**: the redirect verb is not currently implemented.
 
