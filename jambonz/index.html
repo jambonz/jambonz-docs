@@ -305,7 +305,7 @@
 <p>The dial command is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  </p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;dial&quot;,
-  &quot;action&quot;: &quot;http://example.com/outdial&quot;,
+  &quot;action&quot;: &quot;/outdial&quot;,
   &quot;callerId&quot;: &quot;+16173331212&quot;,
   &quot;answerOnBridge&quot;: true,
   &quot;target&quot;: [
@@ -349,7 +349,7 @@
 <tbody>
 <tr>
 <td>action</td>
-<td>webhook to invoke when call ends</td>
+<td>URL of webhook to invoke when the call ends.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
 <td>no</td>
 </tr>
 <tr>
@@ -564,7 +564,7 @@
 <tbody>
 <tr>
 <td>action</td>
-<td>web callback to invoke with collected digits or speech</td>
+<td>URL of webhook to invoke collected digits or speech.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
 <td>yes</td>
 </tr>
 <tr>
@@ -789,7 +789,7 @@
 <tbody>
 <tr>
 <td>action</td>
-<td>url to retrieve document from</td>
+<td>URL of webhook to retrieve document from.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
 <td>yes</td>
 </tr>
 <tr>
