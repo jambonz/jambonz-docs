@@ -404,8 +404,6 @@ You can use the following options in the `redirect` action:
 | auth.user | HTTP Basic Authorization username | no|
 | auth.password | HTTP Basic Authorization password | no|
 
-> **Note**: the redirect verb is not currently implemented.
-
 ## say
 
 The say command is used to send synthesized speech to the remote party. The text provided may be either plain text or may use SSML tags.  
