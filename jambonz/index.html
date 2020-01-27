@@ -768,7 +768,12 @@
 <p>The redirect action is used to transfer control to another JSON document taht is retrieved from the specified url.  All actions after <code>redirect</code> are unreachable and ignored.</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;redirect&quot;,
-  &quot;url&quot;: &quot;https://example.com/?foo=bar&quot;
+  &quot;action&quot;: &quot;https://example.com/?foo=bar&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;action&quot;: {
+    &quot;username&quot;: &quot;foo&quot;,
+    &quot;password&quot;: &quot;bar&quot;
+  }
 }
 </code></pre>
 
@@ -783,15 +788,27 @@
 </thead>
 <tbody>
 <tr>
-<td>url</td>
+<td>action</td>
 <td>url to retrieve document from</td>
 <td>yes</td>
 </tr>
+<tr>
+<td>method</td>
+<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>auth.user</td>
+<td>HTTP Basic Authorization username</td>
+<td>no</td>
+</tr>
+<tr>
+<td>auth.password</td>
+<td>HTTP Basic Authorization password</td>
+<td>no</td>
+</tr>
 </tbody>
 </table>
-<blockquote>
-<p><strong>Note</strong>: the redirect verb is not currently implemented.</p>
-</blockquote>
 <h2 id="say">say</h2>
 <p>The say command is used to send synthesized speech to the remote party. The text provided may be either plain text or may use SSML tags.  </p>
 <pre><code class="json">{
