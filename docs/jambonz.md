@@ -388,7 +388,7 @@ The redirect action is used to transfer control to another JSON document taht is
   "verb": "redirect",
   "action": "https://example.com/?foo=bar",
   "method": "GET",
-  "action": {
+  "auth": {
     "username": "foo",
     "password": "bar"
   }
