@@ -167,7 +167,7 @@ The dial command is used to create a new call by dialing out to a number, a regi
 ```json
 {
   "verb": "dial",
-  "action": "http://example.com/outdial",
+  "action": "/outdial",
   "callerId": "+16173331212",
   "answerOnBridge": true,
   "target": [
@@ -204,7 +204,7 @@ You can use the following attributes in the `dial` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | webhook to invoke when call ends | no |
+| action | URL of webhook to invoke when the call ends.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | no |
 | answerOnBridge | If set to true, the inbound call will ring until the number that was dialed answers the call, and at that point a 200 OK will be sent on the inbound leg.  If false, the inbound call will be answered immediately as the outbound call is placed. <br/>Defaults to false. | no |
 | callerId | The inbound caller's phone number, which is displayed to the number that was dialed. The caller ID must be a valid E.164 number. <br/>Defaults to caller id on inbound call. | no |
 | confirmMethod | 'GET', 'POST' - http method to use on 'confirmUrl' callback. | no |
@@ -286,7 +286,7 @@ You can use the following options in the `gather` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | web callback to invoke with collected digits or speech | yes |
+| action | URL of webhook to invoke collected digits or speech.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
 | finishOnKey | dmtf key that signals the end of input | no |
 | input | array, specifying allowed types of input: ['dtmf'], ['speech'], or ['dtmf', 'speech'].  Default: ['dtmf'] | no |
 | numDigits | number of dtmf digits expected to gather | no |
@@ -399,7 +399,7 @@ You can use the following options in the `redirect` action:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | url to retrieve document from | yes |
+| action | URL of webhook to retrieve document from.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
 | method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
 | auth.user | HTTP Basic Authorization username | no|
 | auth.password | HTTP Basic Authorization password | no|
