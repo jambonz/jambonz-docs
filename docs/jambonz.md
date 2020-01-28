@@ -508,6 +508,31 @@ You can use the following options in the `sip:decline` command:
 
 > **Note**: the sip:redirect verb is not currently implemented.
 
+## tag
+
+The tag verb is used to add properties to the standard call attributes that jambonz included on every action or call status HTTP reuquest.  
+
+The purpose is to simplify applications by eliminating the need to store state information if it can simply be echoed back to the application on each HTTP request for the call.
+
+```json
+{
+  "verb": "tag",
+  "data" {
+    "this" : "means",
+    "something": {
+      "to": "me",
+      "but": ["not", "to", "you"]
+    }
+  }
+}
+```
+
+You can use the following options in the `tag` command:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| data | a JSON object containing values to be saved and included in future action or call status notifications for this call | yes |
+
 ## transcribe
 
 The transcribe verb is used to send real time transcriptions of speech to a web callback.
