@@ -101,6 +101,8 @@
         
             <li><a class="toctree-l4" href="#sipredirect">sip:redirect</a></li>
         
+            <li><a class="toctree-l4" href="#tag">tag</a></li>
+        
             <li><a class="toctree-l4" href="#transcribe">transcribe</a></li>
         
         </ul>
@@ -980,6 +982,38 @@
 <blockquote>
 <p><strong>Note</strong>: the sip:redirect verb is not currently implemented.</p>
 </blockquote>
+<h2 id="tag">tag</h2>
+<p>The tag verb is used to add properties to the standard call attributes that jambonz included on every action or call status HTTP reuquest.  </p>
+<p>The purpose is to simplify applications by eliminating the need to store state information if it can simply be echoed back to the application on each HTTP request for the call.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;tag&quot;,
+  &quot;data&quot; {
+    &quot;this&quot; : &quot;means&quot;,
+    &quot;something&quot;: {
+      &quot;to&quot;: &quot;me&quot;,
+      &quot;but&quot;: [&quot;not&quot;, &quot;to&quot;, &quot;you&quot;]
+    }
+  }
+}
+</code></pre>
+
+<p>You can use the following options in the <code>tag</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data</td>
+<td>a JSON object containing values to be saved and included in future action or call status notifications for this call</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
 <h2 id="transcribe">transcribe</h2>
 <p>The transcribe verb is used to send real time transcriptions of speech to a web callback.</p>
 <p>The transcribe command is only allowed as a nested verb within a dial or listen verb.  Using transcribe in a dial command allows a long-running transcription of a phone call to be made, while nesting within a listen verb allows transcriptions of recorded messages (e.g. voicemail).</p>
