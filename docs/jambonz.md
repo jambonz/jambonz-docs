@@ -87,7 +87,7 @@ Instead of making a recording -- which exposes your customer's PII since we now 
 Thus, you get the audio in real-time and we don't ever store your customer's sensitive data at rest.  Bam. Done.
 
 ## HTTP connection details
-Each HTTP request that jambonz makes to one of your callbacks will include (at least) the following query parameters:
+Each HTTP request that jambonz makes to one of your callbacks will include (at least) the following information either as query arguments (in a GET request) or in the body of the response as a JSON payload (in a POST request):
 
 - callSid: a unique identifier for the call, in a [uuid](https://en.wikipedia.org/wiki/Universally_unique_identifier) format.
 - applicationSid: a unique identifier for the jambonz application controlling this call
@@ -96,24 +96,34 @@ Each HTTP request that jambonz makes to one of your callbacks will include (at l
 - from: the calling party number
 - to: the called party number
 - callerId: the caller name, if known
+- callStatus: current status of the call, see table below
+- sipStatus: the most recent sip status code received or generated for the call
 
 Additionally, the request **MAY** include
 
 - parentCallSid: the callSid of a parent call to this call, if this call is a child call
 
-Finally, the initial HTTP request to retrieve the application for a new incoming call will have:
+And the initial webhook for a new incoming call will have:
 
 - originatingSipTrunkName: name of the SIP trunk that originated the call to the platform
 - originatingSipIP: the ip address and port of the sip gateway that originated the call
 
-and a call status notification for an outbound call to a phone number will have:
+Finally, if you specify to use a POST method for the initial webhook for an incoming call, the JSON payload in that POST will also contain the entire incoming SIP INVITE request details in a 'sip' property (this is not provided if a GET request is used).  This can be useful if you need a detailed look at all of the SIP headers or the Session Description Protocol being offered.
 
-- terminatingSipTrunkName: name of the SIP trunk that terminated the call to the PSTN
-- terminatingSipIP: the ip address (or DNS name) and port of the sip gateway that terminated the call
-
-The HTTP request may be either a GET or a POST, generally depending on your specified preference, although in some cases a POST is always used due to the richness of the data being sent.
+Note also that the information that jambonz sends you with each HTTP request can be augmented by your application by using the [tag](#tag) verb.
 
 You may optionally use [HTTP Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) to protect your endpoints.
+
+| call status value  | description | 
+| ------------- |-------------| 
+| trying | a new incoming call has arrived or an outbound call has just been sent|
+| ringing | a 180 Ringing response has been sent or received |
+| early-media | an early media connection has been established prior to answering the call (183 Session Progress) |
+| in-progress | call has been answered |
+| completed | an answered call has ended |
+| failed | a call attempt failed |
+| busy | a call attempt failed because the called party returned a busy status |
+| no-answer | a call attempt failed because it was not answered in time |
 
 ## Initial state of incoming calls
 When the jambonz platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:
@@ -270,7 +280,7 @@ The gather command is used to collect dtmf or speech input.
   "timeout": 8,
   "recognizer": {
     "vendor": "google",
-    "language": "en_US"
+    "language": "en-US"
   },
   "say": {
     "text": "To speak to Sales press 1.  To speak to customer support press 2.",
@@ -518,7 +528,7 @@ The purpose is to simplify applications by eliminating the need to store state i
 
 For example, consider an application that wishes to apply some privacy settings on outdials based on attributes in the initial incoming call.  The application could parse information from the SIP INVITE provided in the web callback when the call arrives, and rather than having to store that information for later use it could simply use the 'tag' verb to associate that information with the call.  Later, when an action or call status triggers the need for the application to outdial it can simply access the information from the HTTP POST body, rather than having to retrieve it from the cache of some sort.
 
-Note that every time the tag verb is used, the collection of customer data is completely replaced with the new data provided.  This information will be provided back in all action or status notifications if POST method is used.  It will appear in property named 'customerData' in the JSON payload.
+Note that every time the tag verb is used, the collection of customer data is completely replaced with the new data provided.  This information will be provided back in all action or status notifications if POST method is used.  It will appear in property named 'customerData' in the JSON payload. 
 
 ```json
 {
@@ -537,7 +547,7 @@ You can use the following options in the `tag` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| data | a JSON object containing values to be saved and included in future action or call status notifications for this call | yes |
+| data | a JSON object containing values to be saved and included in future action or call status notifications (HTTP POST only) for this call | yes |
 
 ## transcribe
 
