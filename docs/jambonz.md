@@ -536,12 +536,33 @@ Note that every time the tag verb is used, the collection of customer data is co
 {
   "verb": "tag",
   "data" {
-    "this" : "means",
-    "something": {
-      "to": "me",
-      "but": ["not", "to", "you"]
-    }
-  }
+		"foo": "bar",
+		"counter": 100,
+		"list": [1, 2, "three"]
+	}
+}
+```
+
+After the above 'tag' verb has executed, web callbacks using POST would have a payload similar to this:
+```
+{
+	"callSid": "df09e8d4-7ffd-492b-94d9-51a60318552c",
+	"direction": "inbound",
+	"from": "+15083084809",
+	"to": "+15083728299",
+	"callId": "f0414693-bdb6-1238-6185-06d91d68c9b0",
+	"sipStatus": 200,
+	"callStatus": "in-progress",
+	"callerId": "f0414693-bdb6-1238-6185-06d91d68c9b0",
+	"accountSid": "fef61e75-cec3-496c-a7bc-8368e4d02a04",
+	"applicationSid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
+	"originatingSipIP": "54.172.60.1:5060",
+	"originatingSipTrunkName": "twilio",
+	"customerData": {
+		"foo": "bar",
+		"counter": 100,
+		"list": [1, 2, "three"]
+	}
 }
 ```
 
