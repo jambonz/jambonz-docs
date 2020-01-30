@@ -125,6 +125,8 @@ You may optionally use [HTTP Basic Authentication](https://en.wikipedia.org/wiki
 | busy | a call attempt failed because the called party returned a busy status |
 | no-answer | a call attempt failed because it was not answered in time |
 
+Refer to the [Example messages](#example-messages) section to see further details.
+
 ## Initial state of incoming calls
 When the jambonz platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:
 
@@ -274,7 +276,7 @@ The gather command is used to collect dtmf or speech input.
 {
   "verb": "gather",
   "action": "http://example.com/collect",
-  "input": ["dtmf", "speech"],
+  "input": ["digits", "speech"],
   "finishOnKey": "#",
   "numDigits": 5,
   "timeout": 8,
@@ -298,7 +300,7 @@ You can use the following options in the `gather` command:
 | ------------- |-------------| -----|
 | action | URL of webhook to invoke collected digits or speech.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
 | finishOnKey | dmtf key that signals the end of input | no |
-| input | array, specifying allowed types of input: ['dtmf'], ['speech'], or ['dtmf', 'speech'].  Default: ['dtmf'] | no |
+| input | array, specifying allowed types of input: ['digits'], ['speech'], or ['digits', 'speech'].  Default: ['digits'] | no |
 | numDigits | number of dtmf digits expected to gather | no |
 | partialResultCallback | url to send interim transcription results to. Partial transcriptions are only generated if this property is set. | no |
 | play | nested [play](#play) command that can be used to prompt the user | no |
@@ -579,3 +581,86 @@ You can use the following options in the `transcribe` command:
 | transcriptionCallback | url to invoke with transcriptions.  An HTTP POST will be sent to this url. | yes |
 
 > **Note**: the `dualChannel` property is not currently implemented.
+
+# Example messages
+
+An example JSON payload for a webhook for an incoming call using a POST method:
+```
+{
+	"direction": "inbound",
+	"callSid": "1fe62f7c-ebb9-4b96-b75b-7d04ff2b195d",
+	"accountSid": "fef61e75-cec3-496c-a7bc-8368e4d02a04",
+	"applicationSid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
+	"from": "+15083084809",
+	"to": "+15083728299",
+	"callerName": "+15083084809",
+	"callId": "252a93d3-bdb2-1238-6185-06d91d68c9b0",
+	"sipStatus": 100,
+	"callStatus": "trying",
+	"originatingSipIP": "54.172.60.2:5060",
+	"originatingSipTrunkName": "simwood",
+	"sip": {
+		"headers": {
+			"via": "SIP/2.0/UDP 3.10.235.99;rport=5060;branch=z9hG4bKgeBy6Fg863Z8N;received=172.31.3.33",
+			"max-forwards": "70",
+			"from": "<sip:+15083084809@3.10.235.99:5060>;tag=vQXQ3g5papXpF",
+			"to": "<sip:+15083728299@172.31.3.33:5070>",
+			"call-id": "252a93d3-bdb2-1238-6185-06d91d68c9b0",
+			"cseq": "15623387 INVITE",
+			"contact": "<sip:+15083084809@3.10.235.99:5060>",
+			"user-agent": "Twilio Gateway",
+			"allow": "INVITE, ACK, CANCEL, BYE, REFER, NOTIFY, OPTIONS",
+			"content-type": "application/sdp",
+			"content-length": "264",
+			"X-CID": "f9221ea5e66a1d1f10a0b556933dc0c2@0.0.0.0",
+			"X-Forwarded-For": "54.172.60.2:5060",
+			"X-Originating-Carrier": "twilio",
+			"Diversion": "<sip:+15083728299@public-vip.us1.twilio.com>;reason=unconditional"
+		},
+		"body": "v=0\r\no=root 1999455157 1999455157 IN IP4 3.10.235.99\r\ns=Twilio Media Gateway\r\nc=IN IP4 3.10.235.99\r\nt=0 0\r\nm=audio 49764 RTP/AVP 0 101\r\na=maxptime:150\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-16\r\na=sendrecv\r\na=rtcp:49765\r\na=ptime:20\r\n",
+		"payload": [{
+			"type": "application/sdp",
+			"content": "v=0\r\no=root 1999455157 1999455157 IN IP4 3.10.235.99\r\ns=Twilio Media Gateway\r\nc=IN IP4 3.10.235.99\r\nt=0 0\r\nm=audio 49764 RTP/AVP 0 101\r\na=maxptime:150\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-16\r\na=sendrecv\r\na=rtcp:49765\r\na=ptime:20\r\n"
+		}],
+		"method": "INVITE",
+		"version": "2.0",
+		"uri": "sip:+15083728299@172.31.3.33:5070",
+		"raw": "INVITE sip:+15083728299@172.31.3.33:5070 SIP/2.0\r\nVia: SIP/2.0/UDP 3.10.235.99;rport=5060;branch=z9hG4bKgeBy6Fg863Z8N;received=172.31.3.33\r\nMax-Forwards: 70\r\nFrom: <sip:+15083084809@3.10.235.99:5060>;tag=vQXQ3g5papXpF\r\nTo: <sip:+15083728299@172.31.3.33:5070>\r\nCall-ID: 252a93d3-bdb2-1238-6185-06d91d68c9b0\r\nCSeq: 15623387 INVITE\r\nContact: <sip:+15083084809@3.10.235.99:5060>\r\nUser-Agent: Twilio Gateway\r\nAllow: INVITE, ACK, CANCEL, BYE, REFER, NOTIFY, OPTIONS\r\nContent-Type: application/sdp\r\nContent-Length: 264\r\nX-CID: f9221ea5e66a1d1f10a0b556933dc0c2@0.0.0.0\r\nX-Forwarded-For: 54.172.60.2:5060\r\nX-Originating-Carrier: twilio\r\nDiversion: <sip:+15083728299@public-vip.us1.twilio.com>;reason=unconditional\r\nX-Twilio-AccountSid: AC58f23d38858ac262d6ee2e554b30c561\r\nX-Twilio-CallSid: CA708d85d118aacfcc794b730fa02bc40c\r\n\r\nv=0\r\no=root 1999455157 1999455157 IN IP4 3.10.235.99\r\ns=Twilio Media Gateway\r\nc=IN IP4 3.10.235.99\r\nt=0 0\r\nm=audio 49764 RTP/AVP 0 101\r\na=maxptime:150\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-16\r\na=sendrecv\r\na=rtcp:49765\r\na=ptime:20\r\n"
+	}
+}
+```
+
+An example JSON payload for a call status webhook for an incoming call using a POST method:
+```
+ {
+ 	"direction": "inbound",
+ 	"callSid": "1fe62f7c-ebb9-4b96-b75b-7d04ff2b195d",
+ 	"accountSid": "fef61e75-cec3-496c-a7bc-8368e4d02a04",
+ 	"applicationSid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
+ 	"from": "+15083084809",
+ 	"to": "+15083728299",
+ 	"callerName": "+15083084809",
+ 	"callId": "252a93d3-bdb2-1238-6185-06d91d68c9b0",
+ 	"sipStatus": 200,
+ 	"callStatus": "in-progress",
+ 	"originatingSipIP": "54.172.60.2:5060",
+ 	"originatingSipTrunkName": "twilio"
+ }
+ ```
+
+An example JSON payload for a call status webhook for an outbound call using a POST method:
+```
+{
+	"direction": "outbound",
+	"callSid": "ddd6d4b2-ba3f-42fb-9845-8abdac047097",
+	"parentCallSid": "1fe62f7c-ebb9-4b96-b75b-7d04ff2b195d",
+	"accountSid": "fef61e75-cec3-496c-a7bc-8368e4d02a04",
+	"applicationSid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
+	"from": "+15083084809",
+	"to": "+15084901000",
+	"callerName": "+15083084809",
+	"callId": "a5726393-bdaf-1238-9483-06d91d68c9b0",
+	"callStatus": "in-progress",
+	"sipStatus": 200
+}
+```
