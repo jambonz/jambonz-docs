@@ -17,7 +17,7 @@ jambones [jam-b&#333;nz]: to move fast, to exhibit reckless and uncontrolled aba
 ## Overview
 
 There are a lot of CPAAS providers on the market today and they all provide the same thing:
-<ul><li/>A set of easy-to-use APIs that customers use to manage calls.</li></ul>
+<ul><li/>A set of easy-to-use APIs that allow enterprises to manage their communication services in new and innovative ways.</li></ul>
 
 So then.
 
