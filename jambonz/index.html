@@ -1183,26 +1183,23 @@
     &quot;originatingSipIP&quot;: &quot;54.172.60.2:5060&quot;,
     &quot;originatingSipTrunkName&quot;: &quot;twilio&quot;
  }
- ```
-
-An example JSON payload for a call status webhook for an outbound call using a POST method:
-
 </code></pre>
 
-<p>{
-    "direction": "outbound",
-    "callSid": "ddd6d4b2-ba3f-42fb-9845-8abdac047097",
-    "parentCallSid": "1fe62f7c-ebb9-4b96-b75b-7d04ff2b195d",
-    "accountSid": "fef61e75-cec3-496c-a7bc-8368e4d02a04",
-    "applicationSid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
-    "from": "+15083084809",
-    "to": "+15084901000",
-    "callerName": "+15083084809",
-    "callId": "a5726393-bdaf-1238-9483-06d91d68c9b0",
-    "callStatus": "in-progress",
-    "sipStatus": 200
+<p>An example JSON payload for a call status webhook for an outbound call using a POST method:</p>
+<pre><code>{
+    &quot;direction&quot;: &quot;outbound&quot;,
+    &quot;callSid&quot;: &quot;ddd6d4b2-ba3f-42fb-9845-8abdac047097&quot;,
+    &quot;parentCallSid&quot;: &quot;1fe62f7c-ebb9-4b96-b75b-7d04ff2b195d&quot;,
+    &quot;accountSid&quot;: &quot;fef61e75-cec3-496c-a7bc-8368e4d02a04&quot;,
+    &quot;applicationSid&quot;: &quot;0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
+    &quot;from&quot;: &quot;+15083084809&quot;,
+    &quot;to&quot;: &quot;+15084901000&quot;,
+    &quot;callerName&quot;: &quot;+15083084809&quot;,
+    &quot;callId&quot;: &quot;a5726393-bdaf-1238-9483-06d91d68c9b0&quot;,
+    &quot;callStatus&quot;: &quot;in-progress&quot;,
+    &quot;sipStatus&quot;: 200
 }
-```</p>
+</code></pre>
               
             </div>
           </div>
