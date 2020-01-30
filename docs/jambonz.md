@@ -598,7 +598,7 @@ An example JSON payload for a webhook for an incoming call using a POST method:
 	"sipStatus": 100,
 	"callStatus": "trying",
 	"originatingSipIP": "54.172.60.2:5060",
-	"originatingSipTrunkName": "simwood",
+	"originatingSipTrunkName": "twilio",
 	"sip": {
 		"headers": {
 			"via": "SIP/2.0/UDP 3.10.235.99;rport=5060;branch=z9hG4bKgeBy6Fg863Z8N;received=172.31.3.33",
