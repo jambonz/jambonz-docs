@@ -707,10 +707,10 @@
 <p><em>Recordings can contain sensitive and confidential information, and such data is never stored at rest in the jambonz core.</em></p>
 </blockquote>
 <p>Instead, jambonz provides the 'listen' verb, where an audio stream(s) can be forked and sent in real-time to a customer application for processing.</p>
-<p>The listen verb includes a <code>url</code> property which is the remote url of a websocket server to send the audio to. The audio format is 16-bit PCM encoding, with a user-specified sample rate.  The audio is sent in binary frames over the websocket connection.  Optionally, text frames can be sent as well -- these are used to send user-specified metadata at the start of the call, and DTMF entries during the call.</p>
-<p>To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of audio.drachtio.org.  </p>
-<p>(<em>TBD: link for more detail on the protocol, json metadata etc</em>)</p>
 <p>The listen verb can also be nested in a <a href="#dial">dial</a> verb, which allows the audio for a call between two parties to be sent to a remote websocket server.</p>
+<p>To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of audio.drachtio.org.  </p>
+<p>The listen verb includes a <code>url</code> property which is the url of the remote websocket server to send the audio to. The url must be an absolute url. The audio format is 16-bit PCM encoding, with a user-specified sample rate.  The audio is sent in binary frames over the websocket connection.  </p>
+<p>Additionally, one text frames is sent immediately after the websocket connection is established.  This text frame contains a JSON string with all of the call attributes normally sent on an HTTP request (e.g. callSid, etc), plus 'sampleRate' and 'mixType' properties describing the audio sample rate and stream(s).  Additional metadata can also be added to this payload using the 'metadata' property as described in the table below.  Once the intial text frame containing the metadata has been sent, the remote side should expect to receive only binary frames, containing audio.</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;listen&quot;,
   &quot;url&quot;: &quot;wss://myrecorder.example.com/calls/271314e6-b463-4980-b007-80defc181058:4433&quot;,
@@ -740,7 +740,7 @@
 </tr>
 <tr>
 <td>metadata</td>
-<td>arbitrary JSON payload to send to remote server when websocket connection is first connected</td>
+<td>arbitrary data to add to the JSON payload sent to the remote server when websocket connection is first connected</td>
 <td>no</td>
 </tr>
 <tr>
