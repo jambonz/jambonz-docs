@@ -345,9 +345,9 @@ Instead, jambonz provides the 'listen' verb, where an audio stream(s) can be for
 
 The listen verb can also be nested in a [dial](#dial) verb, which allows the audio for a call between two parties to be sent to a remote websocket server.
 
-To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of audio.drachtio.org.  
+To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of 'audio.jambonz.org'.  
 
-The listen verb includes a `url` property which is the url of the remote websocket server to send the audio to. The url may be an absolute or relative URL. HTTP Basic Authentication can optionally be used to protect the websocket endpoint by using the 'wsAuth' propert.
+The listen verb includes a `url` property which is the url of the remote websocket server to send the audio to. The url may be an absolute or relative URL. HTTP Basic Authentication can optionally be used to protect the websocket endpoint by using the 'wsAuth' property.
 
 The format of the audio data sent over the websocket is 16-bit PCM encoding, with a user-specified sample rate.  The audio is sent in binary frames over the websocket connection.  
 
