@@ -624,6 +624,11 @@
 <td>no</td>
 </tr>
 <tr>
+<td>method</td>
+<td>'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.</td>
+<td>no</td>
+</tr>
+<tr>
 <td>numDigits</td>
 <td>number of dtmf digits expected to gather</td>
 <td>no</td>
@@ -729,6 +734,21 @@
 </thead>
 <tbody>
 <tr>
+<td>action</td>
+<td>URL of webhook to invoke when listen operation ends.  The information will include the duration of the audio stream, and also a 'digits' property if the recording was terminated by a dtmf key.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>auth.username</td>
+<td>HTTP basic auth username to use on action callback</td>
+<td>no</td>
+</tr>
+<tr>
+<td>auth.password</td>
+<td>HTTP basic auth password to use on action callback</td>
+<td>no</td>
+</tr>
+<tr>
 <td>finishOnKey</td>
 <td>The set of digits that can end the listen action</td>
 <td>no</td>
@@ -741,6 +761,11 @@
 <tr>
 <td>metadata</td>
 <td>arbitrary data to add to the JSON payload sent to the remote server when websocket connection is first connected</td>
+<td>no</td>
+</tr>
+<tr>
+<td>method</td>
+<td>'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -772,6 +797,16 @@
 <td>url</td>
 <td>url of remote server to connect to</td>
 <td>yes</td>
+</tr>
+<tr>
+<td>wsAuth.username</td>
+<td>HTTP basic auth username to use on websocket connection</td>
+<td>no</td>
+</tr>
+<tr>
+<td>wsAuth.password</td>
+<td>HTTP basic auth password to use on websocket connection</td>
+<td>no</td>
 </tr>
 </tbody>
 </table>
