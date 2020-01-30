@@ -301,6 +301,7 @@ You can use the following options in the `gather` command:
 | action | URL of webhook to invoke collected digits or speech.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
 | finishOnKey | dmtf key that signals the end of input | no |
 | input | array, specifying allowed types of input: ['digits'], ['speech'], or ['digits', 'speech'].  Default: ['digits'] | no |
+| method | 'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.| no|
 | numDigits | number of dtmf digits expected to gather | no |
 | partialResultCallback | url to send interim transcription results to. Partial transcriptions are only generated if this property is set. | no |
 | play | nested [play](#play) command that can be used to prompt the user | no |
@@ -362,15 +363,21 @@ You can use the following options in the `listen` action:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
+| action | URL of webhook to invoke when listen operation ends.  The information will include the duration of the audio stream, and also a 'digits' property if the recording was terminated by a dtmf key.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
+| auth.username | HTTP basic auth username to use on action callback | no |
+| auth.password | HTTP basic auth password to use on action callback | no |
 | finishOnKey | The set of digits that can end the listen action | no |
 | maxLength | the maximum length of the listened audio stream, in secs | no |
 | metadata | arbitrary data to add to the JSON payload sent to the remote server when websocket connection is first connected | no |
+| method | 'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.| no|
 | mixType | "mono" (send single channel), "stereo" (send dual channel of both calls in a bridge), or "mixed" (send audio from both calls in a bridge in a single mixed audio stream) Default: mono | no |
 | playBeep | true, false whether to play a beep at the start of the listen operation.  Default: false | no |
 | sampleRate | sample rate of audio to send (allowable values: 8000, 16000, 24000, 48000, or 64000).  Default: 8000 | no |
 | timeout | the number of seconds of silence that terminates the listen operation.| no |
 | transcribe | a nested [transcribe](#transcribe) verb | no |
 | url | url of remote server to connect to | yes |
+| wsAuth.username | HTTP basic auth username to use on websocket connection | no |
+| wsAuth.password | HTTP basic auth password to use on websocket connection | no |
 
 ## play
 
