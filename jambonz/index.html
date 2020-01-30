@@ -1037,12 +1037,32 @@
 <pre><code class="json">{
   &quot;verb&quot;: &quot;tag&quot;,
   &quot;data&quot; {
-    &quot;this&quot; : &quot;means&quot;,
-    &quot;something&quot;: {
-      &quot;to&quot;: &quot;me&quot;,
-      &quot;but&quot;: [&quot;not&quot;, &quot;to&quot;, &quot;you&quot;]
+        &quot;foo&quot;: &quot;bar&quot;,
+        &quot;counter&quot;: 100,
+        &quot;list&quot;: [1, 2, &quot;three&quot;]
     }
-  }
+}
+</code></pre>
+
+<p>After the above 'tag' verb has executed, web callbacks using POST would have a payload similar to this:</p>
+<pre><code>{
+    &quot;callSid&quot;: &quot;df09e8d4-7ffd-492b-94d9-51a60318552c&quot;,
+    &quot;direction&quot;: &quot;inbound&quot;,
+    &quot;from&quot;: &quot;+15083084809&quot;,
+    &quot;to&quot;: &quot;+15083728299&quot;,
+    &quot;callId&quot;: &quot;f0414693-bdb6-1238-6185-06d91d68c9b0&quot;,
+    &quot;sipStatus&quot;: 200,
+    &quot;callStatus&quot;: &quot;in-progress&quot;,
+    &quot;callerId&quot;: &quot;f0414693-bdb6-1238-6185-06d91d68c9b0&quot;,
+    &quot;accountSid&quot;: &quot;fef61e75-cec3-496c-a7bc-8368e4d02a04&quot;,
+    &quot;applicationSid&quot;: &quot;0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
+    &quot;originatingSipIP&quot;: &quot;54.172.60.1:5060&quot;,
+    &quot;originatingSipTrunkName&quot;: &quot;twilio&quot;,
+    &quot;customerData&quot;: {
+        &quot;foo&quot;: &quot;bar&quot;,
+        &quot;counter&quot;: 100,
+        &quot;list&quot;: [1, 2, &quot;three&quot;]
+    }
 }
 </code></pre>
 
