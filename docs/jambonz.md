@@ -585,6 +585,7 @@ You can use the following options in the `transcribe` command:
 # Example messages
 
 An example JSON payload for a webhook for an incoming call using a POST method:
+
 ```
 {
 	"direction": "inbound",
@@ -646,7 +647,7 @@ An example JSON payload for a call status webhook for an incoming call using a P
  	"originatingSipIP": "54.172.60.2:5060",
  	"originatingSipTrunkName": "twilio"
  }
- ```
+```
 
 An example JSON payload for a call status webhook for an outbound call using a POST method:
 
