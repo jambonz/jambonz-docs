@@ -164,19 +164,19 @@
 <li>Account scope allows the bearer to create applications and calls associated with the Account.</li>
 </ul>
 <h2 id="calls">Calls</h2>
-<p>A call is a voice connection made between the jambonz platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a parent call uuid attribute that references the inbound call.</p>
+<p>A call is a voice connection made between the jambonz platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a Parent Call Sid that references the inbound call.</p>
 <p>Calls may created, modified, and deleted through the API.</p>
 <h3 id="create-a-call">Create a Call</h3>
 <p>Calls are created from the REST API by sending an HTTP POST request. A successful HTTP 201 response will contain the Call Sid of the call attempt that has been launched.</p>
 <p>An example is shown below:</p>
-<pre><code>POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls HTTP/1.1
+<pre><code class="js">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls HTTP/1.1
 Content-Length: 175
 Accept: application/json
-Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Authorization: Bearer 9404e5f7-9a77-4bcc-b0fa-5665ace28ab3
 Content-Type: application/json
 
 {
-  &quot;application_sid&quot;: &quot;0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
+  &quot;application_sid&quot;: &quot;0e06a1b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
   &quot;from&quot;: &quot;+15083728299&quot;,
   &quot;to&quot;: {
     &quot;type&quot;: &quot;phone&quot;,
@@ -255,6 +255,7 @@ Content-Length: 46
 </tr>
 </tbody>
 </table>
+<p>At the time that the 201 response is returned to the caller, the call attempt has been launched (i.e., the SIP INVITE has been sent) but no ringing or call answer has yet occurred.  The caller will receive call status notifications via the call_status_hook (either that supplied in the POST request, or if an application_sid is supplied then via the configured call_status_hook for that application).</p>
 <h2 id="conference-participants">Conference participants</h2>
 <p>Conference participants refer to calls that are actively connected to a conference. You can mute or remove participants from a conference as well as retrieve a list of all participants, along with detailed information about each participant, in an active conference.</p>
 <h2 id="conferences">Conferences</h2>
