@@ -144,12 +144,12 @@
 <p>The jambonz REST API allows applications to query, create, and manage calls and other resources. </p>
 <p><strong>Base URL</strong></p>
 <p>All calls should use the following base URL:</p>
-<pre><code>https://&lt;domain&gt;/api/jambonz/v1
+<pre><code>https://&lt;domain&gt;/v1
 </code></pre>
 
 <p>where domain is set according to your installation.</p>
 <p><strong>Authentication</strong></p>
-<p>The REST api requires that you implement basic authentication by including an HTTP Authorization header in all requests, consisting of the application uuid concatenated to a valid api token for that application, separated by a colon (:).</p>
+<p>The REST api uses HTTP Bearer Authentication that requires you include an HTTP Authorization header containing a valid api token.</p>
 <p><strong>Dates and Times</strong></p>
 <p>All dates and times are UTC, using RFC 2822 format.</p>
 <p><strong>Phone Numbers</strong></p>
@@ -157,10 +157,104 @@
 <h2 id="applications">Applications</h2>
 <p>An application represents a set of unified behaviors to be applied to phone calls either made or received through the platform.  Applications can be created, queried, updated, and destroyed via the API.</p>
 <h2 id="api-key">API Key</h2>
-<p>An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  When created, they are associated to one and only one application.</p>
+<p>An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  API keys can have different scopes: Admin scope, service provider scope, and account scope.  </p>
+<ul>
+<li>Admin scope allows the bearer to make changes to global system properties and to create Service Providers.</li>
+<li>Service provider scope allows the bearer to create and manage Accounts under the Service Providerxs.</li>
+<li>Account scope allows the bearer to create applications and calls associated with the Account.</li>
+</ul>
 <h2 id="calls">Calls</h2>
 <p>A call is a voice connection made between the jambonz platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a parent call uuid attribute that references the inbound call.</p>
 <p>Calls may created, modified, and deleted through the API.</p>
+<h3 id="create-a-call">Create a Call</h3>
+<p>Calls are created from the REST API by sending an HTTP POST request. A successful HTTP 201 response will contain the Call Sid of the call attempt that has been launched.</p>
+<p>An example is shown below:</p>
+<pre><code>POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls HTTP/1.1
+Content-Length: 175
+Accept: application/json
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+  &quot;application_sid&quot;: &quot;0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
+  &quot;from&quot;: &quot;+15083728299&quot;,
+  &quot;to&quot;: {
+    &quot;type&quot;: &quot;phone&quot;,
+    &quot;name&quot;: &quot;+16172375089&quot;
+  }
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Content-Length: 46
+
+{
+  &quot;sid&quot;:&quot;9210add6-9573-4860-a003-648c7829faaa&quot;
+}
+</code></pre>
+
+<p>The Request-URI of the POST contains the Account Sid of the caller and JSON payload  may contain the following properties</p>
+<table>
+<thead>
+<tr>
+<th>property</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>application_sid</td>
+<td>The unique identifier of the application used to handle the call</td>
+<td>either call_hook or application_sid must be supplied</td>
+</tr>
+<tr>
+<td>call_hook</td>
+<td>an object specifying a web callback that will be invoked when the call is answered</td>
+<td>either call_hook or application_sid must be supplied</td>
+</tr>
+<tr>
+<td>call_hook.url</td>
+<td>web callback url</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>call_hook.method</td>
+<td>'GET' or 'POST'.  Defaults to 'POST'</td>
+<td>no</td>
+</tr>
+<tr>
+<td>call_hook.username</td>
+<td>username for HTTP Basic Authentication</td>
+<td>no</td>
+</tr>
+<tr>
+<td>call_hook.password</td>
+<td>password for HTTP Basic Authentication</td>
+<td>no</td>
+</tr>
+<tr>
+<td>call_status_hook</td>
+<td>an object specifying a  a web callback that will be invoked with call status notifications.  Object properties the same as 'call_hook' property above.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>from</td>
+<td>the calling party number</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>the number of seconds to wait for the call to be answered.  Defaults to 60.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>to</td>
+<td>specifies the destination of the call. See description of <a href="/jambonz-docs/jambonz#target-types">target types</a> in jambonz call control language.</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
 <h2 id="conference-participants">Conference participants</h2>
 <p>Conference participants refer to calls that are actively connected to a conference. You can mute or remove participants from a conference as well as retrieve a list of all participants, along with detailed information about each participant, in an active conference.</p>
 <h2 id="conferences">Conferences</h2>
