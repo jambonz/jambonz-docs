@@ -41,7 +41,7 @@ Calls may created, modified, and deleted through the API.
 Calls are created from the REST API by sending an HTTP POST request. A successful HTTP 201 response will contain the Call Sid of the call attempt that has been launched.
 
 An example is shown below:
-```js
+```xml
 POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls HTTP/1.1
 Content-Length: 175
 Accept: application/json
