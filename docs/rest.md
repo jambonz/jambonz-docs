@@ -6,13 +6,13 @@ The jambonz REST API allows applications to query, create, and manage calls and 
 
 All calls should use the following base URL:
 ```
-https://<domain>/api/jambonz/v1
+https://<domain>/v1
 ```
 where domain is set according to your installation.
 
 **Authentication**
 
-The REST api requires that you implement basic authentication by including an HTTP Authorization header in all requests, consisting of the application uuid concatenated to a valid api token for that application, separated by a colon (:).
+The REST api uses HTTP Bearer Authentication that requires you include an HTTP Authorization header containing a valid api token.
 
 **Dates and Times**
 
@@ -26,12 +26,60 @@ All phone numbers are in E.164 format, starting with a plus sign ("+") and the c
 An application represents a set of unified behaviors to be applied to phone calls either made or received through the platform.  Applications can be created, queried, updated, and destroyed via the API.
 
 ## API Key
-An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  When created, they are associated to one and only one application.
+An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  API keys can have different scopes: Admin scope, service provider scope, and account scope.  
+
+- Admin scope allows the bearer to make changes to global system properties and to create Service Providers.
+- Service provider scope allows the bearer to create and manage Accounts under the Service Providerxs.
+- Account scope allows the bearer to create applications and calls associated with the Account.
 
 ## Calls
 A call is a voice connection made between the jambonz platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a parent call uuid attribute that references the inbound call.
 
 Calls may created, modified, and deleted through the API.
+
+### Create a Call
+Calls are created from the REST API by sending an HTTP POST request. A successful HTTP 201 response will contain the Call Sid of the call attempt that has been launched.
+
+An example is shown below:
+```
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls HTTP/1.1
+Content-Length: 175
+Accept: application/json
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+  "application_sid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
+  "from": "+15083728299",
+  "to": {
+    "type": "phone",
+    "name": "+16172375089"
+  }
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Content-Length: 46
+
+{
+  "sid":"9210add6-9573-4860-a003-648c7829faaa"
+}
+```
+
+The Request-URI of the POST contains the Account Sid of the caller and JSON payload  may contain the following properties
+
+| property      | description | required  |
+| ------------- |-------------| -----|
+| application_sid | The unique identifier of the application used to handle the call | either call_hook or application_sid must be supplied |
+| call_hook | an object specifying a web callback that will be invoked when the call is answered | either call_hook or application_sid must be supplied |
+| call_hook.url | web callback url | yes |
+| call_hook.method | 'GET' or 'POST'.  Defaults to 'POST' | no |
+| call_hook.username | username for HTTP Basic Authentication | no |
+| call_hook.password | password for HTTP Basic Authentication | no |
+| call_status_hook | an object specifying a  a web callback that will be invoked with call status notifications.  Object properties the same as 'call_hook' property above. | no |
+| from | the calling party number | yes |
+| timeout | the number of seconds to wait for the call to be answered.  Defaults to 60. | no |
+| to | specifies the destination of the call. See description of [target types](/jambonz-docs/jambonz#target-types) in jambonz call control language. | yes | 
 
 ## Conference participants
 Conference participants refer to calls that are actively connected to a conference. You can mute or remove participants from a conference as well as retrieve a list of all participants, along with detailed information about each participant, in an active conference.

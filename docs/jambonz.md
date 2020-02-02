@@ -341,17 +341,17 @@ jambonz does not have a 'record' verb.    This is by design, for data privacy re
 
 > _Recordings can contain sensitive and confidential information, and such data is never stored at rest in the jambonz core._
 
-Instead, jambonz provides the 'listen' verb, where an audio stream(s) can be forked and sent in real-time to a customer application for processing.
+Instead, jambonz provides the **listen** verb, where an audio stream(s) can be forked and sent in real-time to a customer application for processing.
 
 The listen verb can also be nested in a [dial](#dial) verb, which allows the audio for a call between two parties to be sent to a remote websocket server.
 
 To utilize the listen verb, the customer must implement a websocket server to receive and process the audio.  The endpoint should be prepared to accept websocket connections with a subprotocol name of 'audio.jambonz.org'.  
 
-The listen verb includes a `url` property which is the url of the remote websocket server to send the audio to. The url may be an absolute or relative URL. HTTP Basic Authentication can optionally be used to protect the websocket endpoint by using the 'wsAuth' property.
+The listen verb includes a **url** property which is the url of the remote websocket server to send the audio to. The url may be an absolute or relative URL. HTTP Basic Authentication can optionally be used to protect the websocket endpoint by using the **wsAuth** property.
 
 The format of the audio data sent over the websocket is 16-bit PCM encoding, with a user-specified sample rate.  The audio is sent in binary frames over the websocket connection.  
 
-Additionally, one text frame is sent immediately after the websocket connection is established.  This text frame contains a JSON string with all of the call attributes normally sent on an HTTP request (e.g. callSid, etc), plus 'sampleRate' and 'mixType' properties describing the audio sample rate and stream(s).  Additional metadata can also be added to this payload using the 'metadata' property as described in the table below.  Once the intial text frame containing the metadata has been sent, the remote side should expect to receive only binary frames, containing audio.  The remote side is not expected to send any data back over the websocket.
+Additionally, one text frame is sent immediately after the websocket connection is established.  This text frame contains a JSON string with all of the call attributes normally sent on an HTTP request (e.g. callSid, etc), plus **sampleRate** and **mixType** properties describing the audio sample rate and stream(s).  Additional metadata can also be added to this payload using the **metadata** property as described in the table below.  Once the intial text frame containing the metadata has been sent, the remote side should expect to receive only binary frames, containing audio.  The remote side is not expected to send any data back over the websocket.
 
 ```json
 {
