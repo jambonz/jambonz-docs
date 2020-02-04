@@ -381,6 +381,22 @@ You can use the following options in the `listen` action:
 | wsAuth.username | HTTP basic auth username to use on websocket connection | no |
 | wsAuth.password | HTTP basic auth password to use on websocket connection | no |
 
+## pause
+
+The pause command waits silently for a specified number of seconds.
+```json
+{
+  "verb": "pause",
+  "length": 3
+}
+```
+
+You can use the following options in the `pause` action:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| length | number of seconds to wait before continuing the app | yes |
+
 ## play
 
 The play command is used to stream recorded audio to a call.
