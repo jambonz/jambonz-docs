@@ -89,6 +89,8 @@
         
             <li><a class="toctree-l4" href="#listen">listen</a></li>
         
+            <li><a class="toctree-l4" href="#pause">pause</a></li>
+        
             <li><a class="toctree-l4" href="#play">play</a></li>
         
             <li><a class="toctree-l4" href="#redirect">redirect</a></li>
@@ -808,6 +810,31 @@
 <td>wsAuth.password</td>
 <td>HTTP basic auth password to use on websocket connection</td>
 <td>no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pause">pause</h2>
+<p>The pause command waits silently for a specified number of seconds.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;pause&quot;,
+  &quot;length&quot;: 3
+}
+</code></pre>
+
+<p>You can use the following options in the <code>pause</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>length</td>
+<td>number of seconds to wait before continuing the app</td>
+<td>yes</td>
 </tr>
 </tbody>
 </table>

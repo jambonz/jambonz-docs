@@ -72,19 +72,11 @@
         
             <li><a class="toctree-l4" href="#applications">Applications</a></li>
         
-            <li><a class="toctree-l4" href="#api-key">API Key</a></li>
-        
             <li><a class="toctree-l4" href="#calls">Calls</a></li>
         
-            <li><a class="toctree-l4" href="#conference-participants">Conference participants</a></li>
+            <li><a class="toctree-l4" href="#live-call-control">Live Call Control</a></li>
         
-            <li><a class="toctree-l4" href="#conferences">Conferences</a></li>
-        
-            <li><a class="toctree-l4" href="#phone-numbers">Phone numbers</a></li>
-        
-            <li><a class="toctree-l4" href="#queues">Queues</a></li>
-        
-            <li><a class="toctree-l4" href="#queued-calls">Queued calls</a></li>
+            <li><a class="toctree-l4" href="#management-api">Management API</a></li>
         
         </ul>
     
@@ -144,25 +136,119 @@
 <p>The jambonz REST API allows applications to query, create, and manage calls and other resources. </p>
 <p><strong>Base URL</strong></p>
 <p>All calls should use the following base URL:</p>
-<pre><code>https://&lt;domain&gt;/v1
+<pre><code>https://{serviceUrl}/v1
 </code></pre>
 
-<p>where domain is set according to your installation.</p>
+<p>where serviceUrl is set according to your own installation.</p>
 <p><strong>Authentication</strong></p>
-<p>The REST api uses HTTP Bearer Authentication that requires you include an HTTP Authorization header containing a valid api token.</p>
+<p>The REST api uses HTTP Bearer Authentication which requires that you include an HTTP Authorization header containing a valid api token.</p>
 <p><strong>Dates and Times</strong></p>
 <p>All dates and times are UTC, using RFC 2822 format.</p>
 <p><strong>Phone Numbers</strong></p>
 <p>All phone numbers are in E.164 format, starting with a plus sign ("+") and the country code.</p>
 <h2 id="applications">Applications</h2>
-<p>An application represents a set of unified behaviors to be applied to phone calls either made or received through the platform.  Applications can be created, queried, updated, and destroyed via the API.</p>
-<h2 id="api-key">API Key</h2>
-<p>An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  API keys can have different scopes: Admin scope, service provider scope, and account scope.  </p>
-<ul>
-<li>Admin scope allows the bearer to make changes to global system properties and to create Service Providers.</li>
-<li>Service provider scope allows the bearer to create and manage Accounts under the Service Providerxs.</li>
-<li>Account scope allows the bearer to create applications and calls associated with the Account.</li>
-</ul>
+<p>An application represents a set of unified behaviors to be applied to phone calls either made or received through the platform.  Applications can be created, queried, updated, and destroyed via the API by using an api_key with Account level scope.</p>
+<p>Applications have the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>property</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>account_sid</td>
+<td>identifies the Account this application belongs to</td>
+</tr>
+<tr>
+<td>application_sid</td>
+<td>unique identifier for the application</td>
+</tr>
+<tr>
+<td>name</td>
+<td>user-specified name of application</td>
+</tr>
+<tr>
+<td>call_hook</td>
+<td>web callback to invoke for new calls</td>
+</tr>
+<tr>
+<td>call_status_hook</td>
+<td>web callback to invoke for call status notifications</td>
+</tr>
+<tr>
+<td>speech_recognizer_vendor</td>
+<td>vendor to use for speech recognition.  Default: google</td>
+</tr>
+<tr>
+<td>speech_recognizer_language</td>
+<td>default language to use for speech recognition, if not specified in the 'gather' or 'transcribe' verbs.  Default: en-US</td>
+</tr>
+<tr>
+<td>speech_synthesis_vendor</td>
+<td>vendor to use for text to speech.  Default: google</td>
+</tr>
+<tr>
+<td>speech_synthesis_voice</td>
+<td>default voice to use for text to speech, if not specified in the 'say' verb.  Default: en-US-Wavenet-C</td>
+</tr>
+</tbody>
+</table>
+<h3 id="retrieving-an-application">Retrieving an Application</h3>
+<p><strong>GET /v1/Applications/{ApplicationSid}</strong></p>
+<pre><code class="xml">curl -X GET &quot;http://{serviceUrl}/v1/Applications/0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot; \
+  -H &quot;accept: application/json&quot; \
+  -H &quot;Authorization: Bearer 38700987-c7a4-4685-a5bb-af378f9734de&quot;
+
+200 response
+{
+    &quot;application_sid&quot;: &quot;0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
+    &quot;name&quot;: &quot;daveh test app&quot;,
+    &quot;account_sid&quot;: &quot;fef61e75-cec3-496c-a7bc-8368e4d02a04&quot;,
+    &quot;speech_synthesis_vendor&quot;: &quot;google&quot;,
+    &quot;speech_synthesis_voice&quot;: &quot;en-US-Wavenet-C&quot;,
+    &quot;speech_recognizer_vendor&quot;: &quot;google&quot;,
+    &quot;speech_recognizer_language&quot;: &quot;en-US&quot;,
+    &quot;call_hook&quot;: {
+        &quot;webhook_sid&quot;: &quot;f227508f-dbb0-4fe8-a7e8-2974f54e24a1&quot;,
+        &quot;url&quot;: &quot;http://vibe-test.drachtio.org.ngrok.io&quot;,
+        &quot;method&quot;: &quot;post&quot;,
+        &quot;username&quot;: &quot;drachtio&quot;,
+        &quot;password&quot;: &quot;3298fn238hf9n823hf93h24398gj93n84h&quot;
+    },
+    &quot;call_status_hook&quot;: {
+        &quot;webhook_sid&quot;: &quot;8226d33c-6a46-40d4-8fb3-02ef01199085&quot;,
+        &quot;url&quot;: &quot;http://vibe-test.drachtio.org.ngrok.io/callStatus&quot;,
+        &quot;method&quot;: &quot;post&quot;,
+        &quot;username&quot;: &quot;drachtio&quot;,
+        &quot;password&quot;: &quot;3298fn238hf9n823hf93h24398gj93n84h&quot;
+    }
+}
+</code></pre>
+
+<h3 id="listing-applications">Listing Applications</h3>
+<p><strong>GET /v1/Applications</strong></p>
+<p>Lists all Applications an Account (if an account scope api token is used).</p>
+<h3 id="deleting-an-application">Deleting an Application</h3>
+<p><strong>DELETE /v1/Applications/{ApplicationSid}</strong></p>
+<p>Deletes a specific Applications.</p>
+<h3 id="creating-an-application">Creating an Application</h3>
+<p><strong>POST /v1/Applications</strong></p>
+<p>Creates a new Application.</p>
+<p>Upon success, a 201 response is returned with a JSON body providing the account_sid ("sid") of the application that was created.</p>
+<pre><code class="xml">curl -X POST &quot;http://{serviceUrl}/v1/Applications&quot; \
+-H &quot;accept: application/json&quot; \
+-H &quot;Authorization: Bearer 38700987-c7a4-4685-a5bb-af378f9734de&quot; \
+-H &quot;Content-Type: application/json&quot; \
+-d &quot;{\&quot;name\&quot;:\&quot;forward to mobile\&quot;,\&quot;account_sid\&quot;:\&quot;fef61e75-cec3-496c-a7bc-8368e4d02a04\&quot;,\&quot;call_hook\&quot;:{\&quot;url\&quot;:\&quot;http://vibe-test.drachtio.org.ngrok.io/mobile\&quot;},\&quot;call_status_hook\&quot;:{\&quot;url\&quot;:\&quot;http://vibe-test.drachtio.org.ngrok.io/mobileStatus\&quot;}}&quot;
+
+201 response
+{
+  &quot;sid&quot;: &quot;65cddc02-6cf8-476c-97a8-1941a96e143b&quot;
+}
+</code></pre>
+
 <h2 id="calls">Calls</h2>
 <p>A call is a voice connection made between the jambonz platform and another endpoint, which may be a phone or a sip endpoint. Inbound calls are those made from external numbers or devices towards the platform, while outbound calls are placed by the platform to an endpoint.  Inbound calls quite often are used to trigger outbound calls and in such a situation the outbound call will have a Parent Call Sid that references the inbound call.</p>
 <p>Calls may created, modified, and deleted through the API.</p>
@@ -256,15 +342,106 @@ Content-Length: 46
 </tbody>
 </table>
 <p>At the time that the 201 response is returned to the caller, the call attempt has been launched (i.e., the SIP INVITE has been sent) but no ringing or call answer has yet occurred.  The caller will receive call status notifications via the call_status_hook (either that supplied in the POST request, or if an application_sid is supplied then via the configured call_status_hook for that application).</p>
-<h2 id="conference-participants">Conference participants</h2>
+<h2 id="live-call-control">Live Call Control</h2>
+<p>TBD</p>
+<h2 id="management-api">Management API</h2>
+<h3 id="accounts">Accounts</h3>
+<p>Accounts allow a subscriber to set some useful defaults that apply to all their Applications.</p>
+<p>Accounts have the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>property</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>account_sid</td>
+<td>unique identifier for the account</td>
+</tr>
+<tr>
+<td>device_calling_hook</td>
+<td>web callback invoked when a registered sip user places a call</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>indicates whether account is active or not</td>
+</tr>
+<tr>
+<td>name</td>
+<td>account name</td>
+</tr>
+<tr>
+<td>registration_hook</td>
+<td>web callback to use to authenticate sip users/devices</td>
+</tr>
+<tr>
+<td>sip_realm</td>
+<td>the sip realm (domain) that groups all sip users within the Account</td>
+</tr>
+</tbody>
+</table>
+<h4 id="retrieving-an-account">Retrieving an Account</h4>
+<p><strong>GET /v1/Accounts/{AccountSid}</strong></p>
+<pre><code class="xml">curl -X GET &quot;https://{serviceUrl}/v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04&quot; \
+   -H &quot;accept: application/json&quot; \
+   -H &quot;Authorization: Bearer 6604e5f7-9a77-42cc-b0fa-5665ace28ab3&quot;
+
+200 response
+{
+  &quot;account_sid&quot;: &quot;fef61e75-cec3-496c-a7bc-8368e4d02a04&quot;,
+  &quot;name&quot;: &quot;pactolus&quot;,
+  &quot;sip_realm&quot;: &quot;pactolus.com&quot;,
+  &quot;service_provider_sid&quot;: &quot;a44985ae-3b03-4d23-a602-4971cfd60a65&quot;,
+  &quot;is_active&quot;: 1,
+  &quot;registration_hook&quot;: {
+    &quot;url&quot;: &quot;https://app.pactolus.com/reg&quot;
+  },
+  &quot;device_calling_hook&quot;: {
+    &quot;url&quot;: &quot;https://app.pactolus/deviceCall&quot;
+  }
+}
+</code></pre>
+
+<h4 id="listing-accounts">Listing Accounts</h4>
+<p><strong>GET /v1/Accounts</strong></p>
+<p>Lists all Accounts under a Service Provider (if a service provider scope api token is used) or under all Service Providers (if an admin scope api token is used).</p>
+<h4 id="deleting-accounts">Deleting Accounts</h4>
+<p><strong>DELETE /v1/Accounts/{AccountSid}</strong></p>
+<p>Deletes a specific Account.</p>
+<h4 id="creating-an-account">Creating an Account</h4>
+<p><strong>POST /v1/Accounts</strong></p>
+<p>Creates a new Account.  This operation can only be peformed using a Service Provider or Admin scope api token.</p>
+<p>Upon success, a 201 response is returned with a JSON body providing the account_sid ("sid") of the account that was created.</p>
+<pre><code class="xml">curl -X POST &quot;https://{serviceUrl}/v1/Accounts&quot; \
+-H &quot;accept: application/json&quot; \
+-H &quot;Authorization: Bearer 38702987-c7a4-4685-a5bb-af378f9734de&quot; \
+-H &quot;Content-Type: application/json&quot; \
+-d &quot;{\&quot;name\&quot;:\&quot;brandon's account\&quot;,\&quot;sip_realm\&quot;:\&quot;sip.brandon.com\&quot;,\&quot;registration_hook\&quot;:{\&quot;url\&quot;:\&quot;https://brandon.com/reg\&quot;,\&quot;method\&quot;:\&quot;POST\&quot;},\&quot;device_calling_hook\&quot;:{\&quot;url\&quot;:\&quot;https://brandon.com/dev\&quot;,\&quot;method\&quot;:\&quot;POST\&quot;},\&quot;service_provider_sid\&quot;:\&quot;a44985ae-3b03-4d23-a602-4971cfd60a65\&quot;}&quot;
+
+201 response
+{
+  &quot;sid&quot;: &quot;65cddc02-6cf8-476c-97a8-1941a96e143b&quot;
+}
+</code></pre>
+
+<h3 id="api-key">API Key</h3>
+<p>An api key is a token that is associated with an application and is used to authenticate requests on behalf of that application.  Api keys can be created and destroyed via the API.  API keys can have different scopes: Admin scope, service provider scope, and account scope.  </p>
+<ul>
+<li>Admin scope allows the bearer to make changes to global system properties and to create Service Providers.</li>
+<li>Service provider scope allows the bearer to create and manage Accounts under the Service Providerxs.</li>
+<li>Account scope allows the bearer to create applications and calls associated with the Account.</li>
+</ul>
+<h4 id="conference-participants">Conference participants</h4>
 <p>Conference participants refer to calls that are actively connected to a conference. You can mute or remove participants from a conference as well as retrieve a list of all participants, along with detailed information about each participant, in an active conference.</p>
-<h2 id="conferences">Conferences</h2>
+<h4 id="conferences">Conferences</h4>
 <p>Conferences represent a common endpoint that can mix the audio from multiple calls.  Conferences can be created, modified and deleted through the API.</p>
-<h2 id="phone-numbers">Phone numbers</h2>
+<h4 id="phone-numbers">Phone numbers</h4>
 <p>Phone numbers represent phone numbers that route to the jambonz platform, and may be associated with an application.  A Phone number may be associated with zero or one Application.  Phone numbers can be created and destroyed through the API, as well as being modified to point to a different application.</p>
-<h2 id="queues">Queues</h2>
+<h4 id="queues">Queues</h4>
 <p>Queues represent an ordered collection of active calls that are parked (not connected to a far end).  Queues may be created and deleted through the API.</p>
-<h2 id="queued-calls">Queued calls</h2>
+<h4 id="queued-calls">Queued calls</h4>
 <p>Queued calls are calls that have been assigned to a queue.</p>
               
             </div>
