@@ -106,7 +106,7 @@ Additionally, the request **MAY** include
 And the initial webhook for a new incoming call will have:
 
 - originatingSipTrunkName: name of the SIP trunk that originated the call to the platform
-- originatingSipIP: the ip address and port of the sip gateway that originated the call
+- originatingSipIp: the ip address and port of the sip gateway that originated the call
 
 Finally, if you specify to use a POST method for the initial webhook for an incoming call, the JSON payload in that POST will also contain the entire incoming SIP INVITE request details in a 'sip' property (this is not provided if a GET request is used).  This can be useful if you need a detailed look at all of the SIP headers or the Session Description Protocol being offered.
 
@@ -580,7 +580,7 @@ After the above 'tag' verb has executed, web callbacks using POST would have a p
 	"callerId": "f0414693-bdb6-1238-6185-06d91d68c9b0",
 	"accountSid": "fef61e75-cec3-496c-a7bc-8368e4d02a04",
 	"applicationSid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
-	"originatingSipIP": "54.172.60.1:5060",
+	"originatingSipIp": "54.172.60.1:5060",
 	"originatingSipTrunkName": "twilio",
 	"customerData": {
 		"foo": "bar",
@@ -643,7 +643,7 @@ An example JSON payload for a webhook for an incoming call using a POST method:
 	"callId": "252a93d3-bdb2-1238-6185-06d91d68c9b0",
 	"sipStatus": 100,
 	"callStatus": "trying",
-	"originatingSipIP": "54.172.60.2:5060",
+	"originatingSipIp": "54.172.60.2:5060",
 	"originatingSipTrunkName": "twilio",
 	"sip": {
 		"headers": {
@@ -689,7 +689,7 @@ An example JSON payload for a call status webhook for an incoming call using a P
  	"callId": "252a93d3-bdb2-1238-6185-06d91d68c9b0",
  	"sipStatus": 200,
  	"callStatus": "in-progress",
- 	"originatingSipIP": "54.172.60.2:5060",
+ 	"originatingSipIp": "54.172.60.2:5060",
  	"originatingSipTrunkName": "twilio"
  }
 ```

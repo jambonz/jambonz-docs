@@ -84,7 +84,7 @@ Lists all Applications an Account (if an account scope api token is used).
 
 **DELETE /v1/Applications/{ApplicationSid}**
 
-Deletes a specific Applications.
+Deletes a specific Application.
 
 ### Creating an Application
 
@@ -158,10 +158,63 @@ The Request-URI of the POST contains the Account Sid of the caller and JSON payl
 
 At the time that the 201 response is returned to the caller, the call attempt has been launched (i.e., the SIP INVITE has been sent) but no ringing or call answer has yet occurred.  The caller will receive call status notifications via the call_status_hook (either that supplied in the POST request, or if an application_sid is supplied then via the configured call_status_hook for that application).
 
-## Live Call Control
+### Retrieving a Call
 
-TBD
+**GET /v1/Accounts/{AccountSid}/Calls/{CallSid}**
 
+```xml
+curl -X GET "http://{serviceUrl}/v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/ba01d74c-397e-4c80-9c8f-d57515ca8e86" \
+  -H "accept: application/json" \
+  -H "Authorization: Bearer 38700987-c7a4-4685-a5bb-af378f9734de"
+
+200 response
+{
+  "service_url": "http://172.31.3.33:4001",
+  "call_sid": "ba01d74c-397e-4c80-9c8f-d57515ca8e86",
+  "account_sid": "fef61e75-cec3-496c-a7bc-8368e4d02a04",
+  "application_sid": "0e0681b0-d49f-4fb8-b973-b5a3c6758de1",
+  "caller_name": "+15083084809",
+  "call_id": "95863901-c3c5-1238-6185-06d91d68c9b0",
+  "sip_status": "200",
+  "call_status": "completed",
+  "duration": 182,
+  "originating_sip_ip": "64.172.60.1:5060",
+  "originating_sip_trunk_name": "cheaprates"
+}
+```
+
+### Listing Calls
+
+**GET /v1/Accounts/{AccountSid}/Calls**
+
+Lists all Calls under an Account
+
+### Deleting a Call
+
+**DELETE /v1/Accounts/{AccountSid}/Calls/{CallSid}**
+
+Deletes a specific Call.
+
+### Updating a Call
+
+**POST /v1/Accounts/{AccountSid}/Calls/{CallSid}**
+
+This operation allows you to modify an active call.  Specifically, the following attributes of a live call can be updated:
+
+- A new application url can be given to the call, such that it immediately is redirected to that application and begins executing it.
+- If the call is in progress or is ringing, it can be changed to 'completed' or 'no-answer'; i.e., the call can be terminated immediately
+- If a 'listen' verb being used to stream audio to a remote server, the audio stream can be paused or resumed.
+
+The JSON payload of the POST request may contain the following properties.
+
+| property      | description |
+| ------------- |-------------|
+| call_hook | a new application to start executing |
+| call_status_hook | a new call status webhook|
+| call_status | Change the status of the call.  Possible values are 'completed' or 'no-answer' (the former terminates an answered call, the latter a call that is ringing) |
+| listen_status | Change the status of a listen stream.  Possible values are 'pause' or 'resume' |
+
+One, and only one, of call_hook, call_status, and listen_status must be included in the request.  call_status_hook may optionally be included *only* when call_hook is provided.
 
 ## Management API
 
