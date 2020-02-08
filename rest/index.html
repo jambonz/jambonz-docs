@@ -74,8 +74,6 @@
         
             <li><a class="toctree-l4" href="#calls">Calls</a></li>
         
-            <li><a class="toctree-l4" href="#live-call-control">Live Call Control</a></li>
-        
             <li><a class="toctree-l4" href="#management-api">Management API</a></li>
         
         </ul>
@@ -232,7 +230,7 @@
 <p>Lists all Applications an Account (if an account scope api token is used).</p>
 <h3 id="deleting-an-application">Deleting an Application</h3>
 <p><strong>DELETE /v1/Applications/{ApplicationSid}</strong></p>
-<p>Deletes a specific Applications.</p>
+<p>Deletes a specific Application.</p>
 <h3 id="creating-an-application">Creating an Application</h3>
 <p><strong>POST /v1/Applications</strong></p>
 <p>Creates a new Application.</p>
@@ -342,8 +340,70 @@ Content-Length: 46
 </tbody>
 </table>
 <p>At the time that the 201 response is returned to the caller, the call attempt has been launched (i.e., the SIP INVITE has been sent) but no ringing or call answer has yet occurred.  The caller will receive call status notifications via the call_status_hook (either that supplied in the POST request, or if an application_sid is supplied then via the configured call_status_hook for that application).</p>
-<h2 id="live-call-control">Live Call Control</h2>
-<p>TBD</p>
+<h3 id="retrieving-a-call">Retrieving a Call</h3>
+<p><strong>GET /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
+<pre><code class="xml">curl -X GET &quot;http://{serviceUrl}/v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/ba01d74c-397e-4c80-9c8f-d57515ca8e86&quot; \
+  -H &quot;accept: application/json&quot; \
+  -H &quot;Authorization: Bearer 38700987-c7a4-4685-a5bb-af378f9734de&quot;
+
+200 response
+{
+  &quot;service_url&quot;: &quot;http://172.31.3.33:4001&quot;,
+  &quot;call_sid&quot;: &quot;ba01d74c-397e-4c80-9c8f-d57515ca8e86&quot;,
+  &quot;account_sid&quot;: &quot;fef61e75-cec3-496c-a7bc-8368e4d02a04&quot;,
+  &quot;application_sid&quot;: &quot;0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
+  &quot;caller_name&quot;: &quot;+15083084809&quot;,
+  &quot;call_id&quot;: &quot;95863901-c3c5-1238-6185-06d91d68c9b0&quot;,
+  &quot;sip_status&quot;: &quot;200&quot;,
+  &quot;call_status&quot;: &quot;completed&quot;,
+  &quot;duration&quot;: 182,
+  &quot;originating_sip_ip&quot;: &quot;64.172.60.1:5060&quot;,
+  &quot;originating_sip_trunk_name&quot;: &quot;cheaprates&quot;
+}
+</code></pre>
+
+<h3 id="listing-calls">Listing Calls</h3>
+<p><strong>GET /v1/Accounts/{AccountSid}/Calls</strong></p>
+<p>Lists all Calls under an Account</p>
+<h3 id="deleting-a-call">Deleting a Call</h3>
+<p><strong>DELETE /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
+<p>Deletes a specific Call.</p>
+<h3 id="updating-a-call">Updating a Call</h3>
+<p><strong>POST /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
+<p>This operation allows you to modify an active call.  Specifically, the following attributes of a live call can be updated:</p>
+<ul>
+<li>A new application url can be given to the call, such that it immediately is redirected to that application and begins executing it.</li>
+<li>If the call is in progress or is ringing, it can be changed to 'completed' or 'no-answer'; i.e., the call can be terminated immediately</li>
+<li>If a 'listen' verb being used to stream audio to a remote server, the audio stream can be paused or resumed.</li>
+</ul>
+<p>The JSON payload of the POST request may contain the following properties.</p>
+<table>
+<thead>
+<tr>
+<th>property</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>call_hook</td>
+<td>a new application to start executing</td>
+</tr>
+<tr>
+<td>call_status_hook</td>
+<td>a new call status webhook</td>
+</tr>
+<tr>
+<td>call_status</td>
+<td>Change the status of the call.  Possible values are 'completed' or 'no-answer' (the former terminates an answered call, the latter a call that is ringing)</td>
+</tr>
+<tr>
+<td>listen_status</td>
+<td>Change the status of a listen stream.  Possible values are 'pause' or 'resume'</td>
+</tr>
+</tbody>
+</table>
+<p>One, and only one, of call_hook, call_status, and listen_status must be included in the request.  call_status_hook may optionally be included <em>only</em> when call_hook is provided.</p>
 <h2 id="management-api">Management API</h2>
 <h3 id="accounts">Accounts</h3>
 <p>Accounts allow a subscriber to set some useful defaults that apply to all their Applications.</p>

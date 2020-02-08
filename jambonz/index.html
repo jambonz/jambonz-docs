@@ -260,7 +260,7 @@
 <p>And the initial webhook for a new incoming call will have:</p>
 <ul>
 <li>originatingSipTrunkName: name of the SIP trunk that originated the call to the platform</li>
-<li>originatingSipIP: the ip address and port of the sip gateway that originated the call</li>
+<li>originatingSipIp: the ip address and port of the sip gateway that originated the call</li>
 </ul>
 <p>Finally, if you specify to use a POST method for the initial webhook for an incoming call, the JSON payload in that POST will also contain the entire incoming SIP INVITE request details in a 'sip' property (this is not provided if a GET request is used).  This can be useful if you need a detailed look at all of the SIP headers or the Session Description Protocol being offered.</p>
 <p>Note also that the information that jambonz sends you with each HTTP request can be augmented by your application by using the <a href="#tag">tag</a> verb.</p>
@@ -1119,7 +1119,7 @@
     &quot;callerId&quot;: &quot;f0414693-bdb6-1238-6185-06d91d68c9b0&quot;,
     &quot;accountSid&quot;: &quot;fef61e75-cec3-496c-a7bc-8368e4d02a04&quot;,
     &quot;applicationSid&quot;: &quot;0e0681b0-d49f-4fb8-b973-b5a3c6758de1&quot;,
-    &quot;originatingSipIP&quot;: &quot;54.172.60.1:5060&quot;,
+    &quot;originatingSipIp&quot;: &quot;54.172.60.1:5060&quot;,
     &quot;originatingSipTrunkName&quot;: &quot;twilio&quot;,
     &quot;customerData&quot;: {
         &quot;foo&quot;: &quot;bar&quot;,
@@ -1218,7 +1218,7 @@
     &quot;callId&quot;: &quot;252a93d3-bdb2-1238-6185-06d91d68c9b0&quot;,
     &quot;sipStatus&quot;: 100,
     &quot;callStatus&quot;: &quot;trying&quot;,
-    &quot;originatingSipIP&quot;: &quot;54.172.60.2:5060&quot;,
+    &quot;originatingSipIp&quot;: &quot;54.172.60.2:5060&quot;,
     &quot;originatingSipTrunkName&quot;: &quot;twilio&quot;,
     &quot;sip&quot;: {
         &quot;headers&quot;: {
@@ -1263,7 +1263,7 @@
     &quot;callId&quot;: &quot;252a93d3-bdb2-1238-6185-06d91d68c9b0&quot;,
     &quot;sipStatus&quot;: 200,
     &quot;callStatus&quot;: &quot;in-progress&quot;,
-    &quot;originatingSipIP&quot;: &quot;54.172.60.2:5060&quot;,
+    &quot;originatingSipIp&quot;: &quot;54.172.60.2:5060&quot;,
     &quot;originatingSipTrunkName&quot;: &quot;twilio&quot;
  }
 </code></pre>
