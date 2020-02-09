@@ -328,6 +328,11 @@ Content-Length: 46
 <td>yes</td>
 </tr>
 <tr>
+<td>tag</td>
+<td>an object containing customer data to associate with this call; this essentially calls the <a href="/jambonz-docs/jambonz#tag">tag</a> verb for you</td>
+<td>no</td>
+</tr>
+<tr>
 <td>timeout</td>
 <td>the number of seconds to wait for the call to be answered.  Defaults to 60.</td>
 <td>no</td>
@@ -370,7 +375,7 @@ Content-Length: 46
 <p>Deletes a specific Call.</p>
 <h3 id="updating-a-call">Updating a Call</h3>
 <p><strong>POST /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
-<p>This operation allows you to modify certain aspects of an active call.  The JSON payload should contain <strong>one</strong> of the following properties:</p>
+<p>This operation allows you to modify certain aspects of an active call (aka "live call control").  The JSON payload should contain <strong>one</strong> of the following properties:</p>
 <table>
 <thead>
 <tr>
