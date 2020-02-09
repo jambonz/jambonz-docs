@@ -153,6 +153,7 @@ The Request-URI of the POST contains the Account Sid of the caller and JSON payl
 | call_hook.password | password for HTTP Basic Authentication | no |
 | call_status_hook | an object specifying a  a web callback that will be invoked with call status notifications.  Object properties the same as 'call_hook' property above. | no |
 | from | the calling party number | yes |
+| tag | an object containing customer data to associate with this call; this essentially calls the [tag](/jambonz-docs/jambonz#tag) verb for you| no |
 | timeout | the number of seconds to wait for the call to be answered.  Defaults to 60. | no |
 | to | specifies the destination of the call. See description of [target types](/jambonz-docs/jambonz#target-types) in jambonz call control language. | yes | 
 
@@ -199,7 +200,7 @@ Deletes a specific Call.
 
 **POST /v1/Accounts/{AccountSid}/Calls/{CallSid}**
 
-This operation allows you to modify certain aspects of an active call.  The JSON payload should contain **one** of the following properties:
+This operation allows you to modify certain aspects of an active call (aka "live call control").  The JSON payload should contain **one** of the following properties:
 
 | property      | description | when can this be used
 | ------------- |-------------| ---------------------|
