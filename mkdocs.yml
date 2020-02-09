@@ -7,3 +7,4 @@ nav:
     - Data architecture: data.md
     - Authenticating sip clients: register-hook.md
 theme: gitbook
+custom_dir: gitbook
