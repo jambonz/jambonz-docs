@@ -370,40 +370,103 @@ Content-Length: 46
 <p>Deletes a specific Call.</p>
 <h3 id="updating-a-call">Updating a Call</h3>
 <p><strong>POST /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
-<p>This operation allows you to modify an active call.  Specifically, the following attributes of a live call can be updated:</p>
-<ul>
-<li>A new application url can be given to the call, such that it immediately is redirected to that application and begins executing it.</li>
-<li>If the call is in progress or is ringing, it can be changed to 'completed' or 'no-answer'; i.e., the call can be terminated immediately</li>
-<li>If a 'listen' verb being used to stream audio to a remote server, the audio stream can be paused or resumed.</li>
-</ul>
-<p>The JSON payload of the POST request may contain the following properties.</p>
+<p>This operation allows you to modify certain aspects of an active call.  The JSON payload should contain <strong>one</strong> of the following properties:</p>
 <table>
 <thead>
 <tr>
 <th>property</th>
 <th>description</th>
+<th>when can this be used</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>call_hook</td>
-<td>a new application to start executing</td>
-</tr>
-<tr>
-<td>call_status_hook</td>
-<td>a new call status webhook</td>
+<td>a new application to start executing on the call</td>
+<td>at any time a call is active</td>
 </tr>
 <tr>
 <td>call_status</td>
 <td>Change the status of the call.  Possible values are 'completed' or 'no-answer' (the former terminates an answered call, the latter a call that is ringing)</td>
+<td>at any time a call is in-progress or ringing</td>
 </tr>
 <tr>
 <td>listen_status</td>
-<td>Change the status of a listen stream.  Possible values are 'pause' or 'resume'</td>
+<td>Change the status of a listen stream.  Possible values are 'pause' or 'resume'.  Pausing a stream maintains the websocket connection but will discontinue sending audio over the connection.  Resuming will start sending audio again.  This may be useful, for example, when a caller is providing confidential information that you do not want to appear in a recording.</td>
+<td>only when a listen command is active on the call (may be nested in an active dial command)</td>
+</tr>
+<tr>
+<td>whisper</td>
+<td>Play a mid-call whisper prompt to one of the parties on a call in progress.  The whisper prompt is provided in a play or say verb, as shown in the examples below.  The whisper may be played to either party on the call, depending on the call_sid provided in the path of the request-uri. The other party is briefly placed on hold while the prompt is played, and then reconnected to the other party afterwards.</td>
+<td>only when a dial command is currently active on the call</td>
 </tr>
 </tbody>
 </table>
-<p>One, and only one, of call_hook, call_status, and listen_status must be included in the request.  call_status_hook may optionally be included <em>only</em> when call_hook is provided.</p>
+<p>Again: one, and <em>only</em> one, of these properties must be included in the body of the request.</p>
+<p>Additionally, if call_hook is provided, then call_status_hook may also optionally be included.  This is used to specify a new callback to send call status events to.</p>
+<p>The response to a successful POST is a 202 Accepted.</p>
+<h4 id="providing-a-new-application">Providing a new application</h4>
+<pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+    &quot;call_hook&quot;: {
+        &quot;url&quot;: &quot;/transfer-to-support&quot;,
+    }
+}
+</code></pre>
+
+<h4 id="terminating-a-call">Terminating a call</h4>
+<pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+    &quot;call_status&quot;: &quot;completed&quot;
+}
+</code></pre>
+
+<h4 id="pausing-a-listen-stream">Pausing a listen stream</h4>
+<pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+    &quot;listen_status&quot;: &quot;pause&quot;
+}
+</code></pre>
+
+<h4 id="playing-a-whisper-prompt">Playing a whisper prompt</h4>
+<p>The content of the whisper prompt may be a single say or play verb:</p>
+<pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+    &quot;whisper&quot;: {
+        &quot;verb&quot;: &quot;say&quot;,
+        &quot;text&quot;: &quot;You have two minutes remaining on your call.&quot;
+    }
+}
+</code></pre>
+
+<p>or an array of play or say verbs:</p>
+<pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+    &quot;whisper&quot;: [{
+        &quot;verb&quot;: &quot;say&quot;,
+        &quot;text&quot;: &quot;You have two minutes remaining on your call.&quot;
+    }, {
+        &quot;verb&quot;: &quot;say&quot;,
+        &quot;text&quot;: &quot;Please use them wisely&quot;
+    }]
+}
+</code></pre>
+
 <h2 id="management-api">Management API</h2>
 <h3 id="accounts">Accounts</h3>
 <p>Accounts allow a subscriber to set some useful defaults that apply to all their Applications.</p>
