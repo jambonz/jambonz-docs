@@ -199,22 +199,86 @@ Deletes a specific Call.
 
 **POST /v1/Accounts/{AccountSid}/Calls/{CallSid}**
 
-This operation allows you to modify an active call.  Specifically, the following attributes of a live call can be updated:
+This operation allows you to modify certain aspects of an active call.  The JSON payload should contain **one** of the following properties:
 
-- A new application url can be given to the call, such that it immediately is redirected to that application and begins executing it.
-- If the call is in progress or is ringing, it can be changed to 'completed' or 'no-answer'; i.e., the call can be terminated immediately
-- If a 'listen' verb being used to stream audio to a remote server, the audio stream can be paused or resumed.
+| property      | description | when can this be used
+| ------------- |-------------| ---------------------|
+| call_hook | a new application to start executing on the call | at any time a call is active |
+| call_status | Change the status of the call.  Possible values are 'completed' or 'no-answer' (the former terminates an answered call, the latter a call that is ringing) | at any time a call is in-progress or ringing |
+| listen_status | Change the status of a listen stream.  Possible values are 'pause' or 'resume'.  Pausing a stream maintains the websocket connection but will discontinue sending audio over the connection.  Resuming will start sending audio again.  This may be useful, for example, when a caller is providing confidential information that you do not want to appear in a recording. | only when a listen command is active on the call (may be nested in an active dial command) | 
+| whisper | Play a mid-call whisper prompt to one of the parties on a call in progress.  The whisper prompt is provided in a play or say verb, as shown in the examples below.  The whisper may be played to either party on the call, depending on the call_sid provided in the path of the request-uri. The other party is briefly placed on hold while the prompt is played, and then reconnected to the other party afterwards.| only when a dial command is currently active on the call |
 
-The JSON payload of the POST request may contain the following properties.
+Again: one, and *only* one, of these properties must be included in the body of the request.
 
-| property      | description |
-| ------------- |-------------|
-| call_hook | a new application to start executing |
-| call_status_hook | a new call status webhook|
-| call_status | Change the status of the call.  Possible values are 'completed' or 'no-answer' (the former terminates an answered call, the latter a call that is ringing) |
-| listen_status | Change the status of a listen stream.  Possible values are 'pause' or 'resume' |
+Additionally, if call_hook is provided, then call_status_hook may also optionally be included.  This is used to specify a new callback to send call status events to.
 
-One, and only one, of call_hook, call_status, and listen_status must be included in the request.  call_status_hook may optionally be included *only* when call_hook is provided.
+The response to a successful POST is a 202 Accepted.
+
+#### Providing a new application
+```xml
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+	"call_hook": {
+		"url": "/transfer-to-support",
+	}
+}
+```
+#### Terminating a call
+```xml
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+	"call_status": "completed"
+}
+```
+#### Pausing a listen stream
+```xml
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+	"listen_status": "pause"
+}
+```
+
+
+#### Playing a whisper prompt
+
+The content of the whisper prompt may be a single say or play verb:
+```xml
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+	"whisper": {
+		"verb": "say",
+		"text": "You have two minutes remaining on your call."
+	}
+}
+```
+or an array of play or say verbs:
+```xml
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+	"whisper": [{
+		"verb": "say",
+		"text": "You have two minutes remaining on your call."
+	}, {
+		"verb": "say",
+		"text": "Please use them wisely"
+	}]
+}
+```
 
 ## Management API
 
