@@ -6,4 +6,4 @@ nav:
         - REST API: rest.md
     - Data architecture: data.md
     - Authenticating sip clients: register-hook.md
-theme: readthedocs
+theme: gitbook
