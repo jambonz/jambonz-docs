@@ -246,7 +246,16 @@ Content-Type: application/json
 	"listen_status": "pause"
 }
 ```
+#### Resuming a listen stream
+```xml
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
 
+{
+	"listen_status": "resume"
+}
+```
 
 #### Playing a whisper prompt
 
