@@ -279,7 +279,7 @@ Content-Type: application/json
 	}]
 }
 ```
-
+No verb other than a play or say verb may be included.  The `loop` property of the verb is not supported in this usage.
 ## Management API
 
 ### Accounts
