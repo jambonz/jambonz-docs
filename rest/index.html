@@ -437,6 +437,16 @@ Content-Type: application/json
 }
 </code></pre>
 
+<h4 id="resuming-a-listen-stream">Resuming a listen stream</h4>
+<pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
+Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+    &quot;listen_status&quot;: &quot;resume&quot;
+}
+</code></pre>
+
 <h4 id="playing-a-whisper-prompt">Playing a whisper prompt</h4>
 <p>The content of the whisper prompt may be a single say or play verb:</p>
 <pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
