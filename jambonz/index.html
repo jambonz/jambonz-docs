@@ -445,7 +445,7 @@
 </tr>
 <tr>
 <td>dtmfHook</td>
-<td>a web callback to be invoked when a dtmfCapture entry is matched</td>
+<td>a web callback to be invoked when a dtmfCapture entry is matched.  This is a notification only -- no response is expected, and any desired actions must be carried out via the REST updateCall API.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -959,11 +959,11 @@
 </tr>
 <tr>
 <td>'abandoned'</td>
-<td>The call was abandoned in park</td>
+<td>The call was abandoned in park (i.e. the caller hung up)</td>
 </tr>
 <tr>
 <td>'left'</td>
-<td>the call left the parking slot due to a <code>leave</code> command</td>
+<td>the call left the parking slot due to a <a href="#leave">leave</a> command</td>
 </tr>
 <tr>
 <td>'timeout'</td>
