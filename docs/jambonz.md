@@ -128,13 +128,15 @@ You may optionally use [HTTP Basic Authentication](https://en.wikipedia.org/wiki
 Refer to the [Example messages](#example-messages) section to see further details.
 
 ## Initial state of incoming calls
-When the jambonz platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:
+When the jambonz platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  You have some choices here.
+
+Your application can:
 
 - answer the call, which connects the call to a media endpoint that can perform IVR functions on the call,
-- outdial a new call, and bridge the two calls together, 
+- outdial a new call, and bridge the two calls together (i.e use the dial verb), 
 - reject the call, with a specified SIP status code and reason,
-- redirect the call (i.e. generating a SIP 302 response), or
-- establish an early media connection without answering the call.
+- redirect the call (i.e. generating a SIP 302 response back to the caller), or
+- establish an early media connection and play audio to the caller without answering the call.
 
 The last is interesting and worthy of further comment.  The intent is to let you play audio to callers without necessarily answering the call.  You signal this by including an "earlyMedia" property with a value of true in the application.  When receiving this, the jambonz core will create an early media connection (183 Session Progress) if possible, as shown in the example below.
 
@@ -164,7 +166,7 @@ The say, play, gather, listen, and transcribe verbs all support the "earlyMedia"
 The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.
 
 ## Speech integration
-The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.
+The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the near future.
 
 A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition.
 
@@ -182,6 +184,10 @@ The dial command is used to create a new call by dialing out to a number, a regi
   "action": "/outdial",
   "callerId": "+16173331212",
   "answerOnBridge": true,
+  "dtmfCapture": ["*2", "*3"],
+  "dtmfHook": {
+    "url": "/dtmf"
+  },
   "target": [
     {
       "type": "phone",
@@ -206,11 +212,12 @@ As the example above illustrates, when you execute the 'dial' command you are ma
 
 If multiple endpoints are specified in the `target` array, all targets are outdialed at the same time (e.g., "simring", or "blast outdial" as some folks call it) and the call will be connected to the first endpoint that answers the call and, optionally, completes a call screening application as specified in the `url` property.
 
-There are three types of endpoints:
+There are four types of endpoints:
 
 * a telephone phone number,
 * a sip endpoint, identified by a sip uri, or
-* a webrtc or sip client that has registered directly with your application.
+* a webrtc or sip client that has registered directly with your application,
+* a [parking slot](#park)
 
 You can use the following attributes in the `dial` command:
 
@@ -222,6 +229,8 @@ You can use the following attributes in the `dial` command:
 | confirmMethod | 'GET', 'POST' - http method to use on 'confirmUrl' callback. | no |
 | confirmUrl | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested [target](#target-types) object.  | no |
 | dialMusic | url that specifies a .wav or .mp3 audio file of custom audio or ringback to play to the caller while the outbound call is ringing. | no |
+| dtmfCapture | an array of strings that represent dtmf sequence which should trigger a mid-call notification to the application | no |
+| dtmfHook | a web callback to be invoked when a dtmfCapture entry is matched | no|
 | headers | an object containing arbitrary sip headers to apply to the outbound call attempt(s) | no |
 | listen | a nested [listen](#listen) action, which will cause audio from the call to be streamed to a remote server over a websocket connection | no |
 | method | 'GET', 'POST' - http method to use on 'action' callback.  <br/>Defaults to POST.| no|
@@ -255,7 +264,7 @@ You can use the following attributes in the `dial` command:
 
 Using this approach, it is possible to send calls out a sip trunk.  If the sip trunking provider enforces username/password authentication, then supply the credentials in the `auth` property.
 
-**a registered webrtc or sip user**
+*a registered webrtc or sip user*
 
 | option        | description | required  |
 | ------------- |-------------| -----|
@@ -264,7 +273,16 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 | method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
 | name | registered sip user, including domain (e.g. "joeb@sip.jambonz.org") | yes |
 
-The `url` property that can be optionally specified as part of a target is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.
+*parking slot*
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| type | must be "park" | yes |
+| slot | the name of the parking slot | yes |
+
+Dialing to a parking slot allows you to pick up a call that has been parked in that slot.  If the slot is empty, the `dial` verb will return immediate failure.
+
+The `url` property that can be optionally specified as part of the target types (with the exception of the `park` type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.
 
 This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").
 
@@ -334,6 +352,18 @@ You can use the following options in the `hangup` action:
 | ------------- |-------------| -----|
 | headers | an object containing SIP headers to include in the BYE request | no |
 
+## leave
+
+The `leave` verb transfers a call out of park.  The call then returns to the flow of execution following the [park](#park) verb that parked the call.
+
+```json
+{
+  "verb": "leave"
+}
+```
+
+There are no options for the `leave` verb.
+
 
 ## listen
 
@@ -380,6 +410,61 @@ You can use the following options in the `listen` action:
 | url | url of remote server to connect to | yes |
 | wsAuth.username | HTTP basic auth username to use on websocket connection | no |
 | wsAuth.password | HTTP basic auth password to use on websocket connection | no |
+
+## park
+
+The `park` command is used to park a call at a named parking slot.  Once a call is parked, it can be picked up by another call using the `dial` verb with a target type of 'park'.  The park verb completes when one of the following happens:
+
+- It is picked up by another caller, using the dial verb (and that call subsequently completes).
+- It leaves the parking slot due to executing a [leave](#leave) verb.
+- It leaves the parking slot due to a timeout.
+- The caller hangs up.
+
+Once the park command completes, it optionally calls a configured `action` parameter (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.
+
+
+```json
+{
+  "verb": "park",
+  "slot": "7000",
+  "action": {
+    "url": "/unparked"
+  },
+  "waitHook": {
+    "url": "/while-parked"
+  },
+  "timeout": 60
+}
+```
+
+You can use the following options in the `park` command:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| action | a webhook that is invoked when the call leaves the parking slot.  If the call has been bridged to another party, the webhook is invoked when that call is complete. See below for request parameters | no |
+| slot | a label for the parking location | yes |
+| timeout | number of seconds to wait for pickup before exiting the parking slot | no |
+| waitHook | a webhook to call for verbs to execute while parked.  The returned task list may only include play, say, or gather verbs.  Once the task list is completed, the webhook will be called again repeatedly while the call is parked | no |
+
+The `action` request includes the standard request parameters, plus the following:
+
+| property | description |
+| ------------- |-------------|
+| parkOutcome | the result of the park command, as described below |
+| slot | the parking slot used |
+| parkTime | the number of seconds the call was parked |
+
+The `parkOutcome` is one of the following:
+
+| value | description |
+| ------------- |-------------|
+| 'bridged' | The parked call was picked up |
+| 'abandoned' | The call was abandoned in park |
+| 'left' | the call left the parking slot due to a `leave` command |
+| 'timeout' | the call left the parking slot due to a timeout |
+
+
+
 
 ## pause
 
@@ -629,7 +714,7 @@ You can use the following options in the `transcribe` command:
 
 # Example messages
 
-An example JSON payload for a webhook for an incoming call using a POST method:
+An example JSON payload for a webhook for an incoming call using a POST method. There's a lot of detail here, because when you specify to receive a POST you are getting the full SIP INVITE.
 
 ```
 {

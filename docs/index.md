@@ -35,7 +35,7 @@ b) a **self-hosted** solution: <p style="margin-left:10px">You run it on your ow
 
 c) a **radical approach to privacy**.<p style="margin-left:10px">None of your customer's personally identifiable information (PII) is stored at rest within the jambonz platform itself.  Ever.</p>
 
-> Recordings or transcriptions that might contain sensitive information such as credit card numbers, HIPAA-related information, or social security numbers?  Nope.  Never stored at rest within the platform itself.
+> Recordings or transcriptions that might contain sensitive information such as credit card numbers, HIPAA-related information, or social security numbers are neever stored at rest within the platform itself.
 
 <p style="margin-left:10px">How about SIP credentials for devices or webRTC clients that you want to be allow to register with the platform and make phone calls?  Sure, we allow all of that but we don't store the credentials -- you do.  We never store any SIP credentials that could be hacked or used by others to run up your bill.</p>
 
