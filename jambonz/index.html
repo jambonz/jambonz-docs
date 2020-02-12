@@ -146,7 +146,11 @@
                 
             <li class="second-level"><a href="#hangup">hangup</a></li>
                 
+            <li class="second-level"><a href="#leave">leave</a></li>
+                
             <li class="second-level"><a href="#listen">listen</a></li>
+                
+            <li class="second-level"><a href="#park">park</a></li>
                 
             <li class="second-level"><a href="#pause">pause</a></li>
                 
@@ -312,13 +316,14 @@
 </table>
 <p>Refer to the <a href="#example-messages">Example messages</a> section to see further details.</p>
 <h2 id="initial-state-of-incoming-calls">Initial state of incoming calls</h2>
-<p>When the jambonz platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  Your application can:</p>
+<p>When the jambonz platform receives a new incoming call, it responds 100 Trying to the INVITE but does not automatically answer the call.  It is up to your application to decide how to finally respond to the INVITE.  You have some choices here.</p>
+<p>Your application can:</p>
 <ul>
 <li>answer the call, which connects the call to a media endpoint that can perform IVR functions on the call,</li>
-<li>outdial a new call, and bridge the two calls together, </li>
+<li>outdial a new call, and bridge the two calls together (i.e use the dial verb), </li>
 <li>reject the call, with a specified SIP status code and reason,</li>
-<li>redirect the call (i.e. generating a SIP 302 response), or</li>
-<li>establish an early media connection without answering the call.</li>
+<li>redirect the call (i.e. generating a SIP 302 response back to the caller), or</li>
+<li>establish an early media connection and play audio to the caller without answering the call.</li>
 </ul>
 <p>The last is interesting and worthy of further comment.  The intent is to let you play audio to callers without necessarily answering the call.  You signal this by including an "earlyMedia" property with a value of true in the application.  When receiving this, the jambonz core will create an early media connection (183 Session Progress) if possible, as shown in the example below.</p>
 <blockquote>
@@ -347,7 +352,7 @@
 <p>The say, play, gather, listen, and transcribe verbs all support the "earlyMedia" property.  </p>
 <p>The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.</p>
 <h2 id="speech-integration">Speech integration</h2>
-<p>The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the future.</p>
+<p>The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the near future.</p>
 <p>A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition.</p>
 <p>As part of the definition of an application, you can set defaults for the voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties</p>
 <h1 id="supported-verbs">Supported Verbs</h1>
@@ -359,6 +364,10 @@
   &quot;action&quot;: &quot;/outdial&quot;,
   &quot;callerId&quot;: &quot;+16173331212&quot;,
   &quot;answerOnBridge&quot;: true,
+  &quot;dtmfCapture&quot;: [&quot;*2&quot;, &quot;*3&quot;],
+  &quot;dtmfHook&quot;: {
+    &quot;url&quot;: &quot;/dtmf&quot;
+  },
   &quot;target&quot;: [
     {
       &quot;type&quot;: &quot;phone&quot;,
@@ -382,11 +391,12 @@
 
 <p>As the example above illustrates, when you execute the 'dial' command you are making one or more outbound call attempts in an effort to create one new call, which can be bridged to a parent call. The <code>target</code> property specifies an array of call destinations (aka <a href="#target-types">endpoints</a>) that will be attempted simultaneously.  </p>
 <p>If multiple endpoints are specified in the <code>target</code> array, all targets are outdialed at the same time (e.g., "simring", or "blast outdial" as some folks call it) and the call will be connected to the first endpoint that answers the call and, optionally, completes a call screening application as specified in the <code>url</code> property.</p>
-<p>There are three types of endpoints:</p>
+<p>There are four types of endpoints:</p>
 <ul>
 <li>a telephone phone number,</li>
 <li>a sip endpoint, identified by a sip uri, or</li>
-<li>a webrtc or sip client that has registered directly with your application.</li>
+<li>a webrtc or sip client that has registered directly with your application,</li>
+<li>a <a href="#park">parking slot</a></li>
 </ul>
 <p>You can use the following attributes in the <code>dial</code> command:</p>
 <table>
@@ -426,6 +436,16 @@
 <tr>
 <td>dialMusic</td>
 <td>url that specifies a .wav or .mp3 audio file of custom audio or ringback to play to the caller while the outbound call is ringing.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dtmfCapture</td>
+<td>an array of strings that represent dtmf sequence which should trigger a mid-call notification to the application</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dtmfHook</td>
+<td>a web callback to be invoked when a dtmfCapture entry is matched</td>
 <td>no</td>
 </tr>
 <tr>
@@ -546,7 +566,7 @@
 </tbody>
 </table>
 <p>Using this approach, it is possible to send calls out a sip trunk.  If the sip trunking provider enforces username/password authentication, then supply the credentials in the <code>auth</code> property.</p>
-<p><strong>a registered webrtc or sip user</strong></p>
+<p><em>a registered webrtc or sip user</em></p>
 <table>
 <thead>
 <tr>
@@ -578,7 +598,30 @@
 </tr>
 </tbody>
 </table>
-<p>The <code>url</code> property that can be optionally specified as part of a target is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
+<p><em>parking slot</em></p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>must be "park"</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>slot</td>
+<td>the name of the parking slot</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>Dialing to a parking slot allows you to pick up a call that has been parked in that slot.  If the slot is empty, the <code>dial</code> verb will return immediate failure.</p>
+<p>The <code>url</code> property that can be optionally specified as part of the target types (with the exception of the <code>park</code> type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
 <p>This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").</p>
 <h2 id="gather">gather</h2>
 <p>The gather command is used to collect dtmf or speech input.</p>
@@ -711,6 +754,14 @@
 </tr>
 </tbody>
 </table>
+<h2 id="leave">leave</h2>
+<p>The <code>leave</code> verb transfers a call out of park.  The call then returns to the flow of execution following the <a href="#park">park</a> verb that parked the call.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;leave&quot;
+}
+</code></pre>
+
+<p>There are no options for the <code>leave</code> verb.</p>
 <h2 id="listen">listen</h2>
 <p>jambonz does not have a 'record' verb.    This is by design, for data privacy reasons.  </p>
 <blockquote>
@@ -813,6 +864,110 @@
 <td>wsAuth.password</td>
 <td>HTTP basic auth password to use on websocket connection</td>
 <td>no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="park">park</h2>
+<p>The <code>park</code> command is used to park a call at a named parking slot.  Once a call is parked, it can be picked up by another call using the <code>dial</code> verb with a target type of 'park'.  The park verb completes when one of the following happens:</p>
+<ul>
+<li>It is picked up by another caller, using the dial verb (and that call subsequently completes).</li>
+<li>It leaves the parking slot due to executing a <a href="#leave">leave</a> verb.</li>
+<li>It leaves the parking slot due to a timeout.</li>
+<li>The caller hangs up.</li>
+</ul>
+<p>Once the park command completes, it optionally calls a configured <code>action</code> parameter (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;park&quot;,
+  &quot;slot&quot;: &quot;7000&quot;,
+  &quot;action&quot;: {
+    &quot;url&quot;: &quot;/unparked&quot;
+  },
+  &quot;waitHook&quot;: {
+    &quot;url&quot;: &quot;/while-parked&quot;
+  },
+  &quot;timeout&quot;: 60
+}
+</code></pre>
+
+<p>You can use the following options in the <code>park</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>action</td>
+<td>a webhook that is invoked when the call leaves the parking slot.  If the call has been bridged to another party, the webhook is invoked when that call is complete. See below for request parameters</td>
+<td>no</td>
+</tr>
+<tr>
+<td>slot</td>
+<td>a label for the parking location</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>number of seconds to wait for pickup before exiting the parking slot</td>
+<td>no</td>
+</tr>
+<tr>
+<td>waitHook</td>
+<td>a webhook to call for verbs to execute while parked.  The returned task list may only include play, say, or gather verbs.  Once the task list is completed, the webhook will be called again repeatedly while the call is parked</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>action</code> request includes the standard request parameters, plus the following:</p>
+<table>
+<thead>
+<tr>
+<th>property</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parkOutcome</td>
+<td>the result of the park command, as described below</td>
+</tr>
+<tr>
+<td>slot</td>
+<td>the parking slot used</td>
+</tr>
+<tr>
+<td>parkTime</td>
+<td>the number of seconds the call was parked</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>parkOutcome</code> is one of the following:</p>
+<table>
+<thead>
+<tr>
+<th>value</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>'bridged'</td>
+<td>The parked call was picked up</td>
+</tr>
+<tr>
+<td>'abandoned'</td>
+<td>The call was abandoned in park</td>
+</tr>
+<tr>
+<td>'left'</td>
+<td>the call left the parking slot due to a <code>leave</code> command</td>
+</tr>
+<tr>
+<td>'timeout'</td>
+<td>the call left the parking slot due to a timeout</td>
 </tr>
 </tbody>
 </table>
@@ -1209,7 +1364,7 @@
 <p><strong>Note</strong>: the <code>dualChannel</code> property is not currently implemented.</p>
 </blockquote>
 <h1 id="example-messages">Example messages</h1>
-<p>An example JSON payload for a webhook for an incoming call using a POST method:</p>
+<p>An example JSON payload for a webhook for an incoming call using a POST method. There's a lot of detail here, because when you specify to receive a POST you are getting the full SIP INVITE.</p>
 <pre><code>{
     &quot;direction&quot;: &quot;inbound&quot;,
     &quot;callSid&quot;: &quot;1fe62f7c-ebb9-4b96-b75b-7d04ff2b195d&quot;,
