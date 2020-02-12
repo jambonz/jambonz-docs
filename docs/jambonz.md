@@ -230,7 +230,7 @@ You can use the following attributes in the `dial` command:
 | confirmUrl | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested [target](#target-types) object.  | no |
 | dialMusic | url that specifies a .wav or .mp3 audio file of custom audio or ringback to play to the caller while the outbound call is ringing. | no |
 | dtmfCapture | an array of strings that represent dtmf sequence which should trigger a mid-call notification to the application | no |
-| dtmfHook | a web callback to be invoked when a dtmfCapture entry is matched | no|
+| dtmfHook | a web callback to be invoked when a dtmfCapture entry is matched.  This is a notification only -- no response is expected, and any desired actions must be carried out via the REST updateCall API. | no|
 | headers | an object containing arbitrary sip headers to apply to the outbound call attempt(s) | no |
 | listen | a nested [listen](#listen) action, which will cause audio from the call to be streamed to a remote server over a websocket connection | no |
 | method | 'GET', 'POST' - http method to use on 'action' callback.  <br/>Defaults to POST.| no|
@@ -364,7 +364,6 @@ The `leave` verb transfers a call out of park.  The call then returns to the flo
 
 There are no options for the `leave` verb.
 
-
 ## listen
 
 jambonz does not have a 'record' verb.    This is by design, for data privacy reasons.  
@@ -459,8 +458,8 @@ The `parkOutcome` is one of the following:
 | value | description |
 | ------------- |-------------|
 | 'bridged' | The parked call was picked up |
-| 'abandoned' | The call was abandoned in park |
-| 'left' | the call left the parking slot due to a `leave` command |
+| 'abandoned' | The call was abandoned in park (i.e. the caller hung up) |
+| 'left' | the call left the parking slot due to a [leave](#leave) command |
 | 'timeout' | the call left the parking slot due to a timeout |
 
 
