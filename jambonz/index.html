@@ -138,6 +138,8 @@
                 
             <li class="second-level"><a href="#speech-integration">Speech integration</a></li>
                 
+            <li class="second-level"><a href="#webhooks">Webhooks</a></li>
+                
         <li class="first-level "><a href="#supported-verbs">Supported Verbs</a></li>
             <li class="second-level"><a href="#dial">dial</a></li>
                 
@@ -196,7 +198,7 @@
 <p>Some verbs allow other verbs to be nested; e.g. "gather" can have a nested "say" command in order to play a prompt and collect a response in one command:</p>
 <pre><code>{
   &quot;verb&quot;: &quot;gather&quot;,
-  &quot;action&quot;: &quot;https://00dd977a.ngrok.io/gather&quot;,
+  &quot;actionHook&quot;: &quot;/gatherCardNumber&quot;,
   &quot;input&quot;: [&quot;speech&quot;, &quot;dtmf&quot;],
   &quot;timeout&quot;: 16,
   &quot;numDigits&quot;: 6,
@@ -222,7 +224,7 @@
   },
   {
     &quot;verb&quot;: &quot;listen&quot;,
-    &quot;action&quot;: &quot;http://example.com/voicemail&quot;,
+    &quot;actionHook&quot;: &quot;http://example.com/voicemail&quot;,
     &quot;url&quot;: &quot;http://ws.example.com&quot;,
     &quot;finishOnKey&quot;: &quot;#&quot;,
     &quot;metadata&quot;: {
@@ -232,7 +234,7 @@
     &quot;playBeep&quot;: true,
     &quot;timeout&quot;: 20,
     &quot;transcribe&quot;: {
-      &quot;transcriptionCallback&quot;: &quot;http://example.com/transcription&quot;
+      &quot;transcriptionHook&quot;: &quot;/transcription&quot;
     }
   },
   {
@@ -355,18 +357,42 @@
 <p>The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the near future.</p>
 <p>A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition.</p>
 <p>As part of the definition of an application, you can set defaults for the voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties</p>
+<h2 id="webhooks">Webhooks</h2>
+<p>Many of the verbs specify a webhook that will be called when the verb completes, or has some information to deliver to your application.  These verbs contain a property that allow you to configure that webhook.  By convention, the property name will always end in "Hook"; e.g "actionHook", "dtmfHook", and so on.</p>
+<p>You can either specify the webhook as a simple string specifying a url:</p>
+<pre><code>&quot;actionHook&quot;: &quot;https://my.appserver.com/results&quot;
+</code></pre>
+
+<p>or a relative url</p>
+<pre><code>&quot;actionHook&quot;: &quot;/results&quot;
+</code></pre>
+
+<p>In the latter case, the base url of the application will be applied.</p>
+<p>Alternatively, you can provide an object containing a url (required) and optional method and basic authentication parameters, e.g.:</p>
+<pre><code>&quot;actionHook&quot;: {
+  &quot;url&quot;: &quot;https://my.appserver.com/results&quot;,
+  &quot;method&quot;: &quot;GET&quot;,
+  &quot;auth&quot;: {
+    &quot;username&quot;: &quot;foo&quot;,
+    &quot;password&quot;: &quot;bar&quot;
+  }
+}
+</code></pre>
+
+<p>In the verb descriptions below, whenever we indicate a property is a webhook we are referring to this syntax.</p>
 <h1 id="supported-verbs">Supported Verbs</h1>
 <p>Each of the supported verbs are described below.</p>
 <h2 id="dial">dial</h2>
 <p>The dial command is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  </p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;dial&quot;,
-  &quot;action&quot;: &quot;/outdial&quot;,
+  &quot;actionHook&quot;: &quot;/outdial&quot;,
   &quot;callerId&quot;: &quot;+16173331212&quot;,
   &quot;answerOnBridge&quot;: true,
   &quot;dtmfCapture&quot;: [&quot;*2&quot;, &quot;*3&quot;],
   &quot;dtmfHook&quot;: {
-    &quot;url&quot;: &quot;/dtmf&quot;
+    &quot;url&quot;: &quot;/dtmf&quot;,
+    &quot;method&quot;: &quot;GET&quot;
   },
   &quot;target&quot;: [
     {
@@ -409,8 +435,8 @@
 </thead>
 <tbody>
 <tr>
-<td>action</td>
-<td>URL of webhook to invoke when the call ends.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
+<td>actionHook</td>
+<td>webhook to invoke when the call ends.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -424,13 +450,8 @@
 <td>no</td>
 </tr>
 <tr>
-<td>confirmMethod</td>
-<td>'GET', 'POST' - http method to use on 'confirmUrl' callback.</td>
-<td>no</td>
-</tr>
-<tr>
-<td>confirmUrl</td>
-<td>A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested <a href="#target-types">target</a> object.</td>
+<td>confirmHook</td>
+<td>webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested <a href="#target-types">target</a> object.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -445,7 +466,7 @@
 </tr>
 <tr>
 <td>dtmfHook</td>
-<td>a web callback to be invoked when a dtmfCapture entry is matched.  This is a notification only -- no response is expected, and any desired actions must be carried out via the REST updateCall API.</td>
+<td>a webhook to call when a dtmfCapture entry is matched.  This is a notification only -- no response is expected, and any desired actions must be carried out via the REST updateCall API.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -456,11 +477,6 @@
 <tr>
 <td>listen</td>
 <td>a nested <a href="#listen">listen</a> action, which will cause audio from the call to be streamed to a remote server over a websocket connection</td>
-<td>no</td>
-</tr>
-<tr>
-<td>method</td>
-<td>'GET', 'POST' - http method to use on 'action' callback.  <br/>Defaults to POST.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -502,13 +518,8 @@
 <td>yes</td>
 </tr>
 <tr>
-<td>url</td>
-<td>A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.</td>
-<td>no</td>
-</tr>
-<tr>
-<td>method</td>
-<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
+<td>confirmHook</td>
+<td>A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -534,13 +545,8 @@
 <td>yes</td>
 </tr>
 <tr>
-<td>url</td>
-<td>A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.</td>
-<td>no</td>
-</tr>
-<tr>
-<td>method</td>
-<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
+<td>confirmHook</td>
+<td>A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -582,13 +588,8 @@
 <td>yes</td>
 </tr>
 <tr>
-<td>url</td>
-<td>A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.</td>
-<td>no</td>
-</tr>
-<tr>
-<td>method</td>
-<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
+<td>confirmHook</td>
+<td>A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -621,13 +622,13 @@
 </tbody>
 </table>
 <p>Dialing to a parking slot allows you to pick up a call that has been parked in that slot.  If the slot is empty, the <code>dial</code> verb will return immediate failure.</p>
-<p>The <code>url</code> property that can be optionally specified as part of the target types (with the exception of the <code>park</code> type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
+<p>The <code>confirmHook</code> property that can be optionally specified as part of the target types (with the exception of the <code>park</code> type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
 <p>This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").</p>
 <h2 id="gather">gather</h2>
 <p>The gather command is used to collect dtmf or speech input.</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;gather&quot;,
-  &quot;action&quot;: &quot;http://example.com/collect&quot;,
+  &quot;actionHook&quot;: &quot;http://example.com/collect&quot;,
   &quot;input&quot;: [&quot;digits&quot;, &quot;speech&quot;],
   &quot;finishOnKey&quot;: &quot;#&quot;,
   &quot;numDigits&quot;: 5,
@@ -657,8 +658,8 @@
 </thead>
 <tbody>
 <tr>
-<td>action</td>
-<td>URL of webhook to invoke collected digits or speech.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
+<td>actionHook</td>
+<td>webhook to invoke with the collected digits or speech.</td>
 <td>yes</td>
 </tr>
 <tr>
@@ -672,18 +673,13 @@
 <td>no</td>
 </tr>
 <tr>
-<td>method</td>
-<td>'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.</td>
-<td>no</td>
-</tr>
-<tr>
 <td>numDigits</td>
 <td>number of dtmf digits expected to gather</td>
 <td>no</td>
 </tr>
 <tr>
-<td>partialResultCallback</td>
-<td>url to send interim transcription results to. Partial transcriptions are only generated if this property is set.</td>
+<td>partialResultHook</td>
+<td>webhook to send interim transcription results to. Partial transcriptions are only generated if this property is set.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -791,19 +787,9 @@
 </thead>
 <tbody>
 <tr>
-<td>action</td>
-<td>URL of webhook to invoke when listen operation ends.  The information will include the duration of the audio stream, and also a 'digits' property if the recording was terminated by a dtmf key.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
+<td>actionHook</td>
+<td>webhook to invoke when listen operation ends.  The information will include the duration of the audio stream, and also a 'digits' property if the recording was terminated by a dtmf key.</td>
 <td>yes</td>
-</tr>
-<tr>
-<td>auth.username</td>
-<td>HTTP basic auth username to use on action callback</td>
-<td>no</td>
-</tr>
-<tr>
-<td>auth.password</td>
-<td>HTTP basic auth password to use on action callback</td>
-<td>no</td>
 </tr>
 <tr>
 <td>finishOnKey</td>
@@ -818,11 +804,6 @@
 <tr>
 <td>metadata</td>
 <td>arbitrary data to add to the JSON payload sent to the remote server when websocket connection is first connected</td>
-<td>no</td>
-</tr>
-<tr>
-<td>method</td>
-<td>'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.</td>
 <td>no</td>
 </tr>
 <tr>
@@ -875,16 +856,12 @@
 <li>It leaves the parking slot due to a timeout.</li>
 <li>The caller hangs up.</li>
 </ul>
-<p>Once the park command completes, it optionally calls a configured <code>action</code> parameter (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.</p>
+<p>Once the park command completes, it optionally calls a configured <code>actionHook</code> property (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;park&quot;,
   &quot;slot&quot;: &quot;7000&quot;,
-  &quot;action&quot;: {
-    &quot;url&quot;: &quot;/unparked&quot;
-  },
-  &quot;waitHook&quot;: {
-    &quot;url&quot;: &quot;/while-parked&quot;
-  },
+  &quot;actionHook&quot;: &quot;/unparked&quot;,
+  &quot;waitHook&quot;: &quot;/while-parked&quot;,
   &quot;timeout&quot;: 60
 }
 </code></pre>
@@ -900,7 +877,7 @@
 </thead>
 <tbody>
 <tr>
-<td>action</td>
+<td>actionHook</td>
 <td>a webhook that is invoked when the call leaves the parking slot.  If the call has been bridged to another party, the webhook is invoked when that call is complete. See below for request parameters</td>
 <td>no</td>
 </tr>
@@ -921,7 +898,7 @@
 </tr>
 </tbody>
 </table>
-<p>The <code>action</code> request includes the standard request parameters, plus the following:</p>
+<p>The <code>actionHook</code> request includes the standard request parameters, plus the following:</p>
 <table>
 <thead>
 <tr>
@@ -1035,12 +1012,7 @@
 <p>The redirect action is used to transfer control to another JSON document taht is retrieved from the specified url.  All actions after <code>redirect</code> are unreachable and ignored.</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;redirect&quot;,
-  &quot;action&quot;: &quot;https://example.com/?foo=bar&quot;,
-  &quot;method&quot;: &quot;GET&quot;,
-  &quot;auth&quot;: {
-    &quot;username&quot;: &quot;foo&quot;,
-    &quot;password&quot;: &quot;bar&quot;
-  }
+  &quot;actionHook&quot;: &quot;/connectToSales&quot;,
 }
 </code></pre>
 
@@ -1055,24 +1027,9 @@
 </thead>
 <tbody>
 <tr>
-<td>action</td>
-<td>URL of webhook to retrieve document from.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well</td>
+<td>actionHook</td>
+<td>URL of webhook to retrieve new application from.</td>
 <td>yes</td>
-</tr>
-<tr>
-<td>method</td>
-<td>'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.</td>
-<td>no</td>
-</tr>
-<tr>
-<td>auth.user</td>
-<td>HTTP Basic Authorization username</td>
-<td>no</td>
-</tr>
-<tr>
-<td>auth.password</td>
-<td>HTTP Basic Authorization password</td>
-<td>no</td>
 </tr>
 </tbody>
 </table>
@@ -1309,7 +1266,7 @@
 <p>The transcribe command is only allowed as a nested verb within a dial or listen verb.  Using transcribe in a dial command allows a long-running transcription of a phone call to be made, while nesting within a listen verb allows transcriptions of recorded messages (e.g. voicemail).</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;transcribe&quot;,
-  &quot;transcriptionCallback&quot;: &quot;http://example.com/transcribe&quot;,
+  &quot;transcriptionHook&quot;: &quot;http://example.com/transcribe&quot;,
   &quot;recognizer&quot;: {
     &quot;vendor&quot;: &quot;google&quot;,
     &quot;language&quot; : &quot;en-US&quot;,
@@ -1354,8 +1311,8 @@
 <td>no</td>
 </tr>
 <tr>
-<td>transcriptionCallback</td>
-<td>url to invoke with transcriptions.  An HTTP POST will be sent to this url.</td>
+<td>transcriptionHook</td>
+<td>webhook to call when a transcription is received. Due to the richness of information in the transcription an HTTP POST will always be sent.</td>
 <td>yes</td>
 </tr>
 </tbody>
