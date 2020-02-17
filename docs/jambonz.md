@@ -29,7 +29,7 @@ Some verbs allow other verbs to be nested; e.g. "gather" can have a nested "say"
 ```
 {
   "verb": "gather",
-  "action": "https://00dd977a.ngrok.io/gather",
+  "actionHook": "/gatherCardNumber",
   "input": ["speech", "dtmf"],
   "timeout": 16,
   "numDigits": 6,
@@ -56,7 +56,7 @@ Altogether then, a simple example application which provides the basics of a voi
   },
   {
     "verb": "listen",
-    "action": "http://example.com/voicemail",
+    "actionHook": "http://example.com/voicemail",
     "url": "http://ws.example.com",
     "finishOnKey": "#",
     "metadata": {
@@ -66,7 +66,7 @@ Altogether then, a simple example application which provides the basics of a voi
     "playBeep": true,
     "timeout": 20,
     "transcribe": {
-      "transcriptionCallback": "http://example.com/transcription"
+      "transcriptionHook": "/transcription"
     }
   },
   {
@@ -172,6 +172,34 @@ A JSON service key file containing GCP credentials for cloud speech services mus
 
 As part of the definition of an application, you can set defaults for the voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties
 
+## Webhooks
+Many of the verbs specify a webhook that will be called when the verb completes, or has some information to deliver to your application.  These verbs contain a property that allow you to configure that webhook.  By convention, the property name will always end in "Hook"; e.g "actionHook", "dtmfHook", and so on.
+
+You can either specify the webhook as a simple string specifying a url:
+
+```
+"actionHook": "https://my.appserver.com/results"
+```
+or a relative url
+```
+"actionHook": "/results"
+```
+In the latter case, the base url of the application will be applied.
+
+Alternatively, you can provide an object containing a url (required) and optional method and basic authentication parameters, e.g.:
+
+```
+"actionHook": {
+  "url": "https://my.appserver.com/results",
+  "method": "GET",
+  "auth": {
+    "username": "foo",
+    "password": "bar"
+  }
+}
+```
+In the verb descriptions below, whenever we indicate a property is a webhook we are referring to this syntax.
+
 # Supported Verbs
 Each of the supported verbs are described below.
 
@@ -181,12 +209,13 @@ The dial command is used to create a new call by dialing out to a number, a regi
 ```json
 {
   "verb": "dial",
-  "action": "/outdial",
+  "actionHook": "/outdial",
   "callerId": "+16173331212",
   "answerOnBridge": true,
   "dtmfCapture": ["*2", "*3"],
   "dtmfHook": {
-    "url": "/dtmf"
+    "url": "/dtmf",
+    "method": "GET"
   },
   "target": [
     {
@@ -223,17 +252,15 @@ You can use the following attributes in the `dial` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | URL of webhook to invoke when the call ends.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | no |
+| actionHook | webhook to invoke when the call ends. | no |
 | answerOnBridge | If set to true, the inbound call will ring until the number that was dialed answers the call, and at that point a 200 OK will be sent on the inbound leg.  If false, the inbound call will be answered immediately as the outbound call is placed. <br/>Defaults to false. | no |
 | callerId | The inbound caller's phone number, which is displayed to the number that was dialed. The caller ID must be a valid E.164 number. <br/>Defaults to caller id on inbound call. | no |
-| confirmMethod | 'GET', 'POST' - http method to use on 'confirmUrl' callback. | no |
-| confirmUrl | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested [target](#target-types) object.  | no |
+| confirmHook | webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested [target](#target-types) object.  | no |
 | dialMusic | url that specifies a .wav or .mp3 audio file of custom audio or ringback to play to the caller while the outbound call is ringing. | no |
 | dtmfCapture | an array of strings that represent dtmf sequence which should trigger a mid-call notification to the application | no |
-| dtmfHook | a web callback to be invoked when a dtmfCapture entry is matched.  This is a notification only -- no response is expected, and any desired actions must be carried out via the REST updateCall API. | no|
+| dtmfHook | a webhook to call when a dtmfCapture entry is matched.  This is a notification only -- no response is expected, and any desired actions must be carried out via the REST updateCall API. | no|
 | headers | an object containing arbitrary sip headers to apply to the outbound call attempt(s) | no |
 | listen | a nested [listen](#listen) action, which will cause audio from the call to be streamed to a remote server over a websocket connection | no |
-| method | 'GET', 'POST' - http method to use on 'action' callback.  <br/>Defaults to POST.| no|
 | target | array of to 10 [destinations](#target-types) to simultaneously dial. The first person (or entity) to answer the call will be connected to the caller and the rest of the called numbers will be hung up.| yes |
 | timeLimit | max length of call in seconds | no |
 | timeout | ring no answer timeout, in seconds.  <br/>Defaults to 60. | no |
@@ -246,8 +273,7 @@ You can use the following attributes in the `dial` command:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | type | must be "phone" | yes |
-| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.| no |
-| method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
+| confirmHook | A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.| no |
 | number | a telephone numnber in E.164 number | yes |
 
 *sip endpoint*
@@ -255,8 +281,7 @@ You can use the following attributes in the `dial` command:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | type | must be "sip" | yes |
-| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.| no |
-| method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
+| confirmHook | A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.| no |
 | sipUri | sip uri to send call to | yes |
 | auth | authentication credentials | no |
 | auth.user | sip username | no |
@@ -269,8 +294,7 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 | option        | description | required  |
 | ------------- |-------------| -----|
 | type | must be "user" | yes |
-| url | A specified URL for a document that runs on the callee's end after the dialed number answers but before the call is connected. This will override the confirmUrl property set on the parent dial verb, if any.| no |
-| method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
+| confirmHook | A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.| no |
 | name | registered sip user, including domain (e.g. "joeb@sip.jambonz.org") | yes |
 
 *parking slot*
@@ -282,7 +306,7 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 
 Dialing to a parking slot allows you to pick up a call that has been parked in that slot.  If the slot is empty, the `dial` verb will return immediate failure.
 
-The `url` property that can be optionally specified as part of the target types (with the exception of the `park` type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.
+The `confirmHook` property that can be optionally specified as part of the target types (with the exception of the `park` type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.
 
 This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").
 
@@ -293,7 +317,7 @@ The gather command is used to collect dtmf or speech input.
 ```json
 {
   "verb": "gather",
-  "action": "http://example.com/collect",
+  "actionHook": "http://example.com/collect",
   "input": ["digits", "speech"],
   "finishOnKey": "#",
   "numDigits": 5,
@@ -316,12 +340,11 @@ You can use the following options in the `gather` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | URL of webhook to invoke collected digits or speech.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
+| actionHook | webhook to invoke with the collected digits or speech. | yes |
 | finishOnKey | dmtf key that signals the end of input | no |
 | input | array, specifying allowed types of input: ['digits'], ['speech'], or ['digits', 'speech'].  Default: ['digits'] | no |
-| method | 'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.| no|
 | numDigits | number of dtmf digits expected to gather | no |
-| partialResultCallback | url to send interim transcription results to. Partial transcriptions are only generated if this property is set. | no |
+| partialResultHook | webhook to send interim transcription results to. Partial transcriptions are only generated if this property is set. | no |
 | play | nested [play](#play) command that can be used to prompt the user | no |
 | recognizer.hints | array of words or phrases to assist speech detection | no |
 | recognizer.language | language code to use for speech detection.  Defaults to the application level setting, or 'en-US' if not set | no |
@@ -394,13 +417,10 @@ You can use the following options in the `listen` action:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | URL of webhook to invoke when listen operation ends.  The information will include the duration of the audio stream, and also a 'digits' property if the recording was terminated by a dtmf key.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
-| auth.username | HTTP basic auth username to use on action callback | no |
-| auth.password | HTTP basic auth password to use on action callback | no |
+| actionHook | webhook to invoke when listen operation ends.  The information will include the duration of the audio stream, and also a 'digits' property if the recording was terminated by a dtmf key. | yes |
 | finishOnKey | The set of digits that can end the listen action | no |
 | maxLength | the maximum length of the listened audio stream, in secs | no |
 | metadata | arbitrary data to add to the JSON payload sent to the remote server when websocket connection is first connected | no |
-| method | 'GET', 'POST' - http method to use on action callback.  <br/>Defaults to POST.| no|
 | mixType | "mono" (send single channel), "stereo" (send dual channel of both calls in a bridge), or "mixed" (send audio from both calls in a bridge in a single mixed audio stream) Default: mono | no |
 | playBeep | true, false whether to play a beep at the start of the listen operation.  Default: false | no |
 | sampleRate | sample rate of audio to send (allowable values: 8000, 16000, 24000, 48000, or 64000).  Default: 8000 | no |
@@ -419,19 +439,15 @@ The `park` command is used to park a call at a named parking slot.  Once a call 
 - It leaves the parking slot due to a timeout.
 - The caller hangs up.
 
-Once the park command completes, it optionally calls a configured `action` parameter (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.
+Once the park command completes, it optionally calls a configured `actionHook` property (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.
 
 
 ```json
 {
   "verb": "park",
   "slot": "7000",
-  "action": {
-    "url": "/unparked"
-  },
-  "waitHook": {
-    "url": "/while-parked"
-  },
+  "actionHook": "/unparked",
+  "waitHook": "/while-parked",
   "timeout": 60
 }
 ```
@@ -440,12 +456,12 @@ You can use the following options in the `park` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | a webhook that is invoked when the call leaves the parking slot.  If the call has been bridged to another party, the webhook is invoked when that call is complete. See below for request parameters | no |
+| actionHook | a webhook that is invoked when the call leaves the parking slot.  If the call has been bridged to another party, the webhook is invoked when that call is complete. See below for request parameters | no |
 | slot | a label for the parking location | yes |
 | timeout | number of seconds to wait for pickup before exiting the parking slot | no |
 | waitHook | a webhook to call for verbs to execute while parked.  The returned task list may only include play, say, or gather verbs.  Once the task list is completed, the webhook will be called again repeatedly while the call is parked | no |
 
-The `action` request includes the standard request parameters, plus the following:
+The `actionHook` request includes the standard request parameters, plus the following:
 
 | property | description |
 | ------------- |-------------|
@@ -461,8 +477,6 @@ The `parkOutcome` is one of the following:
 | 'abandoned' | The call was abandoned in park (i.e. the caller hung up) |
 | 'left' | the call left the parking slot due to a [leave](#leave) command |
 | 'timeout' | the call left the parking slot due to a timeout |
-
-
 
 
 ## pause
@@ -506,12 +520,7 @@ The redirect action is used to transfer control to another JSON document taht is
 ```json
 {
   "verb": "redirect",
-  "action": "https://example.com/?foo=bar",
-  "method": "GET",
-  "auth": {
-    "username": "foo",
-    "password": "bar"
-  }
+  "actionHook": "/connectToSales",
 }
 ```
 
@@ -519,10 +528,7 @@ You can use the following options in the `redirect` action:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| action | URL of webhook to retrieve document from.  The 'action' URL may be either an absolute or relative URL.  If the latter, it is applied to the base URL of the original application, and if basic auth was used for the original request, then it will be for this request as well | yes |
-| method | 'GET', 'POST' - http method to use on url callback.  <br/>Defaults to POST.| no|
-| auth.user | HTTP Basic Authorization username | no|
-| auth.password | HTTP Basic Authorization password | no|
+| actionHook | URL of webhook to retrieve new application from.  | yes |
 
 ## say
 
@@ -689,7 +695,7 @@ The transcribe command is only allowed as a nested verb within a dial or listen 
 ```json
 {
   "verb": "transcribe",
-  "transcriptionCallback": "http://example.com/transcribe",
+  "transcriptionHook": "http://example.com/transcribe",
   "recognizer": {
     "vendor": "google",
     "language" : "en-US",
@@ -707,7 +713,7 @@ You can use the following options in the `transcribe` command:
 | recognizer.language | language to use for speech transcription | yes |
 | recognizer.profanityFilter | if true, filter profanity from speech transcription.  Default:  no| no |
 | recognizer.vendor | speech vendor to use (currently only google supported) | no |
-| transcriptionCallback | url to invoke with transcriptions.  An HTTP POST will be sent to this url. | yes |
+| transcriptionHook | webhook to call when a transcription is received. Due to the richness of information in the transcription an HTTP POST will always be sent. | yes |
 
 > **Note**: the `dualChannel` property is not currently implemented.
 
