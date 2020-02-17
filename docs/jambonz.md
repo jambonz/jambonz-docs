@@ -192,10 +192,8 @@ Alternatively, you can provide an object containing a url (required) and optiona
 "actionHook": {
   "url": "https://my.appserver.com/results",
   "method": "GET",
-  "auth": {
-    "username": "foo",
-    "password": "bar"
-  }
+  "username": "foo",
+  "password": "bar"
 }
 ```
 In the verb descriptions below, whenever we indicate a property is a webhook we are referring to this syntax.
