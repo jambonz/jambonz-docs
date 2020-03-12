@@ -19,7 +19,8 @@ Each task object in the JSON array must include a "verb" property that describes
   "text": "Hi there!  Please leave a message at the tone and we will get back to you shortly.",
   "synthesizer": {
     "vendor": "google",
-    "voice": "en-US-Wavenet-C"
+    "language": "en-US",
+    "gender": "FEMALE"
   }
 }
 ```
@@ -41,7 +42,8 @@ Some verbs allow other verbs to be nested; e.g. "gather" can have a nested "say"
     "text": "Please say or enter your six digit card number now",
     "synthesizer": {
       "vendor": "google",
-      "voice": "en-US-Wavenet-C"
+      "language": "en-US",
+      "gender": "FEMALE"
     }
   }
 }
@@ -148,8 +150,9 @@ The last is interesting and worthy of further comment.  The intent is to let you
     "earlyMedia": true,
     "text": "Please call back later, we are currently at lunch"
     "synthesizer": {
-      "vendor": "google",
-      "voice": "en-US-Wavenet-F"
+      "vendor": "aws",
+      "language": "en-US",
+      "voice": "Amy"
     },
     {
       "verb": "sip:decline",
@@ -166,11 +169,13 @@ The say, play, gather, listen, and transcribe verbs all support the "earlyMedia"
 The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.
 
 ## Speech integration
-The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the near future.
+The platform makes use of text-to-speech as well as real-time speech recognition.  Both google and AWS/Polly are supported for text to speech.  Currently only google is supported for speech to text.
 
-A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition.
+Synthesized audio is cached for up to 24 hours, so that if the same {text, language, voice} combination is requested more than once in that period it will be served from cache, reducing speech synthesis costs.
 
-As part of the definition of an application, you can set defaults for the voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties
+A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition for google.  For AWS/Polly, the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION must be provided in the server environments where the [jambonz-feature-server](https://github.com/jambonz/jambonz-feature-server) application is running.
+
+As part of the definition of an application, you can set defaults for the language and voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties./
 
 ## Webhooks
 Many of the verbs specify a webhook that will be called when the verb completes, or has some information to deliver to your application.  These verbs contain a property that allow you to configure that webhook.  By convention, the property name will always end in "Hook"; e.g "actionHook", "dtmfHook", and so on.
@@ -328,7 +333,7 @@ The gather command is used to collect dtmf or speech input.
     "text": "To speak to Sales press 1.  To speak to customer support press 2.",
     "synthesizer": {
       "vendor": "google",
-      "voice": "en-US-Wavenet-F"
+      "language": "en-US"
     }
   }
 }
@@ -538,7 +543,7 @@ The say command is used to send synthesized speech to the remote party. The text
   "text": "hi there!",
   "synthesizer" : {
     "vendor": "google",
-    "voice": "en-AU-Wavenet-B"
+    "language": "en-US"
   }
 }
 ```
@@ -548,8 +553,10 @@ You can use the following options in the `say` action:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | text | text to speak; may contain SSML tags | yes |
-| synthesizer.vendor | speech vendor to use (currently only google supported)| no |
-| synthesizer.voice | voice to use.  Defaults to application setting.  | no |
+| synthesizer.vendor | speech vendor to use: google or aws (polly is also an alias for aws)| no |
+| synthesizer.language | language code to use.  | yes |
+| synthesizer.gender | (google only) MALE, FEMALE, or NEUTRAL.  | no |
+| synthesizer.voice | voice to use.  Note that the voice list differs whether you are using aws or google. Defaults to application setting, if provided. | no |
 | loop | the number of times a text is to be repeated; 0 means repeat forever.  Defaults to 1. | no |
 | earlyMedia | if true and the call has not yet been answered, play the audio without answering call.  Defaults to false | no |
 
