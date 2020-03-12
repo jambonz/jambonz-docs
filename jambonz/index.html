@@ -190,7 +190,8 @@
   &quot;text&quot;: &quot;Hi there!  Please leave a message at the tone and we will get back to you shortly.&quot;,
   &quot;synthesizer&quot;: {
     &quot;vendor&quot;: &quot;google&quot;,
-    &quot;voice&quot;: &quot;en-US-Wavenet-C&quot;
+    &quot;language&quot;: &quot;en-US&quot;,
+    &quot;gender&quot;: &quot;FEMALE&quot;
   }
 }
 </code></pre>
@@ -210,7 +211,8 @@
     &quot;text&quot;: &quot;Please say or enter your six digit card number now&quot;,
     &quot;synthesizer&quot;: {
       &quot;vendor&quot;: &quot;google&quot;,
-      &quot;voice&quot;: &quot;en-US-Wavenet-C&quot;
+      &quot;language&quot;: &quot;en-US&quot;,
+      &quot;gender&quot;: &quot;FEMALE&quot;
     }
   }
 }
@@ -337,8 +339,9 @@
     &quot;earlyMedia&quot;: true,
     &quot;text&quot;: &quot;Please call back later, we are currently at lunch&quot;
     &quot;synthesizer&quot;: {
-      &quot;vendor&quot;: &quot;google&quot;,
-      &quot;voice&quot;: &quot;en-US-Wavenet-F&quot;
+      &quot;vendor&quot;: &quot;aws&quot;,
+      &quot;language&quot;: &quot;en-US&quot;,
+      &quot;voice&quot;: &quot;Amy&quot;
     },
     {
       &quot;verb&quot;: &quot;sip:decline&quot;,
@@ -354,9 +357,10 @@
 <p>The say, play, gather, listen, and transcribe verbs all support the "earlyMedia" property.  </p>
 <p>The dial verb supports a similar feature of not answering the inbound call unless/until the dialed call is answered via the "answerOnBridge" property.</p>
 <h2 id="speech-integration">Speech integration</h2>
-<p>The platform makes use of text-to-speech as well as real-time speech recognition.  Currently, only google is supported for both text to speech and speech to text.  Other speech vendors will be supported in the near future.</p>
-<p>A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition.</p>
-<p>As part of the definition of an application, you can set defaults for the voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties</p>
+<p>The platform makes use of text-to-speech as well as real-time speech recognition.  Both google and AWS/Polly are supported for text to speech.  Currently only google is supported for speech to text.</p>
+<p>Synthesized audio is cached for up to 24 hours, so that if the same {text, language, voice} combination is requested more than once in that period it will be served from cache, reducing speech synthesis costs.</p>
+<p>A JSON service key file containing GCP credentials for cloud speech services must be downloaded and installed on the jambonz feature servers to enable tts and speech recognition for google.  For AWS/Polly, the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION must be provided in the server environments where the <a href="https://github.com/jambonz/jambonz-feature-server">jambonz-feature-server</a> application is running.</p>
+<p>As part of the definition of an application, you can set defaults for the language and voice to use for speech synthesis as well as the language to use for speech recognition.  These can then be overridden by verbs in the application, by using the 'synthesizer' and 'recognizer' properties./</p>
 <h2 id="webhooks">Webhooks</h2>
 <p>Many of the verbs specify a webhook that will be called when the verb completes, or has some information to deliver to your application.  These verbs contain a property that allow you to configure that webhook.  By convention, the property name will always end in "Hook"; e.g "actionHook", "dtmfHook", and so on.</p>
 <p>You can either specify the webhook as a simple string specifying a url:</p>
@@ -639,7 +643,7 @@
     &quot;text&quot;: &quot;To speak to Sales press 1.  To speak to customer support press 2.&quot;,
     &quot;synthesizer&quot;: {
       &quot;vendor&quot;: &quot;google&quot;,
-      &quot;voice&quot;: &quot;en-US-Wavenet-F&quot;
+      &quot;language&quot;: &quot;en-US&quot;
     }
   }
 }
@@ -1038,7 +1042,7 @@
   &quot;text&quot;: &quot;hi there!&quot;,
   &quot;synthesizer&quot; : {
     &quot;vendor&quot;: &quot;google&quot;,
-    &quot;voice&quot;: &quot;en-AU-Wavenet-B&quot;
+    &quot;language&quot;: &quot;en-US&quot;
   }
 }
 </code></pre>
@@ -1060,12 +1064,22 @@
 </tr>
 <tr>
 <td>synthesizer.vendor</td>
-<td>speech vendor to use (currently only google supported)</td>
+<td>speech vendor to use: google or aws (polly is also an alias for aws)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>synthesizer.language</td>
+<td>language code to use.</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>synthesizer.gender</td>
+<td>(google only) MALE, FEMALE, or NEUTRAL.</td>
 <td>no</td>
 </tr>
 <tr>
 <td>synthesizer.voice</td>
-<td>voice to use.  Defaults to application setting.</td>
+<td>voice to use.  Note that the voice list differs whether you are using aws or google. Defaults to application setting, if provided.</td>
 <td>no</td>
 </tr>
 <tr>
