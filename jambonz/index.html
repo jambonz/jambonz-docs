@@ -601,7 +601,38 @@
 </tr>
 </tbody>
 </table>
+<p><em>Microsoft Teams user</em></p>
+<p>If Microsoft Teams integration has been configured, you can dial out to  Teams users.</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>must be "ms-teams"</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>tenant</td>
+<td>Microsoft Teams customer tenant domain name</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>user</td>
+<td>the username or phone number of the teams user</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
 <p><em>parking slot</em></p>
+<blockquote>
+<p>Not yet implemented</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -851,6 +882,9 @@
 </tbody>
 </table>
 <h2 id="park">park</h2>
+<blockquote>
+<p>Not yet implemented</p>
+</blockquote>
 <p>The <code>park</code> command is used to park a call at a named parking slot.  Once a call is parked, it can be picked up by another call using the <code>dial</code> verb with a target type of 'park'.  The park verb completes when one of the following happens:</p>
 <ul>
 <li>It is picked up by another caller, using the dial verb (and that call subsequently completes).</li>
