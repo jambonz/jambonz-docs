@@ -300,7 +300,19 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 | confirmHook | A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.| no |
 | name | registered sip user, including domain (e.g. "joeb@sip.jambonz.org") | yes |
 
+*Microsoft Teams user*
+
+If Microsoft Teams integration has been configured, you can dial out to  Teams users.
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| type | must be "ms-teams" | yes |
+| tenant | Microsoft Teams customer tenant domain name| yes |
+| user | the username or phone number of the teams user | yes |
+
 *parking slot*
+
+> Not yet implemented
 
 | option        | description | required  |
 | ------------- |-------------| -----|
@@ -434,6 +446,8 @@ You can use the following options in the `listen` action:
 | wsAuth.password | HTTP basic auth password to use on websocket connection | no |
 
 ## park
+
+> Not yet implemented
 
 The `park` command is used to park a call at a named parking slot.  Once a call is parked, it can be picked up by another call using the `dial` verb with a target type of 'park'.  The park verb completes when one of the following happens:
 
