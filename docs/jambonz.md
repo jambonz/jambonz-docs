@@ -309,6 +309,7 @@ If Microsoft Teams integration has been configured, you can dial out to  Teams u
 | type | must be "ms-teams" | yes |
 | tenant | Microsoft Teams customer tenant domain name| yes |
 | user | the username or phone number of the teams user | yes |
+| voicemail | if true, dial directly into user's voicemail to leave a message | no |
 
 *parking slot*
 
