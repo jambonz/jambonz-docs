@@ -206,6 +206,53 @@ In the verb descriptions below, whenever we indicate a property is a webhook we 
 # Supported Verbs
 Each of the supported verbs are described below.
 
+## conference
+The conference command places a call into a conference.
+```json
+  {
+    "verb": "conference",
+    "name": "test",
+    "beep": true,
+    "startConferenceOnEnter": false,
+    "waitHook": "/confWait",
+    "enterHook": "/confEnter"   
+  },
+```
+You can use the following attributes in the `conference` command:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| actionHook | A webhook to call when the conference ends | no |
+| beep | if true, play a beep tone to the conference when caller enters (default: false) | no |
+| endConferenceOnExit | if true, end the conference when this caller hangs up (default: false) | no |
+| enterHook | A webhook to retrieve something to play or say to the caller just before they are put into a conference after waiting for it to start| no |
+| maxParticipants | maximum number of participants that will be allowed in the conference | no |
+| name | name of the conference | yes |
+| startConferenceOnEnter | if true, start the conference only when this caller enters (default: true) | no |
+| statusHook | A webhook to call with conference status events | no |
+| statusEvents | An array of events for which the statusHook should be called to. See below for details. | no | 
+| waitHook | A webhook to retrieve commands to play or say while the caller is waiting for the conference to start | no |
+
+Note: A conference bridge belongs to an Account (the Account that is associated with the Application that created the conference), and only calls generated from Applications under that Account can join that conference.  The conference `name` property should be unique within an Account for different conference bridges; however, the same name can be used by different Accounts and each will refer to different conference bridges on the media servers.
+
+Conference events:
+
+- 'start': the conference has started
+- 'end': the conference has ended
+- 'join': a participant has joined the conference
+- 'leave': a participant has left the conference
+- 'start-talking': a participant started speaking
+- 'end-talking': a participant stopped talking
+
+Conference status webhooks will contain the following additional parameters:
+
+- conferenceSid: a unique identifier for the conference
+- friendlyName: the name of the conference as specified in the application
+- event: the conference event being reported (e.g. "join")
+- time: the time of the event in ISO format (e.g. "2020-04-27T13:44:17.336Z")
+- members: the current number of members in the conference
+- duration: the current length of the conference in seconds
+
 ## dial
 
 The dial command is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  
@@ -244,11 +291,13 @@ As the example above illustrates, when you execute the 'dial' command you are ma
 
 If multiple endpoints are specified in the `target` array, all targets are outdialed at the same time (e.g., "simring", or "blast outdial" as some folks call it) and the call will be connected to the first endpoint that answers the call and, optionally, completes a call screening application as specified in the `url` property.
 
-There are four types of endpoints:
+There are several types of endpoints:
 
 * a telephone phone number,
-* a sip endpoint, identified by a sip uri, or
-* a webrtc or sip client that has registered directly with your application,
+* a sip endpoint, identified by a sip uri (and possibly authentication parameters),
+* a conference, 
+* a webrtc or sip client that has registered directly with your application, 
+* Microsoft Teams user, or
 * a [parking slot](#park)
 
 You can use the following attributes in the `dial` command:
