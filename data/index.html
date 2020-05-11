@@ -136,6 +136,8 @@
                 
                 <li class="third-level"><a href="#calls-in-progress">calls in progress</a></li>
                 <li class="third-level"><a href="#sip-registrations">sip registrations</a></li>
+                <li class="third-level"><a href="#conferences">conferences</a></li>
+                <li class="third-level"><a href="#queues">queues</a></li>
             <li class="second-level"><a href="#mysql-database">mysql database</a></li>
                 
     </ul>
@@ -178,9 +180,9 @@
 <p>The hash data for a new call is initially added with an initial expiry of twelve hours, but when the call ends the expiry is then set to one hour.  Thus all call data naturally expires on its own from the database.  The call keys in the sorted set are purged periodically by the jambonz-api-server.</p>
 <h3 id="sip-registrations">sip registrations</h3>
 <blockquote>
-<p><code>`user:{name}@{domain}</code> - a hash of registration data</p>
+<p><code>user:{name}@{domain}</code> - a hash of registration data</p>
 </blockquote>
-<p>Active sip registrations are represented in the database as a has that is keyed by <code>user:{name}@{domain}</code>, where "domain" is the sip domain associated with an account.  The following information is stored in the hash for each registration:</p>
+<p>Active sip registrations are represented in the database as a hash that is keyed by <code>user:{name}@{domain}</code>, where "domain" is the sip domain associated with an account.  The following information is stored in the hash for each registration:</p>
 <ul>
 <li>the Contact header provided in the REGISTER request</li>
 <li>the IP:port of the SBC that the user/device registered to</li>
@@ -189,6 +191,27 @@
 </ul>
 <p>The hash data for a registration has an expiry equal to the registration interval granted, so it will naturally expire unless the registration is renewed by the device.  </p>
 <p>When devices are detected as being behind a router or nat device, the registration interval is decreased to 30 seconds to force the device to register frequently in order to keep a pinhole open on the customer router.  This is needed in order to to enable incoming calls sent to the device to be able to enter the customer network.</p>
+<h3 id="conferences">conferences</h3>
+<blockquote>
+<p><code>conf:{accountSid}:{friendlyName}</code> - a hash of data about an active conference</p>
+</blockquote>
+<p>Active conferences (i.e., conferences that are in progress) are represented as a hash that is keyed by the conference name and and account sid (two different accounts may both choose to have a conference named 'sales', for instance, and those will be distinct conferences).  The following information is stored in the hash for each currently active conference:</p>
+<ul>
+<li><code>sipAddress</code>: the (private) IP address of the feature server that is hosting the conference</li>
+<li><code>startTime</code>: the time the conference was started (number of milliseconds elapsed since January 1, 1970 00:00:00 UTC)</li>
+<li><code>statusEvents</code>: the conference events that should be reported</li>
+<li><code>statusHook</code>: the webhook conference events should be reported to</li>
+</ul>
+<blockquote>
+<p><code>conf:{accountSid}:{friendlyName}:waitlist</code> - a set of URLs</p>
+</blockquote>
+<p>There is a waiting list for each conference, which represents the participants that dialed in early and are waiting for the conference to start.  Each entry in the set is a URL that is invoked to notify the caller when the conference starts.</p>
+<p>Conference data is cleared from the database when the conference is destroyed, which happens either when the moderator leaves or the last participant leaves.</p>
+<h3 id="queues">queues</h3>
+<blockquote>
+<p><code>queue:{accountSid}:{friendlyName}</code> - URL</p>
+</blockquote>
+<p>Call queues are represented as a list that is named based the queue name and and account sid (two different accounts may both choose to have a queue named 'support', for instance, and those will be distinct queues).  The list members are simple strings, each of which is a URL associated to a call that is currently waiting in queue.</p>
 <h2 id="mysql-database">mysql database</h2>
 <p>A mysql database is used to provision service information related to accounts, SIP gateways and phone numbers that </p></div>
         

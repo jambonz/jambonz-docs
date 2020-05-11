@@ -143,9 +143,13 @@
         <li class="first-level "><a href="#supported-verbs">Supported Verbs</a></li>
             <li class="second-level"><a href="#conference">conference</a></li>
                 
+            <li class="second-level"><a href="#dequeue">dequeue</a></li>
+                
             <li class="second-level"><a href="#dial">dial</a></li>
                 
                 <li class="third-level"><a href="#target-types">target types</a></li>
+            <li class="second-level"><a href="#enqueue">enqueue</a></li>
+                
             <li class="second-level"><a href="#gather">gather</a></li>
                 
             <li class="second-level"><a href="#hangup">hangup</a></li>
@@ -153,8 +157,6 @@
             <li class="second-level"><a href="#leave">leave</a></li>
                 
             <li class="second-level"><a href="#listen">listen</a></li>
-                
-            <li class="second-level"><a href="#park">park</a></li>
                 
             <li class="second-level"><a href="#pause">pause</a></li>
                 
@@ -165,10 +167,6 @@
             <li class="second-level"><a href="#say">say</a></li>
                 
             <li class="second-level"><a href="#sipdecline">sip:decline</a></li>
-                
-            <li class="second-level"><a href="#sipnotify">sip:notify</a></li>
-                
-            <li class="second-level"><a href="#sipredirect">sip:redirect</a></li>
                 
             <li class="second-level"><a href="#tag">tag</a></li>
                 
@@ -387,7 +385,7 @@
 <h1 id="supported-verbs">Supported Verbs</h1>
 <p>Each of the supported verbs are described below.</p>
 <h2 id="conference">conference</h2>
-<p>The conference command places a call into a conference.</p>
+<p>The <code>conference</code> verb places a call into a conference.</p>
 <pre><code class="json">  {
     &quot;verb&quot;: &quot;conference&quot;,
     &quot;name&quot;: &quot;test&quot;,
@@ -479,8 +477,65 @@
 <li>members: the current number of members in the conference</li>
 <li>duration: the current length of the conference in seconds</li>
 </ul>
+<h2 id="dequeue">dequeue</h2>
+<p>The <code>dequeue</code> verb removes the a call from the front of a specified queue and bridges that call to the current caller.</p>
+<pre><code>{
+  &quot;verb&quot;: &quot;dequeue&quot;,
+  &quot;name&quot;: &quot;support&quot;,
+  &quot;beep&quot;: true,
+  &quot;timeout&quot;: 60
+}
+</code></pre>
+
+<p>You can use the following options in the <code>dequeue</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>name of the queue</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>actionHook</td>
+<td>A webhook invoke when call ends. If no webhook is provided, execution will continue with the next verb in the current application. <br/>See below for specified request parameters.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>beep</td>
+<td>if true, play a beep tone to this caller only just prior to connecting the queued call; this provides an auditory cue that the call is now connected</td>
+<td>no</td>
+</tr>
+<tr>
+<td>confirmHook</td>
+<td>A webhook for an application to run on the callee's end before the call is bridged.  This will allow the application to play an informative message to a caller as they leave the queue (e.g. "your call may be recorded")</td>
+<td>no</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>number of seconds to wait on an empty queue before returning (default: wait forever)</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>actionHook</em> webhook will contain the following additional parameters:</p>
+<ul>
+<li><code>dequeueResult</code>: the completion reason:<ul>
+<li>'hangup' - the bridged call was abandoned while listening to the confirmHook message</li>
+<li>'complete' - the call was successfully bridged and ended with a caller hangup</li>
+<li>'timeout' - no call appeared in the named queue during the timeout interval</li>
+<li>'error' - a system error of some kind occurred</li>
+</ul>
+</li>
+</ul>
 <h2 id="dial">dial</h2>
-<p>The dial command is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  </p>
+<p>The <code>dial</code> verb is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  </p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;dial&quot;,
   &quot;actionHook&quot;: &quot;/outdial&quot;,
@@ -560,7 +615,7 @@
 </tr>
 <tr>
 <td>dtmfCapture</td>
-<td>an array of strings that represent dtmf sequence which should trigger a mid-call notification to the application</td>
+<td>an array of strings that represent dtmf sequence which, when detected, will trigger a mid-call notification to the application via the configured <code>dtmfHook</code></td>
 <td>no</td>
 </tr>
 <tr>
@@ -670,7 +725,7 @@
 </tr>
 </tbody>
 </table>
-<p>Using this approach, it is possible to send calls out a sip trunk.  If the sip trunking provider enforces username/password authentication, then supply the credentials in the <code>auth</code> property.</p>
+<p>Using this approach, it is possible to send calls out a sip trunk.  If the sip trunking provider enforces username/password authentication, supply the credentials in the <code>auth</code> property.</p>
 <p><em>a registered webrtc or sip user</em></p>
 <table>
 <thead>
@@ -698,8 +753,43 @@
 </tr>
 </tbody>
 </table>
-<p><em>Microsoft Teams user</em></p>
-<p>If Microsoft Teams integration has been configured, you can dial out to  Teams users.</p>
+<!--
+*Microsoft Teams user*
+
+If Microsoft Teams integration has been configured, you can dial out to  Teams users.
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| type | must be "ms-teams" | yes |
+| tenant | Microsoft Teams customer tenant domain name| yes |
+| user | the username or phone number of the teams user | yes |
+| voicemail | if true, dial directly into user's voicemail to leave a message | no |
+
+*parking slot*
+
+> Not yet implemented
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| type | must be "park" | yes |
+| slot | the name of the parking slot | yes |
+
+Dialing to a parking slot allows you to pick up a call that has been parked in that slot.  If the slot is empty, the `dial` verb will return immediate failure.
+-->
+
+<p>The <code>confirmHook</code> property that can be optionally specified as part of the target types (with the exception of the <code>park</code> type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
+<p>This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").</p>
+<h2 id="enqueue">enqueue</h2>
+<p>The <code>enqueue</code> command is used to place a caller in a queue.</p>
+<pre><code>{
+    &quot;verb&quot;: &quot;enqueue&quot;,
+    &quot;name&quot;: &quot;support&quot;,
+    &quot;actionHook&quot;: &quot;/queue-action&quot;,
+    &quot;waitHook&quot;: &quot;/queue-wait&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>enqueue</code> command:</p>
 <table>
 <thead>
 <tr>
@@ -710,57 +800,43 @@
 </thead>
 <tbody>
 <tr>
-<td>type</td>
-<td>must be "ms-teams"</td>
+<td>name</td>
+<td>name of the queue</td>
 <td>yes</td>
 </tr>
 <tr>
-<td>tenant</td>
-<td>Microsoft Teams customer tenant domain name</td>
-<td>yes</td>
+<td>actionHook</td>
+<td>A webhook invoke when operation completes. <br/>If a call is dequeued through the <code>leave</code> verb, the webook is immediately invoked. <br/>If the call has been bridged to another party via the <code>dequeue</code> verb, then the webhook is invoked after both parties have disconnected. <br/>If no webhook is provided, execution will continue with the next verb in the current application. <br/>See below for specified request parameters.</td>
+<td>no</td>
 </tr>
 <tr>
-<td>user</td>
-<td>the username or phone number of the teams user</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>voicemail</td>
-<td>if true, dial directly into user's voicemail to leave a message</td>
+<td>waitHook</td>
+<td>A webhook to invoke while the caller is in queue.  The only allowed verbs in the application returned from this webhook are <code>say</code>, <code>play</code>, <code>pause</code>, and <code>leave</code>, </br>See below for additional request parameters</td>
 <td>no</td>
 </tr>
 </tbody>
 </table>
-<p><em>parking slot</em></p>
-<blockquote>
-<p>Not yet implemented</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>option</th>
-<th>description</th>
-<th>required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>type</td>
-<td>must be "park"</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>slot</td>
-<td>the name of the parking slot</td>
-<td>yes</td>
-</tr>
-</tbody>
-</table>
-<p>Dialing to a parking slot allows you to pick up a call that has been parked in that slot.  If the slot is empty, the <code>dial</code> verb will return immediate failure.</p>
-<p>The <code>confirmHook</code> property that can be optionally specified as part of the target types (with the exception of the <code>park</code> type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
-<p>This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").</p>
+<p>The <em>actionHook</em> webhook will contain the following additional parameters:</p>
+<ul>
+<li><code>queueSid</code>: the unique identifier for the queue</li>
+<li><code>queueResult</code>: the completion reason:<ul>
+<li>'hangup' - the call was abandoned while in queue</li>
+<li>'leave' - a <code>leave</code> verb caused the call to exit the queue</li>
+<li>'bridged' - a <code>dequeue</code> verb caused the call to be bridged to another call</li>
+<li>'error' - a system error of some kind occurred</li>
+</ul>
+</li>
+<li><code>queueTime</code> - the number of seconds the call spent in queue</li>
+</ul>
+<p>The <em>waitHook</em> webhook will contain the following additional parameters:</p>
+<ul>
+<li><code>queueSid</code>: the unique identifier for the queue</li>
+<li><code>queuePosition</code>: the current zero-based position in the queue</li>
+<li><code>queueTime</code>: the current number of seconds the call has spent in queue</li>
+<li><code>queueSize</code>: the current number of calls in the queue</li>
+</ul>
 <h2 id="gather">gather</h2>
-<p>The gather command is used to collect dtmf or speech input.</p>
+<p>The <code>gather</code> command is used to collect dtmf or speech input.</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;gather&quot;,
   &quot;actionHook&quot;: &quot;http://example.com/collect&quot;,
@@ -794,7 +870,7 @@
 <tbody>
 <tr>
 <td>actionHook</td>
-<td>webhook to invoke with the collected digits or speech.</td>
+<td>webhook POST to invoke with the collected digits or speech. The payload will include a 'speech' or 'dtmf' property along with the standard attributes.  See below for more detail.</td>
 <td>yes</td>
 </tr>
 <tr>
@@ -854,10 +930,23 @@
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>Note: an HTTP POST will be used for both the <code>action</code> and the <code>partialResultCallback</code> since the body may need to contain nested JSON objects for speech details.</p>
+<p>In the case of speech input, the actionHook payload will include a <code>speech</code> object with the response from google speech:</p>
+<pre><code>&quot;speech&quot;: {
+            &quot;stability&quot;: 0,
+            &quot;is_final&quot;: true,
+            &quot;alternatives&quot;: [{
+                &quot;confidence&quot;: 0.858155,
+                &quot;transcript&quot;: &quot;sales please&quot;
+            }]
+        }
+</code></pre>
+
+<p>In the case of digits input, the payload will simple include a <code>digits</code> property indicating the dtmf keys pressed:</p>
+<pre><code>&quot;digits&quot;: &quot;0276&quot;
+</code></pre>
+
+<p><strong>Note</strong>: an HTTP POST will be used for both the <code>action</code> and the <code>partialResultCallback</code> since the body may need to contain nested JSON objects for speech details.</p>
 <p>Note: the <code>partialResultCallback</code> web callback should not return content; any returned content will be discarded.</p>
-</blockquote>
 <h2 id="hangup">hangup</h2>
 <p>The hangup command terminates the call and ends the application.</p>
 <pre><code class="json">{
@@ -886,7 +975,7 @@
 </tbody>
 </table>
 <h2 id="leave">leave</h2>
-<p>The <code>leave</code> verb transfers a call out of park.  The call then returns to the flow of execution following the <a href="#park">park</a> verb that parked the call.</p>
+<p>The <code>leave</code> verb transfers a call out of a queue.  The call then returns to the flow of execution following the <a href="#enqueue">enqueue</a> verb that parked the call, or the document returned by that verbs <em>actionHook</em> property, if provided.</p>
 <pre><code class="json">{
   &quot;verb&quot;: &quot;leave&quot;
 }
@@ -981,9 +1070,18 @@
 <td>HTTP basic auth password to use on websocket connection</td>
 <td>no</td>
 </tr>
+<tr>
+<td>&lt;!--</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>## park</td>
+<td></td>
+<td></td>
+</tr>
 </tbody>
 </table>
-<h2 id="park">park</h2>
 <blockquote>
 <p>Not yet implemented</p>
 </blockquote>
@@ -1108,6 +1206,11 @@
 <td>length</td>
 <td>number of seconds to wait before continuing the app</td>
 <td>yes</td>
+</tr>
+<tr>
+<td>--&gt;</td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -1271,8 +1374,12 @@
 </tr>
 </tbody>
 </table>
-<h2 id="sipnotify">sip:notify</h2>
-<p>The sip:notify action is used to a SIP NOTIFY request to one or more registered users.  The sip:notify action is a non-blocking action.</p>
+<!--
+## sip:notify
+
+The sip:notify action is used to a SIP NOTIFY request to one or more registered users.  The sip:notify action is a non-blocking action.
+
+
 <pre><code class="json">{
   &quot;verb&quot;: &quot;sip:notify&quot;,
   &quot;user&quot;: [&quot;spike&quot;],
@@ -1288,70 +1395,41 @@
 }
 </code></pre>
 
-<p>You can use the following options in the <code>sip:notify</code> action:</p>
-<table>
-<thead>
-<tr>
-<th>option</th>
-<th>description</th>
-<th>required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>user</td>
-<td>user, or array of users, to send NOTIFY requests to</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>contentType</td>
-<td>value of SIP Content-Type header in NOTIFY</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>content</td>
-<td>body of NOTIFY request</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>headers</td>
-<td>object specifying arbitrary headers to apply to SIP NOTIFY request</td>
-<td>no</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>Note</strong>: the sip:notify verb is not currently implemented.</p>
-</blockquote>
-<h2 id="sipredirect">sip:redirect</h2>
-<p>The sip:redirect command is used to redirect an incoming call to another sip server or network.  This must be the first and only command returned in the web callback for an incoming call.  A SIP 302 Moved response will be sent back to the caller.  </p>
-<p>The sip:redirect command is a non-blocking and the session ends immediately after the command is executed.</p>
+
+You can use the following options in the `sip:notify` action:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| user | user, or array of users, to send NOTIFY requests to | yes |
+| contentType | value of SIP Content-Type header in NOTIFY | yes |
+| content | body of NOTIFY request | yes |
+| headers | object specifying arbitrary headers to apply to SIP NOTIFY request | no
+
+> **Note**: the sip:notify verb is not currently implemented.
+
+## sip:redirect
+
+The sip:redirect command is used to redirect an incoming call to another sip server or network.  This must be the first and only command returned in the web callback for an incoming call.  A SIP 302 Moved response will be sent back to the caller.  
+
+The sip:redirect command is a non-blocking and the session ends immediately after the command is executed.
+
+
 <pre><code class="json">{
   &quot;verb&quot;: &quot;sip:redirect&quot;,
   &quot;sipUri&quot;: &quot;sip:123@gateway.example.com&quot;
 }
 </code></pre>
 
-<p>You can use the following options in the <code>sip:decline</code> command:</p>
-<table>
-<thead>
-<tr>
-<th>option</th>
-<th>description</th>
-<th>required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>sipUri</td>
-<td>a sip uri that will appear in the Contact header of the 302 response to the caller</td>
-<td>yes</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>Note</strong>: the sip:redirect verb is not currently implemented.</p>
-</blockquote>
+
+You can use the following options in the `sip:decline` command:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| sipUri | a sip uri that will appear in the Contact header of the 302 response to the caller | yes |
+
+> **Note**: the sip:redirect verb is not currently implemented.
+-->
+
 <h2 id="tag">tag</h2>
 <p>The tag verb is used to add properties to the standard call attributes that jambonz includes on every action or call status HTTP POST request.</p>
 <blockquote>

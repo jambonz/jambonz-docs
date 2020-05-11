@@ -129,7 +129,7 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#welcome-to-jambonz-api-documentation">Welcome to jambonz API documentation</a></li>
+        <li class="first-level active"><a href="#welcome-to-jambonz">Welcome to jambonz</a></li>
             <li class="second-level"><a href="#features">Features</a></li>
                 
             <li class="second-level"><a href="#who-is-jambonz-for">Who is jambonz for?</a></li>
@@ -144,8 +144,9 @@
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="welcome-to-jambonz-api-documentation">Welcome to jambonz API documentation</h1>
-<p>Jambonz is an open source Communications Platform as a Service (CPaaS) built on <a href="https://drachtio.org">drachtio</a>, the open source project for creating SIP server applications. Unlike those fancy-pants CPaaS services, jambonz is designed to be:</p>
+<h1 id="welcome-to-jambonz">Welcome to jambonz</h1>
+<p>jambonz is a self-hosted, "bring your own everything" open source CPaaS platform, developed by the creator of the <a href="https://drachtio.org">drachtio</a> open source sip server.</p>
+<p>Unlike those fancy-pants CPaaS services, jambonz is designed to be:</p>
 <ul>
 <li><strong>100% open source</strong> - the entire project is public on github.com/jambonz (all of it!)</li>
 <li><strong>Easy to self-host</strong> - one-click to run on the infrastructure of your choice</li>
@@ -156,7 +157,7 @@
 <ul>
 <li>All the usual telephony controls - dial, gather DTMF, leave, park, hangup</li>
 <li>Media control:<ul>
-<li>text-to-speech (TTS) and speech-to-text (STT) integrations</li>
+<li>text-to-speech (TTS) and speech-to-text (STT) integrations, using your google and AWS accounts</li>
 <li>Call controls for audio playback, speech input, transcription</li>
 <li>Media forwarding via websocket</li>
 </ul>
@@ -164,16 +165,16 @@
 <li>SIP - registration, trunk connectivity, and dialing</li>
 <li>Applications - define and manage a set of call flows and behaviours</li>
 <li>JSON based call control </li>
-<li>REST API for controlling applications, calls, and the management interface</li>
+<li>REST API for live call control and resource provisioning and management</li>
 <li>Hierarchical data structure that can handle a variety of deployment scenarios</li>
 <li>Registrar, Call control, Session Border Control (SBC), API server, and management infrastructure to handle all the features above</li>
-<li>EC2 AMI for launching jambonz on AWS</li>
+<li>EC2 AMIs and terraform scripts for launching a jambonz cluster on AWS</li>
 <li>Anything you want to add - it's an open source project!</li>
 </ul>
 <h2 id="who-is-jambonz-for">Who is jambonz for?</h2>
 <p>jambonz is made for:</p>
 <ul>
-<li><strong>Commercial CPaaS users</strong> that want to save costs using their own SIP trunks rather than paying more expensive per-minute rates to a CPaaS provider.</li>
+<li><strong>Commercial CPaaS users</strong> that want to save costs using their own SIP trunks and speech services rather than paying up-charged rates to a CPaaS provider.</li>
 <li><strong>Privacy-concerned Businesses</strong> with stringent data privacy requirements who wish to avoid exposing their customers' sensitive data to third parties that they can't effectively audit.</li>
 <li><strong>Developers</strong> that want greater control and the ability to add their own features to a CPaaS platform they control.</li>
 <li><strong>Enterprises</strong> with capable IT departments that are already managing most of what is required for a hosted telephony solution (e.g. cloud storage, speech APIs, infrastructure as code, etc) and are starting to wonder why they are paying so much money to a third party for doing the same thing for them</li>
@@ -212,7 +213,7 @@
 
 <p>a nod to an obscure 1980s-era Boston slang term:</p>
 <div>
-jambones [jam-b&#333;nz]: to move fast; with reckless and uncontrolled abandon. <p style="margin:5px 0px 20px 10px;font-style:italic">Geraint Thomas was going jambones on that descent!</p>
+jambones [jam-b&#333;nz] <span style="font-style:italic;">(adverb)</span>: to move fast; with reckless and uncontrolled abandon.<p style="margin:5px 0px 20px 10px;font-style:italic">Geraint Thomas was going jambones on that descent!</p>
 </div></div>
         
         
@@ -308,5 +309,5 @@ jambones [jam-b&#333;nz]: to move fast; with reckless and uncontrolled abandon. 
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2020-04-27 15:28:49
+Build Date UTC : 2020-05-11 17:59:27
 -->
