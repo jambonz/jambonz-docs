@@ -43,9 +43,9 @@ The reason for having the sorted set is for efficiency when searching for a subs
 The hash data for a new call is initially added with an initial expiry of twelve hours, but when the call ends the expiry is then set to one hour.  Thus all call data naturally expires on its own from the database.  The call keys in the sorted set are purged periodically by the jambonz-api-server.
 
 ### sip registrations
-> ``user:{name}@{domain}` - a hash of registration data
+> `user:{name}@{domain}` - a hash of registration data
 
-Active sip registrations are represented in the database as a has that is keyed by `user:{name}@{domain}`, where "domain" is the sip domain associated with an account.  The following information is stored in the hash for each registration:
+Active sip registrations are represented in the database as a hash that is keyed by `user:{name}@{domain}`, where "domain" is the sip domain associated with an account.  The following information is stored in the hash for each registration:
 
 - the Contact header provided in the REGISTER request
 - the IP:port of the SBC that the user/device registered to
@@ -55,6 +55,27 @@ Active sip registrations are represented in the database as a has that is keyed 
 The hash data for a registration has an expiry equal to the registration interval granted, so it will naturally expire unless the registration is renewed by the device.  
 
 When devices are detected as being behind a router or nat device, the registration interval is decreased to 30 seconds to force the device to register frequently in order to keep a pinhole open on the customer router.  This is needed in order to to enable incoming calls sent to the device to be able to enter the customer network.
+
+### conferences
+> `conf:{accountSid}:{friendlyName}` - a hash of data about an active conference
+
+Active conferences (i.e., conferences that are in progress) are represented as a hash that is keyed by the conference name and and account sid (two different accounts may both choose to have a conference named 'sales', for instance, and those will be distinct conferences).  The following information is stored in the hash for each currently active conference:
+
+- `sipAddress`: the (private) IP address of the feature server that is hosting the conference
+- `startTime`: the time the conference was started (number of milliseconds elapsed since January 1, 1970 00:00:00 UTC)
+- `statusEvents`: the conference events that should be reported
+- `statusHook`: the webhook conference events should be reported to
+
+> `conf:{accountSid}:{friendlyName}:waitlist` - a set of URLs
+
+There is a waiting list for each conference, which represents the participants that dialed in early and are waiting for the conference to start.  Each entry in the set is a URL that is invoked to notify the caller when the conference starts.
+
+Conference data is cleared from the database when the conference is destroyed, which happens either when the moderator leaves or the last participant leaves.
+
+### queues
+> `queue:{accountSid}:{friendlyName}` - URL
+
+Call queues are represented as a list that is named based the queue name and and account sid (two different accounts may both choose to have a queue named 'support', for instance, and those will be distinct queues).  The list members are simple strings, each of which is a URL associated to a call that is currently waiting in queue.
 
 ## mysql database
 

@@ -207,7 +207,7 @@ In the verb descriptions below, whenever we indicate a property is a webhook we 
 Each of the supported verbs are described below.
 
 ## conference
-The conference command places a call into a conference.
+The `conference` verb places a call into a conference.
 ```json
   {
     "verb": "conference",
@@ -253,9 +253,39 @@ Conference status webhooks will contain the following additional parameters:
 - members: the current number of members in the conference
 - duration: the current length of the conference in seconds
 
+## dequeue
+The `dequeue` verb removes the a call from the front of a specified queue and bridges that call to the current caller.
+
+```
+{
+  "verb": "dequeue",
+  "name": "support",
+  "beep": true,
+  "timeout": 60
+}
+```
+
+You can use the following options in the `dequeue` command:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| name | name of the queue | yes |
+| actionHook | A webhook invoke when call ends. If no webhook is provided, execution will continue with the next verb in the current application. <br/>See below for specified request parameters.| no |
+| beep | if true, play a beep tone to this caller only just prior to connecting the queued call; this provides an auditory cue that the call is now connected | no |
+| confirmHook | A webhook for an application to run on the callee's end before the call is bridged.  This will allow the application to play an informative message to a caller as they leave the queue (e.g. "your call may be recorded") | no |
+| timeout | number of seconds to wait on an empty queue before returning (default: wait forever) | no |
+
+The *actionHook* webhook will contain the following additional parameters:
+
+- `dequeueResult`: the completion reason:
+    - 'hangup' - the bridged call was abandoned while listening to the confirmHook message
+    - 'complete' - the call was successfully bridged and ended with a caller hangup
+    - 'timeout' - no call appeared in the named queue during the timeout interval
+    - 'error' - a system error of some kind occurred
+
 ## dial
 
-The dial command is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  
+The `dial` verb is used to create a new call by dialing out to a number, a registered sip user, or sip endpoint.  
 ```json
 {
   "verb": "dial",
@@ -309,7 +339,7 @@ You can use the following attributes in the `dial` command:
 | callerId | The inbound caller's phone number, which is displayed to the number that was dialed. The caller ID must be a valid E.164 number. <br/>Defaults to caller id on inbound call. | no |
 | confirmHook | webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This allows the caller to provide information to the dialed number, giving them the opportunity to decline the call, before they answer the call.  Note that if you want to run different applications on specific destinations, you can specify the 'url' property on the nested [target](#target-types) object.  | no |
 | dialMusic | url that specifies a .wav or .mp3 audio file of custom audio or ringback to play to the caller while the outbound call is ringing. | no |
-| dtmfCapture | an array of strings that represent dtmf sequence which should trigger a mid-call notification to the application | no |
+| dtmfCapture | an array of strings that represent dtmf sequence which, when detected, will trigger a mid-call notification to the application via the configured `dtmfHook` | no |
 | dtmfHook | a webhook to call when a dtmfCapture entry is matched.  This is a notification only -- no response is expected, and any desired actions must be carried out via the REST updateCall API. | no|
 | headers | an object containing arbitrary sip headers to apply to the outbound call attempt(s) | no |
 | listen | a nested [listen](#listen) action, which will cause audio from the call to be streamed to a remote server over a websocket connection | no |
@@ -339,7 +369,7 @@ You can use the following attributes in the `dial` command:
 | auth.user | sip username | no |
 | auth.password | sip password | no |
 
-Using this approach, it is possible to send calls out a sip trunk.  If the sip trunking provider enforces username/password authentication, then supply the credentials in the `auth` property.
+Using this approach, it is possible to send calls out a sip trunk.  If the sip trunking provider enforces username/password authentication, supply the credentials in the `auth` property.
 
 *a registered webrtc or sip user*
 
@@ -349,6 +379,7 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 | confirmHook | A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.| no |
 | name | registered sip user, including domain (e.g. "joeb@sip.jambonz.org") | yes |
 
+<!--
 *Microsoft Teams user*
 
 If Microsoft Teams integration has been configured, you can dial out to  Teams users.
@@ -370,14 +401,51 @@ If Microsoft Teams integration has been configured, you can dial out to  Teams u
 | slot | the name of the parking slot | yes |
 
 Dialing to a parking slot allows you to pick up a call that has been parked in that slot.  If the slot is empty, the `dial` verb will return immediate failure.
-
+-->
 The `confirmHook` property that can be optionally specified as part of the target types (with the exception of the `park` type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.
 
 This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").
 
+## enqueue
+The `enqueue` command is used to place a caller in a queue.
+
+```
+{
+	"verb": "enqueue",
+	"name": "support",
+	"actionHook": "/queue-action",
+	"waitHook": "/queue-wait"
+}
+```
+
+You can use the following options in the `enqueue` command:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| name | name of the queue | yes |
+| actionHook | A webhook invoke when operation completes. <br/>If a call is dequeued through the `leave` verb, the webook is immediately invoked. <br/>If the call has been bridged to another party via the `dequeue` verb, then the webhook is invoked after both parties have disconnected. <br/>If no webhook is provided, execution will continue with the next verb in the current application. <br/>See below for specified request parameters.| no |
+| waitHook | A webhook to invoke while the caller is in queue.  The only allowed verbs in the application returned from this webhook are `say`, `play`, `pause`, and `leave`, </br>See below for additional request parameters| no|
+
+The *actionHook* webhook will contain the following additional parameters:
+
+- `queueSid`: the unique identifier for the queue
+- `queueResult`: the completion reason:
+    - 'hangup' - the call was abandoned while in queue
+    - 'leave' - a `leave` verb caused the call to exit the queue
+    - 'bridged' - a `dequeue` verb caused the call to be bridged to another call
+    - 'error' - a system error of some kind occurred
+- `queueTime` - the number of seconds the call spent in queue
+
+The *waitHook* webhook will contain the following additional parameters:
+
+- `queueSid`: the unique identifier for the queue
+- `queuePosition`: the current zero-based position in the queue
+- `queueTime`: the current number of seconds the call has spent in queue
+- `queueSize`: the current number of calls in the queue
+
 ## gather
 
-The gather command is used to collect dtmf or speech input.
+The `gather` command is used to collect dtmf or speech input.
 
 ```json
 {
@@ -405,7 +473,7 @@ You can use the following options in the `gather` command:
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| actionHook | webhook to invoke with the collected digits or speech. | yes |
+| actionHook | webhook POST to invoke with the collected digits or speech. The payload will include a 'speech' or 'dtmf' property along with the standard attributes.  See below for more detail.| yes |
 | finishOnKey | dmtf key that signals the end of input | no |
 | input | array, specifying allowed types of input: ['digits'], ['speech'], or ['digits', 'speech'].  Default: ['digits'] | no |
 | numDigits | number of dtmf digits expected to gather | no |
@@ -418,9 +486,26 @@ You can use the following options in the `gather` command:
 | say | nested [say](#say) command that can be used to prompt the user | no |
 | timeout | The number of seconds of silence or inaction that denote the end of caller input.  The timeout timer will begin after any nested play or say command completes.  Defaults to 5 | no |
 
-> Note: an HTTP POST will be used for both the `action` and the `partialResultCallback` since the body may need to contain nested JSON objects for speech details.
+In the case of speech input, the actionHook payload will include a `speech` object with the response from google speech:
+```
+"speech": {
+			"stability": 0,
+			"is_final": true,
+			"alternatives": [{
+				"confidence": 0.858155,
+				"transcript": "sales please"
+			}]
+		}
+```
 
-> Note: the `partialResultCallback` web callback should not return content; any returned content will be discarded.
+In the case of digits input, the payload will simple include a `digits` property indicating the dtmf keys pressed:
+```
+"digits": "0276"
+```
+
+**Note**: an HTTP POST will be used for both the `action` and the `partialResultCallback` since the body may need to contain nested JSON objects for speech details.
+
+Note: the `partialResultCallback` web callback should not return content; any returned content will be discarded.
 
 ## hangup
 
@@ -442,7 +527,7 @@ You can use the following options in the `hangup` action:
 
 ## leave
 
-The `leave` verb transfers a call out of park.  The call then returns to the flow of execution following the [park](#park) verb that parked the call.
+The `leave` verb transfers a call out of a queue.  The call then returns to the flow of execution following the [enqueue](#enqueue) verb that parked the call, or the document returned by that verbs *actionHook* property, if provided.
 
 ```json
 {
@@ -494,7 +579,7 @@ You can use the following options in the `listen` action:
 | url | url of remote server to connect to | yes |
 | wsAuth.username | HTTP basic auth username to use on websocket connection | no |
 | wsAuth.password | HTTP basic auth password to use on websocket connection | no |
-
+<!--
 ## park
 
 > Not yet implemented
@@ -561,6 +646,7 @@ You can use the following options in the `pause` action:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | length | number of seconds to wait before continuing the app | yes |
+-->
 
 ## play
 
@@ -651,6 +737,7 @@ You can use the following options in the `sip:decline` action:
 | reason | a brief description | no (default: the well-known SIP reasons associated with the specified status code |
 | headers | SIP headers to include in the response | no
 
+<!--
 ## sip:notify
 
 The sip:notify action is used to a SIP NOTIFY request to one or more registered users.  The sip:notify action is a non-blocking action.
@@ -702,6 +789,7 @@ You can use the following options in the `sip:decline` command:
 | sipUri | a sip uri that will appear in the Contact header of the 302 response to the caller | yes |
 
 > **Note**: the sip:redirect verb is not currently implemented.
+-->
 
 ## tag
 
