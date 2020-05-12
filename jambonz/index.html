@@ -1070,29 +1070,24 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 <td>HTTP basic auth password to use on websocket connection</td>
 <td>no</td>
 </tr>
-<tr>
-<td>&lt;!--</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>## park</td>
-<td></td>
-<td></td>
-</tr>
 </tbody>
 </table>
-<blockquote>
-<p>Not yet implemented</p>
-</blockquote>
-<p>The <code>park</code> command is used to park a call at a named parking slot.  Once a call is parked, it can be picked up by another call using the <code>dial</code> verb with a target type of 'park'.  The park verb completes when one of the following happens:</p>
-<ul>
-<li>It is picked up by another caller, using the dial verb (and that call subsequently completes).</li>
-<li>It leaves the parking slot due to executing a <a href="#leave">leave</a> verb.</li>
-<li>It leaves the parking slot due to a timeout.</li>
-<li>The caller hangs up.</li>
-</ul>
-<p>Once the park command completes, it optionally calls a configured <code>actionHook</code> property (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.</p>
+<!--
+## park
+
+> Not yet implemented
+
+The `park` command is used to park a call at a named parking slot.  Once a call is parked, it can be picked up by another call using the `dial` verb with a target type of 'park'.  The park verb completes when one of the following happens:
+
+- It is picked up by another caller, using the dial verb (and that call subsequently completes).
+- It leaves the parking slot due to executing a [leave](#leave) verb.
+- It leaves the parking slot due to a timeout.
+- The caller hangs up.
+
+Once the park command completes, it optionally calls a configured `actionHook` property (unless the caller has hung up) and executes the application returned, if any.  If no action is specified, it proceeds to execute the next task in the current application.
+
+
+
 <pre><code class="json">{
   &quot;verb&quot;: &quot;park&quot;,
   &quot;slot&quot;: &quot;7000&quot;,
@@ -1102,88 +1097,34 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 }
 </code></pre>
 
-<p>You can use the following options in the <code>park</code> command:</p>
-<table>
-<thead>
-<tr>
-<th>option</th>
-<th>description</th>
-<th>required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>actionHook</td>
-<td>a webhook that is invoked when the call leaves the parking slot.  If the call has been bridged to another party, the webhook is invoked when that call is complete. See below for request parameters</td>
-<td>no</td>
-</tr>
-<tr>
-<td>slot</td>
-<td>a label for the parking location</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>timeout</td>
-<td>number of seconds to wait for pickup before exiting the parking slot</td>
-<td>no</td>
-</tr>
-<tr>
-<td>waitHook</td>
-<td>a webhook to call for verbs to execute while parked.  The returned task list may only include play, say, or gather verbs.  Once the task list is completed, the webhook will be called again repeatedly while the call is parked</td>
-<td>no</td>
-</tr>
-</tbody>
-</table>
-<p>The <code>actionHook</code> request includes the standard request parameters, plus the following:</p>
-<table>
-<thead>
-<tr>
-<th>property</th>
-<th>description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>parkOutcome</td>
-<td>the result of the park command, as described below</td>
-</tr>
-<tr>
-<td>slot</td>
-<td>the parking slot used</td>
-</tr>
-<tr>
-<td>parkTime</td>
-<td>the number of seconds the call was parked</td>
-</tr>
-</tbody>
-</table>
-<p>The <code>parkOutcome</code> is one of the following:</p>
-<table>
-<thead>
-<tr>
-<th>value</th>
-<th>description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>'bridged'</td>
-<td>The parked call was picked up</td>
-</tr>
-<tr>
-<td>'abandoned'</td>
-<td>The call was abandoned in park (i.e. the caller hung up)</td>
-</tr>
-<tr>
-<td>'left'</td>
-<td>the call left the parking slot due to a <a href="#leave">leave</a> command</td>
-</tr>
-<tr>
-<td>'timeout'</td>
-<td>the call left the parking slot due to a timeout</td>
-</tr>
-</tbody>
-</table>
+
+You can use the following options in the `park` command:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| actionHook | a webhook that is invoked when the call leaves the parking slot.  If the call has been bridged to another party, the webhook is invoked when that call is complete. See below for request parameters | no |
+| slot | a label for the parking location | yes |
+| timeout | number of seconds to wait for pickup before exiting the parking slot | no |
+| waitHook | a webhook to call for verbs to execute while parked.  The returned task list may only include play, say, or gather verbs.  Once the task list is completed, the webhook will be called again repeatedly while the call is parked | no |
+
+The `actionHook` request includes the standard request parameters, plus the following:
+
+| property | description |
+| ------------- |-------------|
+| parkOutcome | the result of the park command, as described below |
+| slot | the parking slot used |
+| parkTime | the number of seconds the call was parked |
+
+The `parkOutcome` is one of the following:
+
+| value | description |
+| ------------- |-------------|
+| 'bridged' | The parked call was picked up |
+| 'abandoned' | The call was abandoned in park (i.e. the caller hung up) |
+| 'left' | the call left the parking slot due to a [leave](#leave) command |
+| 'timeout' | the call left the parking slot due to a timeout |
+-->
+
 <h2 id="pause">pause</h2>
 <p>The pause command waits silently for a specified number of seconds.</p>
 <pre><code class="json">{
@@ -1206,11 +1147,6 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 <td>length</td>
 <td>number of seconds to wait before continuing the app</td>
 <td>yes</td>
-</tr>
-<tr>
-<td>--&gt;</td>
-<td></td>
-<td></td>
 </tr>
 </tbody>
 </table>
