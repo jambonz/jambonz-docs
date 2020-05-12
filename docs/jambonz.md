@@ -631,8 +631,8 @@ The `parkOutcome` is one of the following:
 | 'abandoned' | The call was abandoned in park (i.e. the caller hung up) |
 | 'left' | the call left the parking slot due to a [leave](#leave) command |
 | 'timeout' | the call left the parking slot due to a timeout |
--->
 
+-->
 
 ## pause
 
