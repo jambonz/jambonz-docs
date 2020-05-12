@@ -157,9 +157,9 @@ The Request-URI of the POST contains the Account Sid of the caller and JSON payl
 | call_status_hook | an object specifying a  a web callback that will be invoked with call status notifications.  Object properties the same as 'call_hook' property above. | no |
 | from | the calling party number | yes |
 | headers | an object containing arbitrary sip headers to apply to the outbound call attempt | no |
-| tag | an object containing customer data to associate with this call; this essentially calls the [tag](/jambonz-docs/jambonz#tag) verb for you| no |
+| tag | an object containing customer data to associate with this call; this essentially calls the [tag](/jambonz#tag) verb for you| no |
 | timeout | the number of seconds to wait for the call to be answered.  Defaults to 60. | no |
-| to | specifies the destination of the call. See description of [target types](/jambonz-docs/jambonz#target-types) in jambonz call control language. | yes | 
+| to | specifies the destination of the call. See description of [target types](/jambonz#target-types) in jambonz call control language. | yes | 
 
 At the time that the 201 response is returned to the caller, the call attempt has been launched (i.e., the SIP INVITE has been sent) but no ringing or call answer has yet occurred.  The caller will receive call status notifications via the call_status_hook (either that supplied in the POST request, or if an application_sid is supplied then via the configured call_status_hook for that application).
 

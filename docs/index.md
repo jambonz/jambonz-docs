@@ -62,13 +62,13 @@ d) **white-labelable**.<p style="margin-left:10px">Is that even a word?  Well, i
 
 Well, if you ***are*** using one of those fancy-pants CPAAS services, then you are already familiar with how this works:
 
-A jambonz application controls calls via web callbacks and an HTTP API.  The jambonz platform notifies your application of incoming calls and call status changes via web callbacks.  Your application provides call control instructions by responding to web callbacks with [JSON payloads](/jambonz-docs/jambonz) that include instructions, or by invoking a [REST API](/jambonz-docs/rest).
+A jambonz application controls calls via web callbacks and an HTTP API.  The jambonz platform notifies your application of incoming calls and call status changes via web callbacks.  Your application provides call control instructions by responding to web callbacks with [JSON payloads](/jambonz) that include instructions, or by invoking a [REST API](/rest).
 
 Additionally, jambonz supports sip end-user devices and webRTC clients registering with the platform and making and receiving calls.
 
 Come on people.  We can do this thing!  
 
-Take the next step, and read on to review our [Call Control](/jambonz-docs/jambonz) and [management APIs](/jambonz-docs/rest).
+Take the next step, and read on to review our [Call Control](/jambonz) and [management APIs](/rest).
 
 ## What's the name mean?
 

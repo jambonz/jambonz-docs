@@ -579,6 +579,8 @@ You can use the following options in the `listen` action:
 | url | url of remote server to connect to | yes |
 | wsAuth.username | HTTP basic auth username to use on websocket connection | no |
 | wsAuth.password | HTTP basic auth password to use on websocket connection | no |
+
+
 <!--
 ## park
 
@@ -629,6 +631,7 @@ The `parkOutcome` is one of the following:
 | 'abandoned' | The call was abandoned in park (i.e. the caller hung up) |
 | 'left' | the call left the parking slot due to a [leave](#leave) command |
 | 'timeout' | the call left the parking slot due to a timeout |
+-->
 
 
 ## pause
@@ -646,7 +649,6 @@ You can use the following options in the `pause` action:
 | option        | description | required  |
 | ------------- |-------------| -----|
 | length | number of seconds to wait before continuing the app | yes |
--->
 
 ## play
 
