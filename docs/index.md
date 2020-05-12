@@ -68,7 +68,7 @@ Additionally, jambonz supports sip end-user devices and webRTC clients registeri
 
 Come on people.  We can do this thing!  
 
-Take the next step, and read on to review our [Call Control](/jambonz) and [management APIs](/rest).
+Take the next step, and read on to review the [Call Control](/jambonz) and [management APIs](/rest).
 
 ## What's the name mean?
 
