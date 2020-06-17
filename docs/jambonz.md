@@ -379,7 +379,6 @@ Using this approach, it is possible to send calls out a sip trunk.  If the sip t
 | confirmHook | A webhook for an application to run on the callee's end after the dialed number answers but before the call is connected. This will override the confirmHook property set on the parent dial verb, if any.| no |
 | name | registered sip user, including domain (e.g. "joeb@sip.jambonz.org") | yes |
 
-<!--
 *Microsoft Teams user*
 
 If Microsoft Teams integration has been configured, you can dial out to  Teams users.
@@ -387,10 +386,11 @@ If Microsoft Teams integration has been configured, you can dial out to  Teams u
 | option        | description | required  |
 | ------------- |-------------| -----|
 | type | must be "ms-teams" | yes |
-| tenant | Microsoft Teams customer tenant domain name| yes |
+| tenant | Microsoft Teams customer tenant domain name.  Will default to the Microsoft Teams tenant associated with the account of the calling party. | no |
 | user | the username or phone number of the teams user | yes |
 | voicemail | if true, dial directly into user's voicemail to leave a message | no |
 
+<!--
 *parking slot*
 
 > Not yet implemented
