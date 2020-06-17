@@ -326,9 +326,11 @@ There are several types of endpoints:
 * a telephone phone number,
 * a sip endpoint, identified by a sip uri (and possibly authentication parameters),
 * a conference, 
-* a webrtc or sip client that has registered directly with your application, 
-* Microsoft Teams user, or
+* a webrtc or sip client that has registered directly with your application, or
+* Microsoft Teams user
+<!--
 * a [parking slot](#park)
+-->
 
 You can use the following attributes in the `dial` command:
 
