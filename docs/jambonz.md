@@ -328,6 +328,7 @@ There are several types of endpoints:
 * a conference, 
 * a webrtc or sip client that has registered directly with your application, or
 * Microsoft Teams user
+
 <!--
 * a [parking slot](#park)
 -->
