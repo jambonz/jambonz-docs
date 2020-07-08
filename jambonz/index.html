@@ -148,6 +148,9 @@
             <li class="second-level"><a href="#dial">dial</a></li>
                 
                 <li class="third-level"><a href="#target-types">target types</a></li>
+            <li class="second-level"><a href="#dialogflow">dialogflow</a></li>
+                
+                <li class="third-level"><a href="#call-transfer">call transfer</a></li>
             <li class="second-level"><a href="#enqueue">enqueue</a></li>
                 
             <li class="second-level"><a href="#gather">gather</a></li>
@@ -804,6 +807,124 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 
 <p>The <code>confirmHook</code> property that can be optionally specified as part of the target types (with the exception of the <code>park</code> type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
 <p>This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").</p>
+<h2 id="dialogflow">dialogflow</h2>
+<p>The <code>dialogflow</code> verb is used to connect a call to a dialogflow bot.</p>
+<pre><code>{
+  &quot;verb&quot;: &quot;dialogflow&quot;,
+  &quot;project&quot;: &quot;ai-in-rtc-drachtio-tsjjpn&quot;,
+  &quot;lang&quot;: &quot;en-US&quot;,
+  &quot;credentials: &quot;{\&quot;type\&quot;: \&quot;service_account\&quot;,\&quot;project_id\&quot;: \&quot;ai-in-rtc-drachtio...}&quot;,
+  &quot;welcomeEvent&quot;: &quot;welcome&quot;,
+  &quot;eventHook&quot;: &quot;/dialogflow-event&quot;,
+  &quot;actionHook&quot;: &quot;/dialogflow-action&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>dialogflow</code> verb:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>project</td>
+<td>the Google dialogflow project id</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>lang</td>
+<td>language to use for speech recognition</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>credentials</td>
+<td>the service account key in JSON string form that is used to authenticate to dialogflow</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>welcomeEvent</td>
+<td>An event to send to dialogflow when first connecting; e.g. to trigger a welcome prompt</td>
+<td>no</td>
+</tr>
+<tr>
+<td>welcomeEventParams</td>
+<td>An object containing parameters to send with the welcome event</td>
+<td>no</td>
+</tr>
+<tr>
+<td>noInputTimeout</td>
+<td>Number of seconds of no speech detected after which to reprompt</td>
+<td>no</td>
+</tr>
+<tr>
+<td>passDtmfAsTextInput</td>
+<td>If true, pass user dtmf entries as text inputs to the dialogflow bot</td>
+<td>no</td>
+</tr>
+<tr>
+<td>thinkingMusic</td>
+<td>A url to a .wav or .mp3 file to play as filler music while the dialogflow back-end is executing</td>
+<td>no</td>
+</tr>
+<tr>
+<td>actionHook</td>
+<td>A webhook invoke when operation completes.<br/>See below for specified request parameters.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>eventHook</td>
+<td>A webhook to invoke when a dialogflow event occurs, such as an intent being detected or a speech transcription being returned.  <br/>The response to the event hook may contain a new jambonz application to execute</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>actionHook</em> webhook will contain the following additional parameters:</p>
+<ul>
+<li><code>dialogFlowResult</code>: the completion reason:<ul>
+<li><code>redirect</code> - a new application was returned from an event webhook</li>
+<li><code>completed</code> - an intent with <code>end iteraction</code> set to true was received from dialogflow</li>
+</ul>
+</li>
+</ul>
+<p>The <em>eventHook</em> webhook will contain two parameters: <code>event</code> and <code>data</code>.  The <code>event</code> parameter identifies the specific event and the <code>data</code> parameter is an object containng event data associated with the event.  The following events are supported:</p>
+<ul>
+<li><code>intent</code>: dialogflow detected an intent</li>
+<li><code>transcription</code>: a speech transcription was returned from dialogflow</li>
+<li><code>dmtf</code>: a dtmf key was pressed by the caller</li>
+<li><code>end-utterance</code>: the caller finished speaking</li>
+<li><code>start-play</code>: an audio segment returned from dialogflow started to play</li>
+<li><code>stop-play</code>: an audio segment returned from dialogflow completing playing</li>
+<li><code>no-input</code>: the no input timer elapsed with no input detected from the caller</li>
+</ul>
+<h3 id="call-transfer">call transfer</h3>
+<p>Call transfer from a dialogflow bot is achieved by responding to an eventHook with event <code>intent</code> by returning a new jambonz application containing a <a href="#dial">dial</a> verb.  Of course, this should only be done if the intent is signaling a request for a call transfer.</p>
+<p>Indicating a desire to transfer the call to a live agent can be done in a couple of different ways in the dialogflow editor:</p>
+<ol>
+<li>By adding a Dialogflow Phone Gateway Response to the intent, with a Transfer Call action.  </li>
+<li>By adding a custom payload in a response to the intent, with arbitrary JSON content that you define and which should include the telephone number (or registered user, or sip endpoint) to transfer to.</li>
+</ol>
+<blockquote>
+<p>Note: option 1 only works when transferring to a US number, because the dialogflow editor only accepts US destinations.  To transfer to non-US destinations, use option 2.</p>
+</blockquote>
+<p>In either case, your application is responsible for having an eventHook that parses the intent (found in the <code>data</code> property of the webhook content) in order to check if call transfer is being requested, and if so responding with a new jambonz application.</p>
+<p>For instance, when the Dialogflow Phone Gateway Response is used (option 1 above), the code snippet below shows where to find the transfer number in the intent data provided in the eventHook.</p>
+<pre><code>const evt = req.body; 
+if (evt.event === 'intent') {
+    const qo = evt.data.query_result;
+    const transfer = qo.fulfillment_messages.find((fm) =&gt; {
+      return fm.platform === 'TELEPHONY' &amp;&amp; fm.telephony_transfer_call;
+    });
+    if (transfer) {
+        // a transfer has been requested
+        // transfer.telephony_transfer_call.phone_number has the phone number to transfer to
+    }
+}
+</code></pre>
+
 <h2 id="enqueue">enqueue</h2>
 <p>The <code>enqueue</code> command is used to place a caller in a queue.</p>
 <pre><code>{
