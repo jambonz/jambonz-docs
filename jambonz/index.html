@@ -884,7 +884,7 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 </table>
 <p>The <em>actionHook</em> webhook will contain the following additional parameters:</p>
 <ul>
-<li><code>dialogFlowResult</code>: the completion reason:<ul>
+<li><code>dialogflowResult</code>: the completion reason:<ul>
 <li><code>redirect</code> - a new application was returned from an event webhook</li>
 <li><code>completed</code> - an intent with <code>end iteraction</code> set to true was received from dialogflow</li>
 </ul>
@@ -895,7 +895,6 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 <li><code>intent</code>: dialogflow detected an intent</li>
 <li><code>transcription</code>: a speech transcription was returned from dialogflow</li>
 <li><code>dmtf</code>: a dtmf key was pressed by the caller</li>
-<li><code>end-utterance</code>: the caller finished speaking</li>
 <li><code>start-play</code>: an audio segment returned from dialogflow started to play</li>
 <li><code>stop-play</code>: an audio segment returned from dialogflow completing playing</li>
 <li><code>no-input</code>: the no input timer elapsed with no input detected from the caller</li>
