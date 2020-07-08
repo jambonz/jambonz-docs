@@ -441,7 +441,7 @@ You can use the following options in the `dialogflow` verb:
 
 The *actionHook* webhook will contain the following additional parameters:
 
-- `dialogFlowResult`: the completion reason:
+- `dialogflowResult`: the completion reason:
     - `redirect` - a new application was returned from an event webhook
     - `completed` - an intent with `end iteraction` set to true was received from dialogflow
 
@@ -450,7 +450,6 @@ The *eventHook* webhook will contain two parameters: `event` and `data`.  The `e
 - `intent`: dialogflow detected an intent
 - `transcription`: a speech transcription was returned from dialogflow
 - `dmtf`: a dtmf key was pressed by the caller
-- `end-utterance`: the caller finished speaking
 - `start-play`: an audio segment returned from dialogflow started to play
 - `stop-play`: an audio segment returned from dialogflow completing playing
 - `no-input`: the no input timer elapsed with no input detected from the caller
