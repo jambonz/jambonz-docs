@@ -434,6 +434,7 @@ You can use the following options in the `dialogflow` verb:
 | welcomeEvent | An event to send to dialogflow when first connecting; e.g. to trigger a welcome prompt | no |
 | welcomeEventParams | An object containing parameters to send with the welcome event | no |
 | noInputTimeout | Number of seconds of no speech detected after which to reprompt | no |
+| noInputEvent | Name of dialogflow event to send in query when no input timeout expires | no |
 | passDtmfAsTextInput | If true, pass user dtmf entries as text inputs to the dialogflow bot | no |
 | thinkingMusic | A url to a .wav or .mp3 file to play as filler music while the dialogflow back-end is executing | no |
 | actionHook | A webhook invoke when operation completes.<br/>See below for specified request parameters.| no |
