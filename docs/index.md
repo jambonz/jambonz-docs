@@ -83,3 +83,9 @@ a nod to an obscure 1980s-era Boston slang term:
 <div>
 jambones [jam-b&#333;nz] <span style="font-style:italic;">(adverb)</span>: to move fast; with reckless and uncontrolled abandon.<p style="margin:5px 0px 20px 10px;font-style:italic">Geraint Thomas was going jambones on that descent!</p>
 </div>
+
+## Getting started
+
+Enough already!  I just want to build one of these things and take it for a spin!  
+
+OK, gotcha - check out a short video showing a soup-to-nuts walkthrough of [how to deploy on AWS in 10 minutes or less](/tutorials)
