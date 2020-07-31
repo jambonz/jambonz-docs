@@ -177,12 +177,8 @@
     drachtioBranch: develop
     rtp_engine_version: mr8.5
   vars_prompt:
-    - name: &quot;build_with_grpc&quot;
-      prompt: &quot;Include the grpc modules (mod_google_transcribe, mod_google_tts, mod_dialogflow)?&quot;
-      private: no
-      default: false
     - name: &quot;cloud_provider&quot;
-      prompt: &quot;CLoud provider: aws, gcp, azure, digital_ocean&quot;
+      prompt: &quot;Cloud provider: aws, gcp, azure, digital_ocean&quot;
       default: none
       private: no
   roles:
