@@ -11,7 +11,7 @@
     <link rel="../img/favicon.ico">
 
     
-    <title>Tutorials - jambonz</title>
+    <title>Installing - jambonz</title>
     
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -102,14 +102,14 @@
                 
                 
                 
-                    <li class="active">
-                        <a href="./">Tutorials</a>
+                    <li >
+                        <a href="../tutorials/">Tutorials</a>
                     </li>
                 
                 
                 
-                    <li >
-                        <a href="../installing/">Installing</a>
+                    <li class="active">
+                        <a href="./">Installing</a>
                     </li>
                 
                 
@@ -122,12 +122,12 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../register-hook/">
+                        <a rel="prev" href="../tutorials/">
                             <i class="fas fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li >
-                        <a rel="next" href="../installing/">
+                    <li class="disabled">
+                        <a rel="next" >
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -141,43 +141,76 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#tutorials">Tutorials</a></li>
-            <li class="second-level"><a href="#quickstart-deploying-jambonz-on-aws-in-10-minutes-or-less">Quickstart: Deploying jambonz on AWS in 10 minutes or less</a></li>
+        <li class="first-level active"><a href="#installing-jambonz">Installing jambonz</a></li>
+            <li class="second-level"><a href="#aws">AWS</a></li>
                 
-            <li class="second-level"><a href="#integrating-with-sip-trunking-providers">Integrating with SIP Trunking Providers</a></li>
+            <li class="second-level"><a href="#otherwise">Otherwise..</a></li>
                 
-                <li class="third-level"><a href="#voxbone">Voxbone</a></li>
-                <li class="third-level"><a href="#382-communications">382 Communications</a></li>
-            <li class="second-level"><a href="#building-jambonz-apps-using-node-red">Building jambonz apps using Node-RED</a></li>
-                
-                <li class="third-level"><a href="#getting-started">Getting started</a></li>
+                <li class="third-level"><a href="#a-provision-servers">A. Provision servers</a></li>
+                <li class="third-level"><a href="#b-use-ansible-to-install-base-software">B. Use ansible to install base software</a></li>
+                <li class="third-level"><a href="#c-configure-sbc">C. Configure SBC</a></li>
+                <li class="third-level"><a href="#d-configure-feature-server">D. Configure Feature Server</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="tutorials">Tutorials</h1>
-<h3 id="quickstart-deploying-jambonz-on-aws-in-10-minutes-or-less">Quickstart: Deploying jambonz on AWS in 10 minutes or less</h3>
-<p>This video shows how to use the terraform scripts provided in the github <a href="https://github.com/jambonz/jambonz-infrastructure">jambonz-infrastructure</a> project to quickly create a running jambonz system on AWS.<br />
-<br/><br/>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Mniskl22GDI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
-<h3 id="integrating-with-sip-trunking-providers">Integrating with SIP Trunking Providers</h3>
-<h4 id="voxbone">Voxbone</h4>
-<p><a href="https://www.voxbone.com/">Voxbone</a> is a SIP trunking provider that provides local DIDs (aka phone numbers) and SIP trunking in many countries around the world.  They have a global presence and bring in-depth knowledge of local regulatory requirements, so they do the heavy lifting that enables you to easily acquire phone numbers in many different countries.<br/></p>
-<p>This first video shows how to configure your Voxbone DIDs to route to jambonz.
-<br/><br/>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Ow7iduDG0HE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
-<p>This video shows how to use the Voxbone "Voxout" service to place outbound calls from jambonz through Voxbone.
-<br/><br/>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Tn8J9iPUOW8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
-<h4 id="382-communications">382 Communications</h4>
-<p><a href="https://www.382com.com/">382 comm</a> is a US-based SIP trunking and DID provider that provides great rates and customer support.  This video shows how to integrate jambonz with SIP trunks from 382 commm.</p>
-<p><br/><br/>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/gimWHncjtPw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
-<h3 id="building-jambonz-apps-using-node-red">Building jambonz apps using Node-RED</h3>
-<h4 id="getting-started">Getting started</h4>
-<p>This first video provides a quickstart on building jambonz apps using the open source, drag and drop <a href="https://nodered.org/">Node-RED server</a>.</p>
-<p><br/><br/>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/rxt8SyVlDrA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p></div>
+<h1 id="installing-jambonz">Installing jambonz</h1>
+<h2 id="aws">AWS</h2>
+<p>The quickest way to deploy jambonz currently is on AWS using the provided <a href="https://github.com/jambonz/jambonz-infrastructure">terraform scripts</a>.  Review <a href="/tutorials/#quickstart-deploying-jambonz-on-aws-in-10-minutes-or-less">this quickstart video</a> for details.</p>
+<h2 id="otherwise">Otherwise..</h2>
+<p>If you are using a different hosted provider, or have your own hardware, there is a little more elbow grease required!  Follow the instructions below to create a jambonz deployment consisting of one SBC and one Feature Server.  You will also be provisioning a mysql server and a redis server.</p>
+<h3 id="a-provision-servers">A. Provision servers</h3>
+<p>You'll need two servers -- one will be the public-facing SBC, while the other will be the feature server.  The SBC must have a public address; the Feature Server does not necessarily need a public address, but of course will need connectivity to the SBC, the mysql database, and the redis server.  If desired, you can install mysql and redis on the SBC server, but as long as they are reachable from both the SBC and the Feature Server you'll be fine.  We will be using ansible to build up the servers, which means from your laptop you need ssh connectivity to both the SBC and the Feature Server.</p>
+<p>The base software distribution for both the SBC and the Feature Server should be Debian 9.  A vanilla install that includes sudo and python is all that is needed (python is used by <a href="https://www.ansible.com/">ansible</a>, which we will be using to build up the servers in the next step).</p>
+<h3 id="b-use-ansible-to-install-base-software">B. Use ansible to install base software</h3>
+<p>If you don't have ansible installed on your laptop, install it now <a href="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html">following these instructions</a>.</p>
+<p>Check out the following github repos to your laptop:</p>
+<p><a href="https://github.com/davehorton/ansible-role-drachtio">ansible-role-drachtio</a></p>
+<p><a href="https://github.com/davehorton/ansible-role-fsmrf">ansible-role-fsmrf</a></p>
+<p><a href="https://github.com/davehorton/ansible-role-nodejs">ansible-role-nodejs</a></p>
+<p><a href="https://github.com/davehorton/ansible-role-rtpengine">ansible-role-rtpengine</a></p>
+<p>For the SBC, create an ansible playbook that looks like this, and run it:</p>
+<pre><code class="yaml">---
+- hosts: all
+  become: yes
+  vars: 
+    drachtioBranch: develop
+    rtp_engine_version: mr8.5
+  vars_prompt:
+    - name: &quot;build_with_grpc&quot;
+      prompt: &quot;Include the grpc modules (mod_google_transcribe, mod_google_tts, mod_dialogflow)?&quot;
+      private: no
+      default: false
+    - name: &quot;cloud_provider&quot;
+      prompt: &quot;CLoud provider: aws, gcp, azure, digital_ocean&quot;
+      default: none
+      private: no
+  roles:
+    - ansible-role-drachtio
+    - ansible-role-nodejs
+    - ansible-role-rtpengine
+</code></pre>
+
+<p>and for the Feature Server, create an ansible playbook that looks like this, and run it:</p>
+<pre><code class="yaml">---
+- hosts: all
+  become: yes
+  vars:
+    drachtioBranch: develop
+    build_with_grpc: true
+  vars_prompt:
+    - name: &quot;cloud_provider&quot;
+      prompt: &quot;Cloud provider: aws, gcp, azure, digital_ocean&quot;
+      default: none
+      private: no
+  roles:
+    - ansible-role-drachtio
+    - ansible-role-nodejs
+    - ansible-role-fsmrf
+</code></pre>
+
+<h3 id="c-configure-sbc">C. Configure SBC</h3>
+<h3 id="d-configure-feature-server">D. Configure Feature Server</h3></div>
         
         
     </div>
