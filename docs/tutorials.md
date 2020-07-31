@@ -17,3 +17,15 @@ This first video shows how to configure your Voxbone DIDs to route to jambonz.
 This video shows how to use the Voxbone "Voxout" service to place outbound calls from jambonz through Voxbone.
 <br/><br/>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Tn8J9iPUOW8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+#### 382 Communications
+[382 comm](https://www.382com.com/) is a US-based SIP trunking and DID provider that provides great rates and customer support.  This video shows how to integrate jambonz with SIP trunks from 382 commm.
+
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/gimWHncjtPw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+### Building jambonz apps using Node-RED
+This first video provides a quickstart on building jambonz apps using the open source, drag and drop Node-RED server.
+
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/rxt8SyVlDrA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
