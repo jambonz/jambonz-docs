@@ -35,12 +35,8 @@ For the SBC, create an ansible playbook that looks like this, and run it:
     drachtioBranch: develop
     rtp_engine_version: mr8.5
   vars_prompt:
-    - name: "build_with_grpc"
-      prompt: "Include the grpc modules (mod_google_transcribe, mod_google_tts, mod_dialogflow)?"
-      private: no
-      default: false
     - name: "cloud_provider"
-      prompt: "CLoud provider: aws, gcp, azure, digital_ocean"
+      prompt: "Cloud provider: aws, gcp, azure, digital_ocean"
       default: none
       private: no
   roles:
