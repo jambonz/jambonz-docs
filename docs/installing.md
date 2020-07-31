@@ -63,8 +63,18 @@ and for the Feature Server, create an ansible playbook that looks like this, and
     - ansible-role-nodejs
     - ansible-role-fsmrf
 ```
+### C. Create mysql database
+You need to install a mysql database server.  Example instructions for installing mysql are provided [here](https://dev.mysql.com/downloads/).
 
+Once the mysql server is installed, create a new database named 'jambones' with an associated username 'admin' and a password of your choice.  For the remainder of these instructions, we'll assume a password of 'JambonzR0ck$' was assigned, but you may create a password of your own choosing.
 
-### C. Configure SBC
+Once the database and user has been created, then create [this schema](https://github.com/jambonz/jambonz-api-server/blob/master/db/jambones-sql.sql).
 
-### D. Configure Feature Server
+Once the database schema has been created, run [this database script](https://github.com/jambonz/jambonz-api-server/blob/master/db/create-admin-token.sql) as well as [this database script](https://github.com/jambonz/jambonz-api-server/blob/master/db/create-default-account.sql) to seed the database with initial data.
+
+### D. Create redis server
+Install redis somewhere in your network by following [these instructions](https://redis.io/topics/quickstart) and save the redis hostname that you will use to connect to it.
+
+### E. Configure SBC
+
+### F. Configure Feature Server
