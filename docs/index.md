@@ -89,3 +89,5 @@ jambones [jam-b&#333;nz] <span style="font-style:italic;">(adverb)</span>: to mo
 Enough already!  I just want to build one of these things and take it for a spin!  
 
 OK, gotcha - check out a short video showing a soup-to-nuts walkthrough of [how to deploy on AWS in 10 minutes or less](/tutorials)
+
+Talk to us on our [slack channel](https://fie6gjk7w7.execute-api.us-east-1.amazonaws.com/Express/) to ask questions, learn more about jambonz, or find out how to contribute.

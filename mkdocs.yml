@@ -10,3 +10,4 @@ nav:
   - Data architecture: data.md
   - Authenticating sip clients: register-hook.md
   - Tutorials: tutorials.md
+  - Installing: installing.md
