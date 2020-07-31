@@ -148,8 +148,10 @@
                 
                 <li class="third-level"><a href="#a-provision-servers">A. Provision servers</a></li>
                 <li class="third-level"><a href="#b-use-ansible-to-install-base-software">B. Use ansible to install base software</a></li>
-                <li class="third-level"><a href="#c-configure-sbc">C. Configure SBC</a></li>
-                <li class="third-level"><a href="#d-configure-feature-server">D. Configure Feature Server</a></li>
+                <li class="third-level"><a href="#c-create-mysql-database">C. Create mysql database</a></li>
+                <li class="third-level"><a href="#d-create-redis-server">D. Create redis server</a></li>
+                <li class="third-level"><a href="#e-configure-sbc">E. Configure SBC</a></li>
+                <li class="third-level"><a href="#f-configure-feature-server">F. Configure Feature Server</a></li>
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
@@ -205,8 +207,15 @@
     - ansible-role-fsmrf
 </code></pre>
 
-<h3 id="c-configure-sbc">C. Configure SBC</h3>
-<h3 id="d-configure-feature-server">D. Configure Feature Server</h3></div>
+<h3 id="c-create-mysql-database">C. Create mysql database</h3>
+<p>You need to install a mysql database server.  Example instructions for installing mysql are provided <a href="https://dev.mysql.com/downloads/">here</a>.</p>
+<p>Once the mysql server is installed, create a new database named 'jambones' with an associated username 'admin' and a password of your choice.  For the remainder of these instructions, we'll assume a password of 'JambonzR0ck$' was assigned, but you may create a password of your own choosing.</p>
+<p>Once the database and user has been created, then create <a href="https://github.com/jambonz/jambonz-api-server/blob/master/db/jambones-sql.sql">this schema</a>.</p>
+<p>Once the database schema has been created, run <a href="https://github.com/jambonz/jambonz-api-server/blob/master/db/create-admin-token.sql">this database script</a> as well as <a href="https://github.com/jambonz/jambonz-api-server/blob/master/db/create-default-account.sql">this database script</a> to seed the database with initial data.</p>
+<h3 id="d-create-redis-server">D. Create redis server</h3>
+<p>Install redis somewhere in your network by following <a href="https://redis.io/topics/quickstart">these instructions</a> and save the redis hostname that you will use to connect to it.</p>
+<h3 id="e-configure-sbc">E. Configure SBC</h3>
+<h3 id="f-configure-feature-server">F. Configure Feature Server</h3></div>
         
         
     </div>
