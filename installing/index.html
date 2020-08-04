@@ -263,7 +263,8 @@ systemctl restart rtpengine
 
 <p>After doing that, run <code>systemctl status rtpengine</code> to verify that rtpengine is running with the defined interfaces.</p>
 <h4 id="install-drachtio-apps">Install drachtio apps</h4>
-<p>Choose a user to install the drachtio applications under -- I typically use the <code>admin</code> user on Debian, and this will be shown in the examples below.  Execute the following commands:</p>
+<p>Choose a user to install the drachtio applications under -- the instructions below assume the <code>admin</code> user; if you use a different user than edit the instructions accordingly.  </p>
+<p>Execute the following commands:</p>
 <pre><code>mkdir apps &amp;&amp; cd $_
 git clone https://github.com/jambonz/sbc-outbound.git 
 git clone https://github.com/jambonz/sbc-inbound.git 
