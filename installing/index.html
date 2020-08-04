@@ -246,6 +246,22 @@ systemctl restart drachtio
 
 <p>After doing that, check <code>/var/log/drachtio/drachtio.log</code> to verify that the drachtio server started properly and is listening on the specified IPs and ports.</p>
 <h4 id="rtpengine-configuration">rtpengine configuration</h4>
+<p>In <code>/etc/systemd/system/drachtio.service</code> change this line:</p>
+<pre><code>ExecStart=/usr/local/bin/rtpengine --interface 192.168.3.11!192.168.3.11 \
+</code></pre>
+
+<p>to this:</p>
+<pre><code>ExecStart=/usr/local/bin/rtpengine \
+--interface private/192.168.3.11 \
+--interface public/192.168.3.11!190.144.12.220 \
+</code></pre>
+
+<p>Then, reload and restart rtpengine</p>
+<pre><code>systemctl daemon-reload
+systemctl restart rtpengine
+</code></pre>
+
+<p>After doing that, run <code>systemctl status rtpengine</code> to verify that rtpengine is running with the defined interfaces.</p>
 <h3 id="f-configure-feature-server">F. Configure Feature Server</h3></div>
         
         
