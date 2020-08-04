@@ -292,6 +292,17 @@ sudo -u admin bash -c &quot;pm2 set pm2-logrotate:compress true&quot;
 sudo chown -R admin:admin  /home/admin/apps
 </code></pre>
 
+<p>Next, edit this file: <code>~/apps/jambonz-webapp/.env</code>.  Change this:</p>
+<pre><code>REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
+</code></pre>
+
+<p>to this:</p>
+<pre><code>REACT_APP_API_BASE_URL=http://190.145.14.221:3000/v1
+</code></pre>
+
+<blockquote>
+<p>Note: again, substitute the public IP of your own SBC in the above</p>
+</blockquote>
 <p>Next, copy this file below into <code>~/apps/ecosystem.config.js</code>.  </p>
 <p><strong>Note:</strong> Make sure to edit the file to have the correct connectivity information for your mysql and redis servers, and also if you have installed under a user other than 'admin' make sure to update the file paths accordingly (e.g. in the properties below such as 'cwd', 'out_file' etc).</p>
 <pre><code class="js">module.exports = {
@@ -495,17 +506,6 @@ JAMBONES_MYSQL_DATABASE=jambones \
 </code></pre>
 
 <p>This is a security measure to randomize some of the initial seed data in the mysql database.</p>
-<p>Next, edit this file: <code>~/apps/jambonz-webapp/.env</code>.  Change this:</p>
-<pre><code>REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
-</code></pre>
-
-<p>to this:</p>
-<pre><code>REACT_APP_API_BASE_URL=http://190.145.14.221:3000/v1
-</code></pre>
-
-<blockquote>
-<p>Note: again, substitute the public IP of your own SBC in the above</p>
-</blockquote>
 <p>Next, start the applications and configure them to restart on boot:</p>
 <pre><code>sudo -u admin bash -c &quot;pm2 start /home/admin/apps/ecosystem.config.js&quot;
 sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u admin --hp /home/admin
