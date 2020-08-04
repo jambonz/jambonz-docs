@@ -78,7 +78,7 @@ Install redis somewhere in your network by following [these instructions](https:
 ### E. Configure SBC
 Your SBC should have both a public IP and a private IP.  The public IP needs to be reachable from the internet, while the private IP should be on the internal subnet, and thus reachable by the Feature Server.
 
-> In the examples below, we assume that the public IP is 190.145.14.221 and the private IP is 192.168.3.11.  Your IPs will be different of course, so substitute the correct IPs in the changes below.
+> In the examples below, we assume that the public IP is 190.144.12.220 and the private IP is 192.168.3.11.  Your IPs will be different of course, so substitute the correct IPs in the changes below.
 
 #### drachtio configuration
 
@@ -91,15 +91,15 @@ to this:
 
 ```
 ExecStart=/usr/local/bin/drachtio --daemon \
---contact sip:192.168.3.11;transport=udp --external-ip 190.145.14.221 \
+--contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
 --contact sip:192.168.3.11;transport=tcp \
 --address 0.0.0.0 --port 9022
 ```
 **or**, if you plan on enabling Microsoft Teams routing, to this:
 ```
 ExecStart=/usr/local/bin/drachtio --daemon \
---contact sip:192.168.3.11;transport=udp --external-ip 190.145.14.221 \
---contact sips:192.168.3.11:5061;transport=tls --external-ip 190.145.14.221 \
+--contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
+--contact sips:192.168.3.11:5061;transport=tls --external-ip 190.144.12.220 \
 --contact sip:192.168.3.11;transport=tcp \
 --address 0.0.0.0 --port 9022
 ```
@@ -108,7 +108,7 @@ Then, reload and restart the drachtio server
 systemctl daemon-reload
 systemctl restart drachtio
 ```
-
+After doing that, check `/var/log/drachtio/drachtio.log` to verify that the drachtio server started properly and is listening on the specified IPs and ports.
 #### rtpengine configuration
 
 ### F. Configure Feature Server
