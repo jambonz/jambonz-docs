@@ -244,7 +244,7 @@
 systemctl restart drachtio
 </code></pre>
 
-<p>After doing that, check <code>/var/log/drachtio/drachtio.log</code> to verify that the drachtio server started properly and is listening on the specified IPs and ports.</p>
+<p>After doing that, run <code>systemctl status drachtio</code> and check <code>/var/log/drachtio/drachtio.log</code> to verify that the drachtio server started properly and is listening on the specified IPs and ports.</p>
 <h4 id="rtpengine-configuration">rtpengine configuration</h4>
 <p>In <code>/etc/systemd/system/drachtio.service</code> change this line:</p>
 <pre><code>ExecStart=/usr/local/bin/rtpengine --interface 192.168.3.11!192.168.3.11 \
