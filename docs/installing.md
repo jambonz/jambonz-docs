@@ -132,7 +132,9 @@ After doing that, run `systemctl status rtpengine` to verify that rtpengine is r
 
 #### Install drachtio apps
 
-Choose a user to install the drachtio applications under -- I typically use the `admin` user on Debian, and this will be shown in the examples below.  Execute the following commands:
+Choose a user to install the drachtio applications under -- the instructions below assume the `admin` user; if you use a different user than edit the instructions accordingly.  
+
+Execute the following commands:
 
 ```
 mkdir apps && cd $_
