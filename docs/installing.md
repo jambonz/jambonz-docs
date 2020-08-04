@@ -130,4 +130,201 @@ systemctl restart rtpengine
 ```
 After doing that, run `systemctl status rtpengine` to verify that rtpengine is running with the defined interfaces.
 
+#### Install drachtio apps
+
+Choose a user to install the drachtio applications under -- I typically use the `admin` user on Debian, and this will be shown in the examples below.  Execute the following commands:
+
+```
+mkdir apps && cd $_
+git clone https://github.com/jambonz/sbc-outbound.git 
+git clone https://github.com/jambonz/sbc-inbound.git 
+git clone https://github.com/jambonz/sbc-registrar.git
+git clone https://github.com/jambonz/sbc-call-router.git 
+git clone https://github.com/jambonz/jambonz-api-server.git 
+git clone https://github.com/jambonz/jambonz-webapp.git
+
+cd sbc-inbound && sudo npm install --unsafe-perm
+cd ../sbc-outbound && sudo npm install --unsafe-perm
+cd ../sbc-registrar && sudo npm install --unsafe-perm
+cd ../sbc-call-router && sudo npm install --unsafe-perm
+cd ../jambonz-api-server && sudo npm install --unsafe-perm
+cd ../jambonz-webapp && sudo npm install --unsafe-perm && npm run build
+
+sudo -u admin bash -c "pm2 install pm2-logrotate"
+sudo -u admin bash -c "pm2 set pm2-logrotate:max_size 1G"
+sudo -u admin bash -c "pm2 set pm2-logrotate:retain 5"
+sudo -u admin bash -c "pm2 set pm2-logrotate:compress true"
+
+sudo chown -R admin:admin  /home/admin/apps
+```
+
+Next, copy this file below into `~/apps/ecosystem.config.js`.  
+
+**Note:** Make sure to edit the file to have the correct connectivity information for your mysql and redis servers, and also if you have installed under a user other than 'admin' make sure to update the file paths accordingly (e.g. in the properties below such as 'cwd', 'out_file' etc).
+
+```js
+module.exports = {
+	apps: [{
+			name: 'jambonz-api-server',
+			cwd: '/home/admin/apps/jambonz-api-server',
+			script: 'app.js',
+			out_file: '/home/admin/.pm2/logs/jambonz-api-server.log',
+			err_file: '/home/admin/.pm2/logs/jambonz-api-server.log',
+			combine_logs: true,
+			instance_var: 'INSTANCE_ID',
+			exec_mode: 'fork',
+			instances: 1,
+			autorestart: true,
+			watch: false,
+			max_memory_restart: '1G',
+			env: {
+				NODE_ENV: 'production',
+				JAMBONES_MYSQL_HOST: 'aurora-cluster-jambonz.cluster-suasflflh.us-west-1.rds.amazonaws.com',
+				JAMBONES_MYSQL_USER: 'admin',
+				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
+				JAMBONES_MYSQL_DATABASE: 'jambones',
+				JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
+				JAMBONES_REDIS_HOST: '<your-redis-host>',
+				JAMBONES_REDIS_PORT: 6379,
+				JAMBONES_LOGLEVEL: 'info',
+				JAMBONE_API_VERSION: 'v1',
+				JAMBONES_CLUSTER_ID: 'jb',
+				HTTP_PORT: 3000
+			},
+		},
+		{
+			name: 'sbc-call-router',
+			cwd: '/home/admin/apps/sbc-call-router',
+			script: 'app.js',
+			instance_var: 'INSTANCE_ID',
+			out_file: '/home/admin/.pm2/logs/jambonz-sbc-call-router.log',
+			err_file: '/home/admin/.pm2/logs/jambonz-sbc-call-router.log',
+			exec_mode: 'fork',
+			instances: 1,
+			autorestart: true,
+			watch: false,
+			max_memory_restart: '1G',
+			env: {
+				NODE_ENV: 'production',
+				HTTP_PORT: 4000,
+				JAMBONES_INBOUND_ROUTE: '127.0.0.1:4002',
+				JAMBONES_OUTBOUND_ROUTE: '127.0.0.1:4003',
+				JAMBONZ_TAGGED_INBOUND: 1,
+				JAMBONES_NETWORK_CIDR: '172.31.0.0/16'
+			}
+		},
+		{
+			name: 'sbc-registrar',
+			cwd: '/home/admin/apps/sbc-registrar',
+			script: 'app.js',
+			instance_var: 'INSTANCE_ID',
+			out_file: '/home/admin/.pm2/logs/jambonz-sbc-registrar.log',
+			err_file: '/home/admin/.pm2/logs/jambonz-sbc-registrar.log',
+			exec_mode: 'fork',
+			instances: 1,
+			autorestart: true,
+			watch: false,
+			max_memory_restart: '1G',
+			env: {
+				NODE_ENV: 'production',
+				ENABLE_DATADOG_METRICS: 1,
+				JAMBONES_LOGLEVEL: 'info',
+				DRACHTIO_HOST: '127.0.0.1',
+				DRACHTIO_PORT: 9022,
+				DRACHTIO_SECRET: 'cymru',
+				JAMBONES_MYSQL_HOST: '<your-mysql-host>',
+				JAMBONES_MYSQL_USER: 'admin',
+				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
+				JAMBONES_MYSQL_DATABASE: 'jambones',
+				JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
+				JAMBONES_REDIS_HOST: 'jambonz.lpypq4.0001.usw1.cache.amazonaws.com',
+				JAMBONES_REDIS_PORT: 6379,
+			}
+		},
+		{
+			name: 'sbc-outbound',
+			cwd: '/home/admin/apps/sbc-outbound',
+			script: 'app.js',
+			instance_var: 'INSTANCE_ID',
+			out_file: '/home/admin/.pm2/logs/jambonz-sbc-outbound.log',
+			err_file: '/home/admin/.pm2/logs/jambonz-sbc-outbound.log',
+			exec_mode: 'fork',
+			instances: 1,
+			autorestart: true,
+			watch: false,
+			max_memory_restart: '1G',
+			env: {
+				NODE_ENV: 'production',
+				JAMBONES_LOGLEVEL: 'info',
+				DRACHTIO_HOST: '127.0.0.1',
+				DRACHTIO_PORT: 9022,
+				DRACHTIO_SECRET: 'cymru',
+				JAMBONES_RTPENGINES: '172.31.32.10:22222',
+				JAMBONES_MYSQL_HOST: '<your-mysql-host>',
+				JAMBONES_MYSQL_USER: 'admin',
+				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
+				JAMBONES_MYSQL_DATABASE: 'jambones',
+				JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
+				JAMBONES_REDIS_HOST: 'jambonz.lpypq4.0001.usw1.cache.amazonaws.com',
+				JAMBONES_REDIS_PORT: 6379
+			}
+		},
+		{
+			name: 'sbc-inbound',
+			cwd: '/home/admin/apps/sbc-inbound',
+			script: 'app.js',
+			instance_var: 'INSTANCE_ID',
+			out_file: '/home/admin/.pm2/logs/jambonz-sbc-inbound.log',
+			err_file: '/home/admin/.pm2/logs/jambonz-sbc-inbound.log',
+			exec_mode: 'fork',
+			instances: 1,
+			autorestart: true,
+			watch: false,
+			max_memory_restart: '1G',
+			env: {
+				NODE_ENV: 'production',
+				JAMBONES_LOGLEVEL: 'info',
+				DRACHTIO_HOST: '127.0.0.1',
+				DRACHTIO_PORT: 9022,
+				DRACHTIO_SECRET: 'cymru',
+				JAMBONES_RTPENGINES: '172.31.32.10:22222',
+				JAMBONES_MYSQL_HOST: '<your-mysql-host>',
+				JAMBONES_MYSQL_USER: 'admin',
+				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
+				JAMBONES_MYSQL_DATABASE: 'jambones',
+				JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
+				JAMBONES_REDIS_HOST: 'jambonz.lpypq4.0001.usw1.cache.amazonaws.com',
+				JAMBONES_REDIS_PORT: 6379,
+				JAMBONES_CLUSTER_ID: 'jb'
+			}
+		},
+		{
+			name: 'jambonz-webapp',
+			script: 'npm',
+			cwd: '/home/admin/apps/jambonz-webapp',
+			args: 'run serve'
+		}
+	]
+};
+```
+
+After creating and editing at file, start the applications and configure them to restart on boot:
+
+```
+sudo -u admin bash -c "pm2 start /home/admin/apps/ecosystem.config.js"
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u admin --hp /home/admin
+sudo -u admin bash -c "pm2 save"
+sudo systemctl enable pm2-admin.service
+```
+
+Check to be sure they are running:
+
+```
+pm2 list
+```
+
+Open ports 3000/tcp and 3001/tcp to the server, and in your browser navigate to `http://<sbc-public-ip>:3001`.
+
+You should get a login page to the SBC.  Log in with admin/admin.  You will be asked to change the password and then be guided through an initial 3-step setup process.
+
 ### F. Configure Feature Server
