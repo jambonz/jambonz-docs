@@ -181,7 +181,7 @@ module.exports = {
 			max_memory_restart: '1G',
 			env: {
 				NODE_ENV: 'production',
-				JAMBONES_MYSQL_HOST: 'aurora-cluster-jambonz.cluster-suasflflh.us-west-1.rds.amazonaws.com',
+				JAMBONES_MYSQL_HOST: '<your-mysql-host>',
 				JAMBONES_MYSQL_USER: 'admin',
 				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
 				JAMBONES_MYSQL_DATABASE: 'jambones',
@@ -239,7 +239,7 @@ module.exports = {
 				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
 				JAMBONES_MYSQL_DATABASE: 'jambones',
 				JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
-				JAMBONES_REDIS_HOST: 'jambonz.lpypq4.0001.usw1.cache.amazonaws.com',
+				JAMBONES_REDIS_HOST: '<your-redis-host>',
 				JAMBONES_REDIS_PORT: 6379,
 			}
 		},
@@ -267,7 +267,7 @@ module.exports = {
 				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
 				JAMBONES_MYSQL_DATABASE: 'jambones',
 				JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
-				JAMBONES_REDIS_HOST: 'jambonz.lpypq4.0001.usw1.cache.amazonaws.com',
+				JAMBONES_REDIS_HOST: '<your-redis-host>',
 				JAMBONES_REDIS_PORT: 6379
 			}
 		},
@@ -295,7 +295,7 @@ module.exports = {
 				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
 				JAMBONES_MYSQL_DATABASE: 'jambones',
 				JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
-				JAMBONES_REDIS_HOST: 'jambonz.lpypq4.0001.usw1.cache.amazonaws.com',
+				JAMBONES_REDIS_HOST: '<your-redis-host>',
 				JAMBONES_REDIS_PORT: 6379,
 				JAMBONES_CLUSTER_ID: 'jb'
 			}
