@@ -312,21 +312,6 @@ module.exports = {
 };
 ```
 
-After creating and editing at file, start the applications and configure them to restart on boot:
-
-```
-sudo -u admin bash -c "pm2 start /home/admin/apps/ecosystem.config.js"
-sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u admin --hp /home/admin
-sudo -u admin bash -c "pm2 save"
-sudo systemctl enable pm2-admin.service
-```
-
-Check to be sure they are running:
-
-```
-pm2 list
-```
-
 Open the following ports on the server
 
 **SBC traffic allowed in**
@@ -341,6 +326,52 @@ Open the following ports on the server
 | 4433 |tcp| sip over wss|
 | 40000-60000| udp| rtp |
 
+Next, ssh into the server and run the following command:
+
+```
+JAMBONES_MYSQL_HOST=<your-mysql-host> \
+JAMBONES_MYSQL_USER=admin \
+JAMBONES_MYSQL_PASSWORD=JambonzR0ck$ \
+JAMBONES_MYSQL_DATABASE=jambones \
+/home/admin/apps/jambonz-api-server/db/reset_admin_password.js"
+```
+This is a security measure to randomize some of the initial seed data in the mysql database.
+
+Next, start the applications and configure them to restart on boot:
+
+```
+sudo -u admin bash -c "pm2 start /home/admin/apps/ecosystem.config.js"
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u admin --hp /home/admin
+sudo -u admin bash -c "pm2 save"
+sudo systemctl enable pm2-admin.service
+```
+
+Check to be sure they are running:
+
+```
+pm2 list
+```
+
+You should see output similar to this:
+```
+admin@ip-172-31-32-10:~$ pm2 list
+┌─────┬───────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id  │ name                  │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├─────┼───────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 7   │ jambonz-api-server    │ default     │ 1.1.7   │ fork    │ 4494     │ 4s     │ 0    │ online    │ 30.4%    │ 104.7mb  │ admin    │ disabled │
+│ 12  │ jambonz-webapp        │ default     │ N/A     │ fork    │ 4540     │ 4s     │ 0    │ online    │ 7.9%     │ 49.9mb   │ admin    │ disabled │
+│ 8   │ sbc-call-router       │ default     │ 0.0.1   │ fork    │ 4500     │ 4s     │ 0    │ online    │ 3.7%     │ 43.8mb   │ admin    │ disabled │
+│ 11  │ sbc-inbound           │ default     │ 0.3.5   │ fork    │ 4538     │ 4s     │ 0    │ online    │ 24.1%    │ 100.3mb  │ admin    │ disabled │
+│ 10  │ sbc-outbound          │ default     │ 0.4.2   │ fork    │ 4515     │ 4s     │ 0    │ online    │ 13.9%    │ 83.3mb   │ admin    │ disabled │
+│ 9   │ sbc-registrar         │ default     │ 0.1.7   │ fork    │ 4512     │ 4s     │ 0    │ online    │ 13.6%    │ 83.0mb   │ admin    │ disabled │
+└─────┴───────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Module
+┌────┬───────────────────────────────────────┬────────────────────┬───────┬──────────┬──────┬──────────┬──────────┬──────────┐
+│ id │ module                                │ version            │ pid   │ status   │ ↺    │ cpu      │ mem      │ user     │
+├────┼───────────────────────────────────────┼────────────────────┼───────┼──────────┼──────┼──────────┼──────────┼──────────┤
+│ 0  │ pm2-logrotate                         │ 2.7.0              │ 28461 │ online   │ 1    │ 0.3%     │ 80.7mb   │ admin    │
+└────┴───────────────────────────────────────┴────────────────────┴───────┴──────────┴──────┴──────────┴──────────┴──────────┘
+```
 
 Finally, in your browser, navigate to `http://<sbc-public-ip>:3001`.
 
