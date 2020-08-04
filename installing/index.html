@@ -215,6 +215,37 @@
 <h3 id="d-create-redis-server">D. Create redis server</h3>
 <p>Install redis somewhere in your network by following <a href="https://redis.io/topics/quickstart">these instructions</a> and save the redis hostname that you will use to connect to it.</p>
 <h3 id="e-configure-sbc">E. Configure SBC</h3>
+<p>Your SBC should have both a public IP and a private IP.  The public IP needs to be reachable from the internet, while the private IP should be on the internal subnet, and thus reachable by the Feature Server.</p>
+<blockquote>
+<p>In the examples below, we assume that the public IP is 190.144.12.220 and the private IP is 192.168.3.11.  Your IPs will be different of course, so substitute the correct IPs in the changes below.</p>
+</blockquote>
+<h4 id="drachtio-configuration">drachtio configuration</h4>
+<p>In <code>/etc/systemd/system/drachtio.service</code> change this line:</p>
+<pre><code>ExecStart=/usr/local/bin/drachtio --daemon
+</code></pre>
+
+<p>to this:</p>
+<pre><code>ExecStart=/usr/local/bin/drachtio --daemon \
+--contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
+--contact sip:192.168.3.11;transport=tcp \
+--address 0.0.0.0 --port 9022
+</code></pre>
+
+<p><strong>or</strong>, if you plan on enabling Microsoft Teams routing, to this:</p>
+<pre><code>ExecStart=/usr/local/bin/drachtio --daemon \
+--contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
+--contact sips:192.168.3.11:5061;transport=tls --external-ip 190.144.12.220 \
+--contact sip:192.168.3.11;transport=tcp \
+--address 0.0.0.0 --port 9022
+</code></pre>
+
+<p>Then, reload and restart the drachtio server</p>
+<pre><code>systemctl daemon-reload
+systemctl restart drachtio
+</code></pre>
+
+<p>After doing that, check <code>/var/log/drachtio/drachtio.log</code> to verify that the drachtio server started properly and is listening on the specified IPs and ports.</p>
+<h4 id="rtpengine-configuration">rtpengine configuration</h4>
 <h3 id="f-configure-feature-server">F. Configure Feature Server</h3></div>
         
         
