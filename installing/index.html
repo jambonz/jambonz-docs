@@ -162,7 +162,8 @@
 <h2 id="otherwise">Otherwise..</h2>
 <p>If you are using a different hosted provider, or have your own hardware, there is a little more elbow grease required!  Follow the instructions below to create a jambonz deployment consisting of one SBC and one Feature Server.  You will also be provisioning a mysql server and a redis server.</p>
 <h3 id="a-provision-servers">A. Provision servers</h3>
-<p>You'll need two servers -- one will be the public-facing SBC, while the other will be the feature server.  The SBC must have a public address; the Feature Server does not necessarily need a public address, but of course will need connectivity to the SBC, the mysql database, and the redis server.  If desired, you can install mysql and redis on the SBC server, but as long as they are reachable from both the SBC and the Feature Server you'll be fine.  We will be using ansible to build up the servers, which means from your laptop you need ssh connectivity to both the SBC and the Feature Server.</p>
+<p>You'll need two servers -- one will be the public-facing SBC, while the other will be the feature server.  The SBC must have a public address; the Feature Server does not necessarily need a public address, but of course will need connectivity to the SBC, the mysql database, the redis server, and outbound connectivity to the internet in order to complete the install.  </p>
+<p>If desired, you can install mysql and redis on the SBC server, but as long as they are reachable from both the SBC and the Feature Server you'll be fine.  We will be using ansible to build up the servers, which means from your laptop you need ssh connectivity to both the SBC and the Feature Server.</p>
 <p>The base software distribution for both the SBC and the Feature Server should be Debian 9.  A vanilla install that includes sudo and python is all that is needed (python is used by <a href="https://www.ansible.com/">ansible</a>, which we will be using to build up the servers in the next step).</p>
 <h3 id="b-use-ansible-to-install-base-software">B. Use ansible to install base software</h3>
 <p>If you don't have ansible installed on your laptop, install it now <a href="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html">following these instructions</a>.</p>
@@ -266,8 +267,8 @@ systemctl restart rtpengine
 <p>Note: rtpengine logs to <code>/var/log/daemon.log</code>.</p>
 </blockquote>
 <h4 id="install-drachtio-apps">Install drachtio apps</h4>
-<p>Choose a user to install the drachtio applications under -- the instructions below assume the <code>admin</code> user; if you use a different user than edit the instructions accordingly.  </p>
-<p>Execute the following commands:</p>
+<p>Choose a user to install the drachtio applications under -- the instructions below assume the <code>admin</code> user; if you use a different user than edit the instructions accordingly (note: the user must have sudo priviledges).  </p>
+<p>Execute the following commands from the home directory of the install user:</p>
 <pre><code>mkdir apps &amp;&amp; cd $_
 git clone https://github.com/jambonz/sbc-outbound.git 
 git clone https://github.com/jambonz/sbc-inbound.git 
@@ -357,7 +358,6 @@ sudo chown -R admin:admin  /home/admin/apps
             max_memory_restart: '1G',
             env: {
                 NODE_ENV: 'production',
-                ENABLE_DATADOG_METRICS: 1,
                 JAMBONES_LOGLEVEL: 'info',
                 DRACHTIO_HOST: '127.0.0.1',
                 DRACHTIO_PORT: 9022,
