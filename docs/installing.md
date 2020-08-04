@@ -9,7 +9,9 @@ The quickest way to deploy jambonz currently is on AWS using the provided [terra
 If you are using a different hosted provider, or have your own hardware, there is a little more elbow grease required!  Follow the instructions below to create a jambonz deployment consisting of one SBC and one Feature Server.  You will also be provisioning a mysql server and a redis server.
 
 ### A. Provision servers
-You'll need two servers -- one will be the public-facing SBC, while the other will be the feature server.  The SBC must have a public address; the Feature Server does not necessarily need a public address, but of course will need connectivity to the SBC, the mysql database, and the redis server.  If desired, you can install mysql and redis on the SBC server, but as long as they are reachable from both the SBC and the Feature Server you'll be fine.  We will be using ansible to build up the servers, which means from your laptop you need ssh connectivity to both the SBC and the Feature Server.
+You'll need two servers -- one will be the public-facing SBC, while the other will be the feature server.  The SBC must have a public address; the Feature Server does not necessarily need a public address, but of course will need connectivity to the SBC, the mysql database, the redis server, and outbound connectivity to the internet in order to complete the install.  
+
+If desired, you can install mysql and redis on the SBC server, but as long as they are reachable from both the SBC and the Feature Server you'll be fine.  We will be using ansible to build up the servers, which means from your laptop you need ssh connectivity to both the SBC and the Feature Server.
 
 The base software distribution for both the SBC and the Feature Server should be Debian 9.  A vanilla install that includes sudo and python is all that is needed (python is used by [ansible](https://www.ansible.com/), which we will be using to build up the servers in the next step).
 
@@ -133,9 +135,9 @@ After doing that, run `systemctl status rtpengine` to verify that rtpengine is r
 
 #### Install drachtio apps
 
-Choose a user to install the drachtio applications under -- the instructions below assume the `admin` user; if you use a different user than edit the instructions accordingly.  
+Choose a user to install the drachtio applications under -- the instructions below assume the `admin` user; if you use a different user than edit the instructions accordingly (note: the user must have sudo priviledges).  
 
-Execute the following commands:
+Execute the following commands from the home directory of the install user:
 
 ```
 mkdir apps && cd $_
@@ -230,7 +232,6 @@ module.exports = {
 			max_memory_restart: '1G',
 			env: {
 				NODE_ENV: 'production',
-				ENABLE_DATADOG_METRICS: 1,
 				JAMBONES_LOGLEVEL: 'info',
 				DRACHTIO_HOST: '127.0.0.1',
 				DRACHTIO_PORT: 9022,
