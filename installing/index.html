@@ -246,7 +246,7 @@ systemctl restart drachtio
 
 <p>After doing that, run <code>systemctl status drachtio</code> and check <code>/var/log/drachtio/drachtio.log</code> to verify that the drachtio server started properly and is listening on the specified IPs and ports.</p>
 <h4 id="rtpengine-configuration">rtpengine configuration</h4>
-<p>In <code>/etc/systemd/system/drachtio.service</code> change this line:</p>
+<p>In <code>/etc/systemd/system/rtpengine.service</code> change this line:</p>
 <pre><code>ExecStart=/usr/local/bin/rtpengine --interface 192.168.3.11!192.168.3.11 \
 </code></pre>
 
@@ -262,6 +262,9 @@ systemctl restart rtpengine
 </code></pre>
 
 <p>After doing that, run <code>systemctl status rtpengine</code> to verify that rtpengine is running with the defined interfaces.</p>
+<blockquote>
+<p>Note: rtpengine logs to <code>/var/log/daemon.log</code>.</p>
+</blockquote>
 <h4 id="install-drachtio-apps">Install drachtio apps</h4>
 <p>Choose a user to install the drachtio applications under -- the instructions below assume the <code>admin</code> user; if you use a different user than edit the instructions accordingly.  </p>
 <p>Execute the following commands:</p>
