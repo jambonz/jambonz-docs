@@ -449,8 +449,56 @@ sudo systemctl enable pm2-admin.service
 <pre><code>pm2 list
 </code></pre>
 
-<p>Open ports 3000/tcp and 3001/tcp to the server, and in your browser navigate to <code>http://&lt;sbc-public-ip&gt;:3001</code>.</p>
-<p>You should get a login page to the SBC.  Log in with admin/admin.  You will be asked to change the password and then be guided through an initial 3-step setup process.</p>
+<p>Open the following ports on the server</p>
+<p><strong>SBC traffic allowed in</strong></p>
+<table>
+<thead>
+<tr>
+<th>ports</th>
+<th>transport</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3000</td>
+<td>tcp</td>
+<td>REST API</td>
+</tr>
+<tr>
+<td>3001</td>
+<td>tcp</td>
+<td>provisioning GUI</td>
+</tr>
+<tr>
+<td>5060</td>
+<td>udp</td>
+<td>sip over udp</td>
+</tr>
+<tr>
+<td>5060</td>
+<td>tcp</td>
+<td>sip over tcp</td>
+</tr>
+<tr>
+<td>5061</td>
+<td>tcp</td>
+<td>sip over tls</td>
+</tr>
+<tr>
+<td>4433</td>
+<td>tcp</td>
+<td>sip over wss</td>
+</tr>
+<tr>
+<td>40000-60000</td>
+<td>udp</td>
+<td>rtp</td>
+</tr>
+</tbody>
+</table>
+<p>Finally, in your browser, navigate to <code>http://&lt;sbc-public-ip&gt;:3001</code>.</p>
+<p>You should get a login page to the SBC.  Log in with admin/admin.  You will be asked to change the password and then be guided through an initial 3-step setup process to configuring your account, application, and SIP trunking provider.</p>
 <h3 id="f-configure-feature-server">F. Configure Feature Server</h3></div>
         
         
