@@ -76,5 +76,39 @@ Once the database schema has been created, run [this database script](https://gi
 Install redis somewhere in your network by following [these instructions](https://redis.io/topics/quickstart) and save the redis hostname that you will use to connect to it.
 
 ### E. Configure SBC
+Your SBC should have both a public IP and a private IP.  The public IP needs to be reachable from the internet, while the private IP should be on the internal subnet, and thus reachable by the Feature Server.
+
+> In the examples below, we assume that the public IP is 190.145.14.221 and the private IP is 192.168.3.11.  Your IPs will be different of course, so substitute the correct IPs in the changes below.
+
+#### drachtio configuration
+
+In `/etc/systemd/system/drachtio.service` change this line:
+
+```
+ExecStart=/usr/local/bin/drachtio --daemon
+```
+to this:
+
+```
+ExecStart=/usr/local/bin/drachtio --daemon \
+--contact sip:192.168.3.11;transport=udp --external-ip 190.145.14.221 \
+--contact sip:192.168.3.11;transport=tcp \
+--address 0.0.0.0 --port 9022
+```
+**or**, if you plan on enabling Microsoft Teams routing, to this:
+```
+ExecStart=/usr/local/bin/drachtio --daemon \
+--contact sip:192.168.3.11;transport=udp --external-ip 190.145.14.221 \
+--contact sips:192.168.3.11:5061;transport=tls --external-ip 190.145.14.221 \
+--contact sip:192.168.3.11;transport=tcp \
+--address 0.0.0.0 --port 9022
+```
+Then, reload and restart the drachtio server
+```
+systemctl daemon-reload
+systemctl restart drachtio
+```
+
+#### rtpengine configuration
 
 ### F. Configure Feature Server
