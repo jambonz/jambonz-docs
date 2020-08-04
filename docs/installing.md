@@ -108,7 +108,7 @@ Then, reload and restart the drachtio server
 systemctl daemon-reload
 systemctl restart drachtio
 ```
-After doing that, check `/var/log/drachtio/drachtio.log` to verify that the drachtio server started properly and is listening on the specified IPs and ports.
+After doing that, run `systemctl status drachtio` and check `/var/log/drachtio/drachtio.log` to verify that the drachtio server started properly and is listening on the specified IPs and ports.
 
 #### rtpengine configuration
 
