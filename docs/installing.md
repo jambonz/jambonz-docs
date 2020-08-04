@@ -162,6 +162,15 @@ sudo -u admin bash -c "pm2 set pm2-logrotate:compress true"
 
 sudo chown -R admin:admin  /home/admin/apps
 ```
+Next, edit this file: `~/apps/jambonz-webapp/.env`.  Change this:
+```
+REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
+```
+to this:
+```
+REACT_APP_API_BASE_URL=http://190.145.14.221:3000/v1
+```
+> Note: again, substitute the public IP of your own SBC in the above
 
 Next, copy this file below into `~/apps/ecosystem.config.js`.  
 
@@ -336,16 +345,6 @@ JAMBONES_MYSQL_DATABASE=jambones \
 /home/admin/apps/jambonz-api-server/db/reset_admin_password.js"
 ```
 This is a security measure to randomize some of the initial seed data in the mysql database.
-
-Next, edit this file: `~/apps/jambonz-webapp/.env`.  Change this:
-```
-REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
-```
-to this:
-```
-REACT_APP_API_BASE_URL=http://190.145.14.221:3000/v1
-```
-> Note: again, substitute the public IP of your own SBC in the above
 
 Next, start the applications and configure them to restart on boot:
 
