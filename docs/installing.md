@@ -215,7 +215,7 @@ module.exports = {
 				JAMBONES_INBOUND_ROUTE: '127.0.0.1:4002',
 				JAMBONES_OUTBOUND_ROUTE: '127.0.0.1:4003',
 				JAMBONZ_TAGGED_INBOUND: 1,
-				JAMBONES_NETWORK_CIDR: '172.31.0.0/16'
+				JAMBONES_NETWORK_CIDR: '192.168.0.0/16'
 			}
 		},
 		{
@@ -263,7 +263,7 @@ module.exports = {
 				DRACHTIO_HOST: '127.0.0.1',
 				DRACHTIO_PORT: 9022,
 				DRACHTIO_SECRET: 'cymru',
-				JAMBONES_RTPENGINES: '172.31.32.10:22222',
+				JAMBONES_RTPENGINES: '127.0.0.1:22222',
 				JAMBONES_MYSQL_HOST: '<your-mysql-host>',
 				JAMBONES_MYSQL_USER: 'admin',
 				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
@@ -291,7 +291,7 @@ module.exports = {
 				DRACHTIO_HOST: '127.0.0.1',
 				DRACHTIO_PORT: 9022,
 				DRACHTIO_SECRET: 'cymru',
-				JAMBONES_RTPENGINES: '172.31.32.10:22222',
+				JAMBONES_RTPENGINES: '127.0.0.1:22222',
 				JAMBONES_MYSQL_HOST: '<your-mysql-host>',
 				JAMBONES_MYSQL_USER: 'admin',
 				JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
@@ -336,6 +336,16 @@ JAMBONES_MYSQL_DATABASE=jambones \
 /home/admin/apps/jambonz-api-server/db/reset_admin_password.js"
 ```
 This is a security measure to randomize some of the initial seed data in the mysql database.
+
+Next, edit this file: `~/apps/jambonz-webapp/.env`.  Change this:
+```
+REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
+```
+to this:
+```
+REACT_APP_API_BASE_URL=http://190.145.14.221:3000/v1
+```
+> Note: again, substitute the public IP of your own SBC in the above
 
 Next, start the applications and configure them to restart on boot:
 
