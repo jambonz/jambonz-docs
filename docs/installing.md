@@ -326,8 +326,23 @@ Check to be sure they are running:
 pm2 list
 ```
 
-Open ports 3000/tcp and 3001/tcp to the server, and in your browser navigate to `http://<sbc-public-ip>:3001`.
+Open the following ports on the server
 
-You should get a login page to the SBC.  Log in with admin/admin.  You will be asked to change the password and then be guided through an initial 3-step setup process.
+**SBC traffic allowed in**
+
+| ports  | transport | description | 
+| ------------- |-------------| -- |
+| 3000 |tcp| REST API|
+| 3001 |tcp| provisioning GUI|
+| 5060 |udp| sip over udp|
+| 5060 |tcp| sip over tcp|
+| 5061 |tcp| sip over tls|
+| 4433 |tcp| sip over wss|
+| 40000-60000| udp| rtp |
+
+
+Finally, in your browser, navigate to `http://<sbc-public-ip>:3001`.
+
+You should get a login page to the SBC.  Log in with admin/admin.  You will be asked to change the password and then be guided through an initial 3-step setup process to configuring your account, application, and SIP trunking provider.
 
 ### F. Configure Feature Server
