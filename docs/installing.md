@@ -112,7 +112,7 @@ After doing that, run `systemctl status drachtio` and check `/var/log/drachtio/d
 
 #### rtpengine configuration
 
-In `/etc/systemd/system/drachtio.service` change this line:
+In `/etc/systemd/system/rtpengine.service` change this line:
 
 ```
 ExecStart=/usr/local/bin/rtpengine --interface 192.168.3.11!192.168.3.11 \
@@ -129,6 +129,7 @@ systemctl daemon-reload
 systemctl restart rtpengine
 ```
 After doing that, run `systemctl status rtpengine` to verify that rtpengine is running with the defined interfaces.
+> Note: rtpengine logs to `/var/log/daemon.log`.
 
 #### Install drachtio apps
 
