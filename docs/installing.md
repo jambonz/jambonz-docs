@@ -168,7 +168,7 @@ REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
 ```
 to this:
 ```
-REACT_APP_API_BASE_URL=http://190.145.14.221:3000/v1
+REACT_APP_API_BASE_URL=http://190.144.12.220:3000/v1
 ```
 > Note: again, substitute the public IP of your own SBC in the above
 
