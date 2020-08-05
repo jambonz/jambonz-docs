@@ -11,7 +11,7 @@
     <link rel="../img/favicon.ico">
 
     
-    <title>Installing - jambonz</title>
+    <title>Installation instructions - jambonz</title>
     
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -75,17 +75,23 @@
                         
                             
 <li >
-    <a href="../jambonz/">jambonz Call Control JSON</a>
+    <a href="../jambonz/">jambonz Webhooks</a>
 </li>
 
                         
                             
 <li >
-    <a href="../rest/">REST API</a>
+    <a href="../rest/">jambonz REST API</a>
 </li>
 
                         
                         </ul>
+                    </li>
+                
+                
+                
+                    <li class="active">
+                        <a href="./">Installation instructions</a>
                     </li>
                 
                 
@@ -107,12 +113,6 @@
                     </li>
                 
                 
-                
-                    <li class="active">
-                        <a href="./">Installing</a>
-                    </li>
-                
-                
                 </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -122,12 +122,12 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../tutorials/">
+                        <a rel="prev" href="../rest/">
                             <i class="fas fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li class="disabled">
-                        <a rel="next" >
+                    <li >
+                        <a rel="next" href="../data/">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -158,9 +158,9 @@
 
 <h1 id="installing-jambonz">Installing jambonz</h1>
 <h2 id="aws">AWS</h2>
-<p>The quickest way to deploy jambonz currently is on AWS using the provided <a href="https://github.com/jambonz/jambonz-infrastructure">terraform scripts</a>.  Review <a href="/tutorials/#quickstart-deploying-jambonz-on-aws-in-10-minutes-or-less">this quickstart video</a> for details.</p>
+<p>The quickest way to deploy jambonz currently is on AWS using the provided <a href="https://github.com/jambonz/jambonz-infrastructure">terraform scripts</a>.  Review <a href="/tutorials/#quickstart-deploying-jambonz-on-aws-in-10-minutes-or-less">this quickstart video</a> for details.  You can have a system up and running on AWS in less than ten minutes.</p>
 <h2 id="otherwise">Otherwise..</h2>
-<p>If you are using a different hosted provider, or have your own hardware, there is a little more elbow grease required!  Follow the instructions below to create a jambonz deployment consisting of one SBC and one Feature Server.  You will also be provisioning a mysql server and a redis server.</p>
+<p>If you are using your own hardware, or a different hosting provider, there is a little more elbow grease required.  Follow the instructions below to create a jambonz deployment consisting of one SBC and one Feature Server.  You will also be provisioning a mysql server and a redis server.</p>
 <h3 id="a-provision-servers">A. Provision servers</h3>
 <p>You'll need two servers -- one will be the public-facing SBC, while the other will be the feature server.  The SBC must have a public address; the Feature Server does not necessarily need a public address, but of course will need connectivity to the SBC, the mysql database, the redis server, and outbound connectivity to the internet in order to complete the install.  </p>
 <p>If desired, you can install mysql and redis on the SBC server, but as long as they are reachable from both the SBC and the Feature Server you'll be fine.  We will be using ansible to build up the servers, which means from your laptop you need ssh connectivity to both the SBC and the Feature Server.</p>
@@ -717,7 +717,30 @@ Module
 ├────┼───────────────────────────────────────┼────────────────────┼───────┼──────────┼──────┼──────────┼──────────┼──────────┤
 │ 0  │ pm2-logrotate                         │ 2.7.0              │ 1015  │ online   │ 0    │ 0.1%     │ 66.4mb   │ admin    │
 └────┴───────────────────────────────────────┴────────────────────┴───────┴──────────┴──────┴──────────┴──────────┴──────────┘
-</code></pre></div>
+</code></pre>
+
+<p>Finally, restart the drachtio and freeswitch services:</p>
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl restart freeswitch
+sudo systemctl restart drachtio
+</code></pre>
+
+<p>For good measure, restart the drachtio apps as well</p>
+<pre><code>pm2 restart /home/admin/apps/ecosystem.config.js
+</code></pre>
+
+<p>Now you should have a running system.  Verify the drachtio server and freeswitch are running </p>
+<pre><code>sudo systemctl status drachtio
+sudo systemctl status freeswitch
+</code></pre>
+
+<p>Verify the apps are running and are not logging any errors:</p>
+<pre><code>pm2 list
+pm2 log
+</code></pre>
+
+<p>Finally, tail the <code>/var/log/drachtio/drachtio.log</code> file and verify that sip OPTIONS requests are being sent to the SBC and are receiving a 200 OK response.</p>
+<p>At this point, your system is ready for testing.</p></div>
         
         
     </div>
