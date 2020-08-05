@@ -387,3 +387,78 @@ Finally, in your browser, navigate to `http://<sbc-public-ip>:3001`.
 You should get a login page to the SBC.  Log in with admin/admin.  You will be asked to change the password and then be guided through an initial 3-step setup process to configuring your account, application, and SIP trunking provider.
 
 ### F. Configure Feature Server
+
+Open the following ports on the server
+
+**Feature server traffic allowed in**
+
+> Note: all of the ports below need to be open for traffic sent from a source IP that is within the local network. Traffic from the internet to these ports can be blocked.
+
+| ports  | transport | description | 
+| ------------- |-------------| -- |
+| 3000 | tcp | REST API |
+| 5060 |udp| sip |
+| 5060 |tcp| sip |
+| 5080 |udp| freeswitch sip |
+| 5080 |tcp| freeswitch sip |
+| 25000 - 40000 |udp| rtp |
+
+In the file `/usr/local/freeswitch/conf/autoload_configs/switch.conf.xml` set the rtp port range to be 25000 through 39000 by editing the 'rtp-start-port' and 'rtp-end-port' as follows:
+```xml
+    <!-- RTP port range -->
+<param name="rtp-start-port" value="25000"/>
+<param name="rtp-end-port" value="39000"/>
+```
+
+In the file `/usr/local/freeswitch/conf/autoload_configs/event_socket.conf.xml` replace the contents with:
+```
+<configuration name="event_socket.conf" description="Socket Client">
+  <settings>
+    <param name="nat-map" value="false"/>
+    <param name="listen-ip" value="0.0.0.0"/>
+    <param name="listen-port" value="8021"/>
+    <param name="password" value="JambonzR0ck$"/>
+     <param name="apply-inbound-acl" value="socket_acl"/>
+  </settings>
+</configuration>
+```
+> Note: Feel free to choose a different password if you like.
+
+In the file `/etc/systemd/system/freeswitch.service` make sure the following Environment variables are set:
+```
+[Service]
+; service
+Type=forking
+PIDFile=/usr/local/freeswitch/run/freeswitch.pid
+EnvironmentFile=-/etc/default/freeswitch
+Environment="MOD_AUDIO_FORK_SUBPROTOCOL_NAME=audio.jambonz.org"
+Environment="MOD_AUDIO_FORK_SERVICE_THREADS=1"
+Environment="MOD_AUDIO_FORK_BUFFER_SECS=3"
+Environment="LD_LIBRARY_PATH=/usr/local/lib"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/admin/credentials/gcp.json"
+ExecStart=/usr/local/freeswitch/bin/freeswitch -nc -nonat
+```
+
+#### Install drachtio apps
+
+Choose a user to install the drachtio applications under -- the instructions below assume the `admin` user; if you use a different user than edit the instructions accordingly (note: the user must have sudo priviledges).  
+
+Execute the following commands from the home directory of the install user:
+
+```
+mkdir apps credentials
+cd apps
+git clone https://github.com/jambonz/jambonz-feature-server.git
+git clone https://github.com/jambonz/fsw-clear-old-calls.git
+cd jambonz-feature-server && sudo npm install --unsafe-perm
+cd ../fsw-clear-old-calls && npm install && sudo npm install -g .
+echo "0 *	* * *	root    fsw-clear-old-calls --password JambonzR0ck$ >> /var/log/fsw-clear-old-calls.log 2>&1" | sudo tee -a /etc/crontab
+sudo -u admin bash -c "pm2 install pm2-logrotate"
+sudo -u admin bash -c "pm2 set pm2-logrotate:max_size 1G"
+sudo -u admin bash -c "pm2 set pm2-logrotate:retain 5"
+sudo -u admin bash -c "pm2 set pm2-logrotate:compress true"
+sudo chown -R admin:admin  /home/admin/apps
+```
+> Note: if you chose a different Freeswitch password, make sure to adjust the crontab entry above to use that password.
+
+Next, copy your google service credentials json file into `/home/admin/credentials/gcp.json`.  Note that this is referenced from the Environment variable that you set in the freeswitch systemd service file.
