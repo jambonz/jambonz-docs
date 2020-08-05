@@ -539,7 +539,109 @@ Module
 
 <p>Finally, in your browser, navigate to <code>http://&lt;sbc-public-ip&gt;:3001</code>.</p>
 <p>You should get a login page to the SBC.  Log in with admin/admin.  You will be asked to change the password and then be guided through an initial 3-step setup process to configuring your account, application, and SIP trunking provider.</p>
-<h3 id="f-configure-feature-server">F. Configure Feature Server</h3></div>
+<h3 id="f-configure-feature-server">F. Configure Feature Server</h3>
+<p>Open the following ports on the server</p>
+<p><strong>Feature server traffic allowed in</strong></p>
+<blockquote>
+<p>Note: all of the ports below need to be open for traffic sent from a source IP that is within the local network. Traffic from the internet to these ports can be blocked.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>ports</th>
+<th>transport</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3000</td>
+<td>tcp</td>
+<td>REST API</td>
+</tr>
+<tr>
+<td>5060</td>
+<td>udp</td>
+<td>sip</td>
+</tr>
+<tr>
+<td>5060</td>
+<td>tcp</td>
+<td>sip</td>
+</tr>
+<tr>
+<td>5080</td>
+<td>udp</td>
+<td>freeswitch sip</td>
+</tr>
+<tr>
+<td>5080</td>
+<td>tcp</td>
+<td>freeswitch sip</td>
+</tr>
+<tr>
+<td>25000 - 40000</td>
+<td>udp</td>
+<td>rtp</td>
+</tr>
+</tbody>
+</table>
+<p>In the file <code>/usr/local/freeswitch/conf/autoload_configs/switch.conf.xml</code> set the rtp port range to be 25000 through 39000 by editing the 'rtp-start-port' and 'rtp-end-port' as follows:</p>
+<pre><code class="xml">    &lt;!-- RTP port range --&gt;
+&lt;param name=&quot;rtp-start-port&quot; value=&quot;25000&quot;/&gt;
+&lt;param name=&quot;rtp-end-port&quot; value=&quot;39000&quot;/&gt;
+</code></pre>
+
+<p>In the file <code>/usr/local/freeswitch/conf/autoload_configs/event_socket.conf.xml</code> replace the contents with:</p>
+<pre><code>&lt;configuration name=&quot;event_socket.conf&quot; description=&quot;Socket Client&quot;&gt;
+  &lt;settings&gt;
+    &lt;param name=&quot;nat-map&quot; value=&quot;false&quot;/&gt;
+    &lt;param name=&quot;listen-ip&quot; value=&quot;0.0.0.0&quot;/&gt;
+    &lt;param name=&quot;listen-port&quot; value=&quot;8021&quot;/&gt;
+    &lt;param name=&quot;password&quot; value=&quot;JambonzR0ck$&quot;/&gt;
+     &lt;param name=&quot;apply-inbound-acl&quot; value=&quot;socket_acl&quot;/&gt;
+  &lt;/settings&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<blockquote>
+<p>Note: Feel free to choose a different password if you like.</p>
+</blockquote>
+<p>In the file <code>/etc/systemd/system/freeswitch.service</code> make sure the following Environment variables are set:</p>
+<pre><code>[Service]
+; service
+Type=forking
+PIDFile=/usr/local/freeswitch/run/freeswitch.pid
+EnvironmentFile=-/etc/default/freeswitch
+Environment=&quot;MOD_AUDIO_FORK_SUBPROTOCOL_NAME=audio.jambonz.org&quot;
+Environment=&quot;MOD_AUDIO_FORK_SERVICE_THREADS=1&quot;
+Environment=&quot;MOD_AUDIO_FORK_BUFFER_SECS=3&quot;
+Environment=&quot;LD_LIBRARY_PATH=/usr/local/lib&quot;
+Environment=&quot;GOOGLE_APPLICATION_CREDENTIALS=/home/admin/credentials/gcp.json&quot;
+ExecStart=/usr/local/freeswitch/bin/freeswitch -nc -nonat
+</code></pre>
+
+<h4 id="install-drachtio-apps_1">Install drachtio apps</h4>
+<p>Choose a user to install the drachtio applications under -- the instructions below assume the <code>admin</code> user; if you use a different user than edit the instructions accordingly (note: the user must have sudo priviledges).  </p>
+<p>Execute the following commands from the home directory of the install user:</p>
+<pre><code>mkdir apps credentials
+cd apps
+git clone https://github.com/jambonz/jambonz-feature-server.git
+git clone https://github.com/jambonz/fsw-clear-old-calls.git
+cd jambonz-feature-server &amp;&amp; sudo npm install --unsafe-perm
+cd ../fsw-clear-old-calls &amp;&amp; npm install &amp;&amp; sudo npm install -g .
+echo &quot;0 *   * * *   root    fsw-clear-old-calls --password JambonzR0ck$ &gt;&gt; /var/log/fsw-clear-old-calls.log 2&gt;&amp;1&quot; | sudo tee -a /etc/crontab
+sudo -u admin bash -c &quot;pm2 install pm2-logrotate&quot;
+sudo -u admin bash -c &quot;pm2 set pm2-logrotate:max_size 1G&quot;
+sudo -u admin bash -c &quot;pm2 set pm2-logrotate:retain 5&quot;
+sudo -u admin bash -c &quot;pm2 set pm2-logrotate:compress true&quot;
+sudo chown -R admin:admin  /home/admin/apps
+</code></pre>
+
+<blockquote>
+<p>Note: if you chose a different Freeswitch password, make sure to adjust the crontab entry above to use that password.</p>
+</blockquote>
+<p>Next, copy your google service credentials json file into <code>/home/admin/credentials/gcp.json</code>.  Note that this is referenced from the Environment variable that you set in the freeswitch systemd service file.</p></div>
         
         
     </div>
