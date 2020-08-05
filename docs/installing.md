@@ -2,11 +2,11 @@
 
 ## AWS
 
-The quickest way to deploy jambonz currently is on AWS using the provided [terraform scripts](https://github.com/jambonz/jambonz-infrastructure).  Review [this quickstart video](/tutorials/#quickstart-deploying-jambonz-on-aws-in-10-minutes-or-less) for details.
+The quickest way to deploy jambonz currently is on AWS using the provided [terraform scripts](https://github.com/jambonz/jambonz-infrastructure).  Review [this quickstart video](/tutorials/#quickstart-deploying-jambonz-on-aws-in-10-minutes-or-less) for details.  You can have a system up and running on AWS in less than ten minutes.
 
 ## Otherwise..
 
-If you are using a different hosted provider, or have your own hardware, there is a little more elbow grease required!  Follow the instructions below to create a jambonz deployment consisting of one SBC and one Feature Server.  You will also be provisioning a mysql server and a redis server.
+If you are using your own hardware, or a different hosting provider, there is a little more elbow grease required.  Follow the instructions below to create a jambonz deployment consisting of one SBC and one Feature Server.  You will also be provisioning a mysql server and a redis server.
 
 ### A. Provision servers
 You'll need two servers -- one will be the public-facing SBC, while the other will be the feature server.  The SBC must have a public address; the Feature Server does not necessarily need a public address, but of course will need connectivity to the SBC, the mysql database, the redis server, and outbound connectivity to the internet in order to complete the install.  
@@ -546,3 +546,29 @@ Module
 │ 0  │ pm2-logrotate                         │ 2.7.0              │ 1015  │ online   │ 0    │ 0.1%     │ 66.4mb   │ admin    │
 └────┴───────────────────────────────────────┴────────────────────┴───────┴──────────┴──────┴──────────┴──────────┴──────────┘
 ```
+
+Finally, restart the drachtio and freeswitch services:
+```
+sudo systemctl daemon-reload
+sudo systemctl restart freeswitch
+sudo systemctl restart drachtio
+```
+For good measure, restart the drachtio apps as well
+```
+pm2 restart /home/admin/apps/ecosystem.config.js
+```
+
+Now you should have a running system.  Verify the drachtio server and freeswitch are running 
+```
+sudo systemctl status drachtio
+sudo systemctl status freeswitch
+```
+Verify the apps are running and are not logging any errors:
+```
+pm2 list
+pm2 log
+```
+
+Finally, tail the `/var/log/drachtio/drachtio.log` file and verify that sip OPTIONS requests are being sent to the SBC and are receiving a 200 OK response.
+
+At this point, your system is ready for testing.

@@ -5,9 +5,9 @@ theme:
 nav:
   - Home: index.md
   - API:
-      - jambonz Call Control JSON: jambonz.md
-      - REST API: rest.md
+      - jambonz Webhooks: jambonz.md
+      - jambonz REST API: rest.md
+  - Installation instructions: installing.md  
   - Data architecture: data.md
   - Authenticating sip clients: register-hook.md
   - Tutorials: tutorials.md
-  - Installing: installing.md
