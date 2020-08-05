@@ -62,8 +62,8 @@ The log file after startup should look something like this, with logging indicat
 2020-08-05 13:06:39.574562 DrachtioController::run tls chain file:       /etc/letsencrypt/live/teams.jambonz.us/chain.pem
 2020-08-05 13:06:39.580917 SipTransport::logTransports - there are : 3 transports
 2020-08-05 13:06:39.580933 SipTransport::logTransports - tcp/172.31.32.10:5060 (sip:172.31.32.10;transport=tcp, external-ip: , local-net: )
-2020-08-05 13:06:39.580942 SipTransport::logTransports - tls/172.31.32.10:5061 (sips:172.31.32.10:5061;transport=tls, external-ip: 54.176.73.99, local-net: )
-2020-08-05 13:06:39.580953 SipTransport::logTransports - udp/172.31.32.10:5060 (sip:172.31.32.10;transport=udp, external-ip: 54.176.73.99, local-net: ), mtu size: 4096
+2020-08-05 13:06:39.580942 SipTransport::logTransports - tls/172.31.32.10:5061 (sips:172.31.32.10:5061;transport=tls, external-ip: 54.174.72.99, local-net: )
+2020-08-05 13:06:39.580953 SipTransport::logTransports - udp/172.31.32.10:5060 (sip:172.31.32.10;transport=udp, external-ip: 54.174.72.99, local-net: ), mtu size: 4096
 ```
 
 ## Provisioning GUI changes
@@ -89,7 +89,7 @@ To verify, tail the log file `/var/log/drachtio.log` to see the OPTIONS request 
 ```
 2020-08-05 14:36:22.539782 send 372 bytes to tls/[52.114.148.0]:5061 at 14:36:22.539678:
 OPTIONS sip:sip.pstnhub.microsoft.com SIP/2.0
-Via: SIP/2.0/TLS 54.176.73.99;branch=z9hG4bK1HQpp1BtBQ30N
+Via: SIP/2.0/TLS 54.174.72.99;branch=z9hG4bK1HQpp1BtBQ30N
 Max-Forwards: 70
 From: <sip:teams.jambonz.us:5061;transport=tls>;tag=SX7B39veap93c
 To: <sip:sip.pstnhub.microsoft.com>
@@ -104,7 +104,7 @@ FROM: <sip:teams.jambonz.us:5061;transport=tls>;tag=SX7B39veap93c
 TO: <sip:sip.pstnhub.microsoft.com>
 CSEQ: 23765299 OPTIONS
 CALL-ID: dfe4b29f-51cb-1239-3b99-06ce423ffcdb
-VIA: SIP/2.0/TLS 54.176.73.99;branch=z9hG4bK1HQpp1BtBQ30N
+VIA: SIP/2.0/TLS 54.174.72.99;branch=z9hG4bK1HQpp1BtBQ30N
 CONTENT-LENGTH: 0
 ALLOW: INVITE,ACK,OPTIONS,CANCEL,BYE,NOTIFY
 SERVER: Microsoft.PSTNHub.SIPProxy v.2020.7.31.1 i.USWE2.3
