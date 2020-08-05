@@ -32,3 +32,27 @@ This first video provides a quickstart on building jambonz apps using the open s
 
 <br/><br/>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/rxt8SyVlDrA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+#### Building speech-driven applications using jambonz and Node-RED
+
+This video provides an introduction into how to build speech-driven applications in jambonz
+
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/jyBe0qcEZA8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+#### Building voicebots using jambonz and dialogflow
+
+This video shows how to connect calls to dialogflow using jambonz.
+
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/geV9XmHiPsI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+#### dialogflow part 2 - adding call transfer functionality
+
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/LRgzH6ZmxVY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+#### dialogflow part 3 - building agent assist functionality
+
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ZDObg3_uaRM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
