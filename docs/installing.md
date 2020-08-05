@@ -462,3 +462,86 @@ sudo chown -R admin:admin  /home/admin/apps
 > Note: if you chose a different Freeswitch password, make sure to adjust the crontab entry above to use that password.
 
 Next, copy your google service credentials json file into `/home/admin/credentials/gcp.json`.  Note that this is referenced from the Environment variable that you set in the freeswitch systemd service file.
+
+Next, copy this file below into `~/apps/ecosystem.config.js`.  
+
+**Note:** Make sure to edit the file below to have the correct information for:
+
+- your mysql and redis server hosts, 
+- your AWS access key, secret access key, and region
+- your mysql and freeswitch passwords, if different than below
+- your internal network cidr, and
+- if you have installed under a user other than 'admin' make sure to update the file paths accordingly (e.g. in the properties below such as 'cwd', 'out_file' etc).
+
+```js
+module.exports = {
+  apps : [
+  {
+    name: 'jambonz-feature-server',
+    cwd: '/home/admin/apps/jambonz-feature-server',
+    script: 'app.js',
+    instance_var: 'INSTANCE_ID',
+    out_file: '/home/admin/.pm2/logs/jambonz-feature-server.log',
+    err_file: '/home/admin/.pm2/logs/jambonz-feature-server.log',
+    exec_mode: 'fork',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    env: {
+      NODE_ENV: 'production',
+      GOOGLE_APPLICATION_CREDENTIALS: '/home/admin/credentials/gcp.json',
+      AWS_ACCESS_KEY_ID: '<your-aws-access-key-id>',
+      AWS_SECRET_ACCESS_KEY: '<your-aws-secret-access-key>',
+      AWS_REGION: 'us-west-1',
+			JAMBONES_NETWORK_CIDR: '192.168.0.0/16'
+      JAMBONES_MYSQL_HOST: '<your-mysql-host>',
+      JAMBONES_MYSQL_USER: 'admin',
+      JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
+      JAMBONES_MYSQL_DATABASE: 'jambones',
+      JAMBONES_MYSQL_CONNECTION_LIMIT: 10,
+      JAMBONES_REDIS_HOST: '<your-redis-host>',
+      JAMBONES_REDIS_PORT: 6379,
+      JAMBONES_LOGLEVEL: 'info',
+      HTTP_PORT: 3000,
+      DRACHTIO_HOST: '127.0.0.1',
+      DRACHTIO_PORT: 9022,
+      DRACHTIO_SECRET: 'cymru',
+      JAMBONES_SBCS: '192.168.3.11',
+      JAMBONES_FEATURE_SERVERS: '127.0.0.1:9022:cymru',
+      JAMBONES_FREESWITCH: '127.0.0.1:8021:JambonzR0ck$'
+    }
+  }]
+};
+```
+
+Next, start the applications and configure them to restart on boot:
+
+```
+sudo -u admin bash -c "pm2 start /home/admin/apps/ecosystem.config.js"
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u admin --hp /home/admin
+sudo -u admin bash -c "pm2 save"
+sudo systemctl enable pm2-admin.service
+```
+
+Check to be sure they are running:
+
+```
+pm2 list
+```
+
+You should see output similar to this:
+```
+admin@ip-172-31-33-250:~$ pm2 list
+┌─────┬───────────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id  │ name                      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├─────┼───────────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1   │ jambonz-feature-server    │ default     │ 0.2.3   │ fork    │ 22438    │ 47h    │ 6    │ online    │ 0.2%     │ 85.4mb   │ admin    │ disabled │
+└─────┴───────────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Module
+┌────┬───────────────────────────────────────┬────────────────────┬───────┬──────────┬──────┬──────────┬──────────┬──────────┐
+│ id │ module                                │ version            │ pid   │ status   │ ↺    │ cpu      │ mem      │ user     │
+├────┼───────────────────────────────────────┼────────────────────┼───────┼──────────┼──────┼──────────┼──────────┼──────────┤
+│ 0  │ pm2-logrotate                         │ 2.7.0              │ 1015  │ online   │ 0    │ 0.1%     │ 66.4mb   │ admin    │
+└────┴───────────────────────────────────────┴────────────────────┴───────┴──────────┴──────┴──────────┴──────────┴──────────┘
+```
