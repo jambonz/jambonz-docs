@@ -66,7 +66,7 @@ The log file after startup should look something like this, with logging indicat
 2020-08-05 13:06:39.580953 SipTransport::logTransports - udp/172.31.32.10:5060 (sip:172.31.32.10;transport=udp, external-ip: 54.174.72.99, local-net: ), mtu size: 4096
 ```
 
-## Provisioning GUI changes
+## Provision tenant FQDNs
 
 Log into the jambonz provisioning GUI for your system, click 'Settings' in the left sidebar menu and enable the checkbox labeled "Enable Microsoft Teams Direct Routing".  Enter your SBC domain name (e.g. "teams.example.com") in the field labeled "SBC Domain Name" and click the Save button.
 
