@@ -7,7 +7,9 @@ nav:
   - API:
       - jambonz Webhooks: jambonz.md
       - jambonz REST API: rest.md
-  - Installation instructions: installing.md  
+      - Authenticating SIP clients: register-hook.md
+  - Installing: installing.md
+  - Integrations:
+    - Microsoft Teams: teams.md
   - Data architecture: data.md
-  - Authenticating sip clients: register-hook.md
   - Tutorials: tutorials.md
