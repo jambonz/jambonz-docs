@@ -470,7 +470,8 @@ Next, copy this file below into `~/apps/ecosystem.config.js`.
 - your mysql and redis server hosts, 
 - your AWS access key, secret access key, and region
 - your mysql and freeswitch passwords, if different than below
-- your internal network cidr, and
+- the IP address of the SBC on the internal network, 
+- the network CIDR of the internal network, and
 - if you have installed under a user other than 'admin' make sure to update the file paths accordingly (e.g. in the properties below such as 'cwd', 'out_file' etc).
 
 ```js
@@ -494,7 +495,7 @@ module.exports = {
       AWS_ACCESS_KEY_ID: '<your-aws-access-key-id>',
       AWS_SECRET_ACCESS_KEY: '<your-aws-secret-access-key>',
       AWS_REGION: 'us-west-1',
-			JAMBONES_NETWORK_CIDR: '192.168.0.0/16'
+      JAMBONES_NETWORK_CIDR: '192.168.0.0/16'
       JAMBONES_MYSQL_HOST: '<your-mysql-host>',
       JAMBONES_MYSQL_USER: 'admin',
       JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
