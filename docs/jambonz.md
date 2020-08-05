@@ -388,9 +388,9 @@ If Microsoft Teams integration has been configured, you can dial out to  Teams u
 
 | option        | description | required  |
 | ------------- |-------------| -----|
-| type | must be "ms-teams" | yes |
+| type | must be "teams" | yes |
 | tenant | Microsoft Teams customer tenant domain name.  Will default to the Microsoft Teams tenant associated with the account of the calling party. | no |
-| user | the username or phone number of the teams user | yes |
+| number | the phone number that has been mapped to the teams user by the Microsoft Teams administrator | yes |
 | voicemail | if true, dial directly into user's voicemail to leave a message | no |
 
 <!--
