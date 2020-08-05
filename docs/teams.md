@@ -112,6 +112,6 @@ SERVER: Microsoft.PSTNHub.SIPProxy v.2020.7.31.1 i.USWE2.3
 
 At this point, once the necessary configuration changes have been made in Microsoft Teams admin, you should be able to test sending and receiving calls.  
 
-To test, create a simple app of some kind and assign it as the outbound calling application for the customer tenant by going into the jambonz provisioning GUI, clicking "MS Teams Tenant" and modifying the customer tenant to associate the applications.  Any outbound calls from this tenant will now execute the selected application.
+To test, create a simple app of some kind and assign it as the outbound calling application for the customer tenant by going into the jambonz provisioning GUI, clicking "MS Teams Tenant" and modifying the customer tenant to associate the application to this tenant.  Any outbound calls from the tenant will now execute the selected application.
 
 
