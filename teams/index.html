@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="../img/favicon.ico">
+
+    
+    <title>Microsoft Teams - jambonz</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            <a class="navbar-brand" href="..">jambonz</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../jambonz/">jambonz Webhooks</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../rest/">jambonz REST API</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../register-hook/">Authenticating SIP clients</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../installing/">Installing</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Integrations <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li class="active">
+    <a href="./">Microsoft Teams</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../data/">Data architecture</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../tutorials/">Tutorials</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../installing/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="next" href="../data/">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#microsoft-teams-integration">Microsoft Teams Integration</a></li>
+            <li class="second-level"><a href="#changes-to-the-jambonz-sbc">Changes to the jambonz SBC</a></li>
+                
+                <li class="third-level"><a href="#add-additional-listen-port-5061tls">Add additional listen port 5061/tls</a></li>
+                <li class="third-level"><a href="#generate-tls-certificate">Generate TLS certificate</a></li>
+                <li class="third-level"><a href="#update-drachtio-config">Update drachtio config</a></li>
+                <li class="third-level"><a href="#restart-drachtio-server">Restart drachtio server</a></li>
+                <li class="third-level"><a href="#verify-configuration-changes">Verify configuration changes</a></li>
+            <li class="second-level"><a href="#provisioning-gui-changes">Provisioning GUI changes</a></li>
+                
+            <li class="second-level"><a href="#restart-drachtio-apps">Restart drachtio apps</a></li>
+                
+                <li class="third-level"><a href="#verify-connectivity">Verify connectivity</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="microsoft-teams-integration">Microsoft Teams Integration</h1>
+<p>The instructions below assume that you are starting with a working system, and that you would like to add Microsoft Teams directing routing support.  In other words, your jambonz system will act as an SBC to Microsoft Teams, providing direct routing support and allowing teams users to make and receive calls from mobile phones and landlines.</p>
+<p>These instructions cover only the changes needed on the jambonz side of things; please refer to the <a href="https://docs.microsoft.com/en-us/microsoftteams/direct-routing-plan">Microsoft docs</a> for information regarding changes that must be made by your Teams admin to enable direct routing.</p>
+<h2 id="changes-to-the-jambonz-sbc">Changes to the jambonz SBC</h2>
+<h4 id="add-additional-listen-port-5061tls">Add additional listen port 5061/tls</h4>
+<p>Edit the <code>/etc/systemd/system/drachtio.service</code> file to add a contact to listen for TLS traffic on port 5061:</p>
+<pre><code>ExecStart=/usr/local/bin/drachtio --daemon \
+--contact sip:${LOCAL_IP};transport=udp --external-ip ${PUBLIC_IP} \
+--contact sips:${LOCAL_IP}:5061;transport=tls --external-ip ${PUBLIC_IP} \
+--contact sip:${LOCAL_IP};transport=tcp \
+ --address 0.0.0.0 --port 9022
+</code></pre>
+
+<h4 id="generate-tls-certificate">Generate TLS certificate</h4>
+<p>You will need to generate a TLS certificate that has a SAN for <em>both</em> the SBC domain name <em>as well as</em> a wildcard SAN for customer tenants, which are subdomains of the SBC domain name. </p>
+<p>For instance, an SBC domain name might be <code>teams.example.com</code> and customer tenants could be <code>cust1.teams.example.com</code>, <code>cust2.teams.example.com</code>, etc.</p>
+<p>Generating such a TLS certificate can be done for free using <a href="https://letsencrypt.org/">letsencrypt</a> as follows:</p>
+<pre><code>certbot certonly --manual --preferred-challenges=dns --email me@example.com \
+--server https://acme-v02.api.letsencrypt.org/directory --agree-tos \ 
+-d *.teams.example.com -d teams.example.com
+</code></pre>
+
+<h4 id="update-drachtio-config">Update drachtio config</h4>
+<p>Edit <code>/etc/drachtio.conf.xml</code> to reference the TLS certificate, key, and chain file by adding a <code>&lt;tls/&gt;</code> section within the <code>&lt;sip/&gt;</code> element</p>
+<pre><code class="xml">&lt;sip&gt;
+    &lt;tls&gt;
+        &lt;key-file&gt;/etc/letsencrypt/live/teams.example.com/privkey.pem&lt;/key-file&gt;
+       &lt;cert-file&gt;/etc/letsencrypt/live/teams.example.com/cert.pem&lt;/cert-file&gt;
+       &lt;chain-file&gt;/etc/letsencrypt/live/teams.example.com/chain.pem&lt;/chain-file&gt;
+  &lt;/tls&gt;
+
+&lt;/sip&gt;
+</code></pre>
+
+<h4 id="restart-drachtio-server">Restart drachtio server</h4>
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl restart drachtio
+</code></pre>
+
+<h4 id="verify-configuration-changes">Verify configuration changes</h4>
+<p>Execute the command <code>sudo systemctl status drachtio</code> to verify that the drachtio server restarted correctly, and examine the <code>/var/log/drachtio/drachtio.log</code> file to verify that it is now listening on port 5061 for TLS traffic, in addition to port 5060.  </p>
+<p>The log file after startup should look something like this, with logging indicating that it is now listening for tls traffic on port 5061 and has successfully loaded the TLS certificate:</p>
+<pre><code>2020-08-05 13:06:39.574425 Starting drachtio version v0.8.6-rc1-2-g5faa42c74
+2020-08-05 13:06:39.574546 DrachtioController::run tls key file:         /etc/letsencrypt/live/teams.jambonz.us/privkey.pem
+2020-08-05 13:06:39.574554 DrachtioController::run tls certificate file: /etc/letsencrypt/live/teams.jambonz.us/cert.pem
+2020-08-05 13:06:39.574562 DrachtioController::run tls chain file:       /etc/letsencrypt/live/teams.jambonz.us/chain.pem
+2020-08-05 13:06:39.580917 SipTransport::logTransports - there are : 3 transports
+2020-08-05 13:06:39.580933 SipTransport::logTransports - tcp/172.31.32.10:5060 (sip:172.31.32.10;transport=tcp, external-ip: , local-net: )
+2020-08-05 13:06:39.580942 SipTransport::logTransports - tls/172.31.32.10:5061 (sips:172.31.32.10:5061;transport=tls, external-ip: 54.176.73.99, local-net: )
+2020-08-05 13:06:39.580953 SipTransport::logTransports - udp/172.31.32.10:5060 (sip:172.31.32.10;transport=udp, external-ip: 54.176.73.99, local-net: ), mtu size: 4096
+</code></pre>
+
+<h2 id="provisioning-gui-changes">Provisioning GUI changes</h2>
+<p>Log into the jambonz provisioning GUI for your system, click 'Settings' in the left sidebar menu and enable the checkbox labeled "Enable Microsoft Teams Direct Routing".  Enter your SBC domain name (e.g. "teams.example.com") in the field labeled "SBC Domain Name" and click the Save button.</p>
+<p>Next, click "MS Teams Tenant" in the left sidebar menu and add at least one tenant domain (e.g., "cust1.teams.example.com" in the example above), associate that tenant with a jambonz account and click the "Add Microsoft Teams Tenant" button.</p>
+<h2 id="restart-drachtio-apps">Restart drachtio apps</h2>
+<p>As the 'admin' user, restart the applications using pm2:</p>
+<pre><code>pm2 restart all
+</code></pre>
+
+<h4 id="verify-connectivity">Verify connectivity</h4>
+<p>The jambonz SBC should now be sending OPTIONS pings to Microsoft Teams every 30 seconds or so.  </p>
+<p>To verify, tail the log file <code>/var/log/drachtio.log</code> to see the OPTIONS request being sent, and the response received.  If all is working, then a 200 OK should be received as in the sample output below</p>
+<pre><code>2020-08-05 14:36:22.539782 send 372 bytes to tls/[52.114.148.0]:5061 at 14:36:22.539678:
+OPTIONS sip:sip.pstnhub.microsoft.com SIP/2.0
+Via: SIP/2.0/TLS 54.176.73.99;branch=z9hG4bK1HQpp1BtBQ30N
+Max-Forwards: 70
+From: &lt;sip:teams.jambonz.us:5061;transport=tls&gt;;tag=SX7B39veap93c
+To: &lt;sip:sip.pstnhub.microsoft.com&gt;
+Call-ID: dfe4b29f-51cb-1239-3b99-06ce423ffcdb
+CSeq: 23765299 OPTIONS
+Contact: &lt;sip:teams.jambonz.us:5061;transport=tls&gt;
+Content-Length: 0
+
+2020-08-05 14:36:22.564556 recv 376 bytes from tls/[52.114.148.0]:5061 at 14:36:22.564475:
+SIP/2.0 200 OK
+FROM: &lt;sip:teams.jambonz.us:5061;transport=tls&gt;;tag=SX7B39veap93c
+TO: &lt;sip:sip.pstnhub.microsoft.com&gt;
+CSEQ: 23765299 OPTIONS
+CALL-ID: dfe4b29f-51cb-1239-3b99-06ce423ffcdb
+VIA: SIP/2.0/TLS 54.176.73.99;branch=z9hG4bK1HQpp1BtBQ30N
+CONTENT-LENGTH: 0
+ALLOW: INVITE,ACK,OPTIONS,CANCEL,BYE,NOTIFY
+SERVER: Microsoft.PSTNHub.SIPProxy v.2020.7.31.1 i.USWE2.3
+</code></pre>
+
+<p>At this point, once the necessary configuration changes have been made in Microsoft Teams admin, you should be able to test sending and receiving calls.  To test, create a simple app of some kind and assign it as the outbound calling application for the customer tenant by going into the jambonz provisioning GUI, clicking "MS Teams Tenant" and modifying the customer tenant to associate the applications.  Any outbound calls from this tenant will now execute the selected application.</p></div>
+        
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+        </p>
+
+        
+        
+    </footer>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+    
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>
