@@ -164,7 +164,7 @@
                 <li class="third-level"><a href="#update-drachtio-config">Update drachtio config</a></li>
                 <li class="third-level"><a href="#restart-drachtio-server">Restart drachtio server</a></li>
                 <li class="third-level"><a href="#verify-configuration-changes">Verify configuration changes</a></li>
-            <li class="second-level"><a href="#provisioning-gui-changes">Provisioning GUI changes</a></li>
+            <li class="second-level"><a href="#provision-tenant-fqdns">Provision tenant FQDNs</a></li>
                 
             <li class="second-level"><a href="#restart-drachtio-apps">Restart drachtio apps</a></li>
                 
@@ -225,7 +225,7 @@ sudo systemctl restart drachtio
 2020-08-05 13:06:39.580953 SipTransport::logTransports - udp/172.31.32.10:5060 (sip:172.31.32.10;transport=udp, external-ip: 54.174.72.99, local-net: ), mtu size: 4096
 </code></pre>
 
-<h2 id="provisioning-gui-changes">Provisioning GUI changes</h2>
+<h2 id="provision-tenant-fqdns">Provision tenant FQDNs</h2>
 <p>Log into the jambonz provisioning GUI for your system, click 'Settings' in the left sidebar menu and enable the checkbox labeled "Enable Microsoft Teams Direct Routing".  Enter your SBC domain name (e.g. "teams.example.com") in the field labeled "SBC Domain Name" and click the Save button.</p>
 <p>Next, click "MS Teams Tenant" in the left sidebar menu and add at least one tenant domain (e.g., "cust1.teams.example.com" in the example above), associate that tenant with a jambonz account and click the "Add Microsoft Teams Tenant" button.</p>
 <h2 id="restart-drachtio-apps">Restart drachtio apps</h2>
