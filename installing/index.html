@@ -648,7 +648,8 @@ sudo chown -R admin:admin  /home/admin/apps
 <li>your mysql and redis server hosts, </li>
 <li>your AWS access key, secret access key, and region</li>
 <li>your mysql and freeswitch passwords, if different than below</li>
-<li>your internal network cidr, and</li>
+<li>the IP address of the SBC on the internal network, </li>
+<li>the network CIDR of the internal network, and</li>
 <li>if you have installed under a user other than 'admin' make sure to update the file paths accordingly (e.g. in the properties below such as 'cwd', 'out_file' etc).</li>
 </ul>
 <pre><code class="js">module.exports = {
@@ -671,7 +672,7 @@ sudo chown -R admin:admin  /home/admin/apps
       AWS_ACCESS_KEY_ID: '&lt;your-aws-access-key-id&gt;',
       AWS_SECRET_ACCESS_KEY: '&lt;your-aws-secret-access-key&gt;',
       AWS_REGION: 'us-west-1',
-            JAMBONES_NETWORK_CIDR: '192.168.0.0/16'
+      JAMBONES_NETWORK_CIDR: '192.168.0.0/16'
       JAMBONES_MYSQL_HOST: '&lt;your-mysql-host&gt;',
       JAMBONES_MYSQL_USER: 'admin',
       JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',
