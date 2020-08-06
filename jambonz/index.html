@@ -931,6 +931,7 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 <li><code>stop-play</code>: an audio segment returned from dialogflow completing playing</li>
 <li><code>no-input</code>: the no input timer elapsed with no input detected from the caller</li>
 </ul>
+<p>Please refer to <a href="/tutorials/#building-voicebots-using-jambonz-and-dialogflow">this tutorial</a> for a detailed example.</p>
 <h3 id="call-transfer">call transfer</h3>
 <p>Call transfer from a dialogflow bot is achieved by responding to an eventHook with event <code>intent</code> by returning a new jambonz application containing a <a href="#dial">dial</a> verb.  Of course, this should only be done if the intent is signaling a request for a call transfer.</p>
 <p>Indicating a desire to transfer the call to a live agent can be done in a couple of different ways in the dialogflow editor:</p>
@@ -956,6 +957,7 @@ if (evt.event === 'intent') {
 }
 </code></pre>
 
+<p>Please refer to <a href="/tutorials/#dialogflow-part-2-adding-call-transfer-functionality">this tutorial</a> for a detailed example.</p>
 <h2 id="enqueue">enqueue</h2>
 <p>The <code>enqueue</code> command is used to place a caller in a queue.</p>
 <pre><code>{
