@@ -495,7 +495,7 @@ module.exports = {
       AWS_ACCESS_KEY_ID: '<your-aws-access-key-id>',
       AWS_SECRET_ACCESS_KEY: '<your-aws-secret-access-key>',
       AWS_REGION: 'us-west-1',
-      JAMBONES_NETWORK_CIDR: '192.168.0.0/16'
+      JAMBONES_NETWORK_CIDR: '192.168.0.0/16',
       JAMBONES_MYSQL_HOST: '<your-mysql-host>',
       JAMBONES_MYSQL_USER: 'admin',
       JAMBONES_MYSQL_PASSWORD: 'JambonzR0ck$',

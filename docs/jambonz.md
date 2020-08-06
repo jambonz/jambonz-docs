@@ -455,6 +455,8 @@ The *eventHook* webhook will contain two parameters: `event` and `data`.  The `e
 - `stop-play`: an audio segment returned from dialogflow completing playing
 - `no-input`: the no input timer elapsed with no input detected from the caller
 
+Please refer to [this tutorial](/tutorials/#building-voicebots-using-jambonz-and-dialogflow) for a detailed example.
+
 ### call transfer
 
 Call transfer from a dialogflow bot is achieved by responding to an eventHook with event `intent` by returning a new jambonz application containing a [dial](#dial) verb.  Of course, this should only be done if the intent is signaling a request for a call transfer.
@@ -483,6 +485,7 @@ if (evt.event === 'intent') {
 }
 ```
 
+Please refer to [this tutorial](/tutorials/#dialogflow-part-2-adding-call-transfer-functionality) for a detailed example.
 
 ## enqueue
 The `enqueue` command is used to place a caller in a queue.
