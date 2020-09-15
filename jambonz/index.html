@@ -128,6 +128,12 @@
                     </li>
                 
                 
+                
+                    <li >
+                        <a href="../faqs/">FAQs</a>
+                    </li>
+                
+                
                 </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -910,6 +916,31 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 <tr>
 <td>eventHook</td>
 <td>A webhook to invoke when a dialogflow event occurs, such as an intent being detected or a speech transcription being returned.  <br/>The response to the event hook may contain a new jambonz application to execute</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts</td>
+<td>if provided, audio prompts will be played using text-to-speech rather than the dialogflow-provided audio clips</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts.vendor</td>
+<td>speech vendor to use: google, aws (alias: polly), or default (for application default)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts.language</td>
+<td>language code to use.</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>tts.gender</td>
+<td>(google only) MALE, FEMALE, or NEUTRAL.</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts.voice</td>
+<td>voice to use.  Note that the voice list differs whether you are using aws or google. Defaults to application setting, if provided.</td>
 <td>no</td>
 </tr>
 </tbody>

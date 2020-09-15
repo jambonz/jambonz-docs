@@ -11,7 +11,7 @@
     <link rel="../img/favicon.ico">
 
     
-    <title>Authenticating SIP clients - jambonz</title>
+    <title>Modifying the webapp to use https - jambonz</title>
     
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -69,7 +69,7 @@
                 
                 
                 
-                    <li class="dropdown active">
+                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
@@ -86,8 +86,8 @@
 
                         
                             
-<li class="active">
-    <a href="./">Authenticating SIP clients</a>
+<li >
+    <a href="../register-hook/">Authenticating SIP clients</a>
 </li>
 
                         
@@ -142,16 +142,6 @@
                             <i class="fas fa-search"></i> Search
                         </a>
                     </li>
-                    <li >
-                        <a rel="prev" href="../rest/">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="next" href="../installing/">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </li>
             </ul>
         </div>
     </div>
@@ -162,54 +152,156 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#overview">Overview</a></li>
+        <li class="first-level active"><a href="#modifying-the-webapp-to-use-https">Modifying the webapp to use https</a></li>
+            <li class="second-level"><a href="#install-nginx-and-allow-traffic">Install NGINX and allow traffic</a></li>
+                
+            <li class="second-level"><a href="#create-dns-entries">Create DNS entries</a></li>
+                
+            <li class="second-level"><a href="#configure-nginx">Configure NGINX</a></li>
+                
+            <li class="second-level"><a href="#generate-tls-certificates">Generate TLS certificates</a></li>
+                
+            <li class="second-level"><a href="#modify-webapp-and-restart">Modify webapp and restart</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="overview">Overview</h1>
-<p>The platform allows sip clients to register, make and receive calls.  Managing sip registrations is a shared  activity between the platform and the customer application.  The platform handles the sip messaging aspects, but the determination of whether to authenticate a specific request is the responsibility of the application, which is notified of incoming REGISTER requests by means of the registration webhook.</p>
-<blockquote>
-<p>This is designed so the privacy of sip credentials issued by a customer to their clients is assured; i.e. those credentials are never exposed to the platform provider entity, nor stored anywhere in the platform itself .</p>
-</blockquote>
-<p>When the platform receives an incoming sip register request, the registering sip domain is first checked to see if there is a register webhook provisioned for the that domain.  If there is no webhook provisioned for that domain, a 403 Forbidden response is sent back to the client.</p>
-<p>Otherwise, the platform will challenge the REGISTER request with a 401 Unauthorized response containing a digest challenge.</p>
-<p>If the sip client then sends a REGISTER request with an Authorization header, the platform generates an http POST request to the registered webhook.  The Content-Type of the POST is application/json and the body contains the following elements, as provided in  the Authorization sip header of the incoming REGISTER request.</p>
-<pre><code>{
-  &quot;method&quot;: &quot;REGISTER&quot;,
-  &quot;realm&quot;: &quot;example.com&quot;,
-  &quot;username&quot;: &quot;foo&quot;,
-  &quot;expires&quot;: 3600,
-  &quot;nonce&quot;: &quot;InFriVGWVoKeCckYrTx7wg==&quot;,
-  &quot;uri&quot;: &quot;sip:example.com&quot;,
-  &quot;algorithm&quot;: &quot;MD5&quot;,
-  &quot;qop&quot;: &quot;auth&quot;,
-  &quot;cnonce&quot;: &quot;03d8d2aafd5a975f2b07dc90fe5f4100&quot;,
-  &quot;nc&quot;: &quot;00000001&quot;,
-  &quot;response&quot;: &quot;db7b7dbec7edc0c427c1708031f67cc6&quot;
-}
+<h1 id="modifying-the-webapp-to-use-https">Modifying the webapp to use https</h1>
+<p>The jambonz webapp is initially configured to run over http on port 3001 of the SBC.  These steps outline the changes needed to run this under https using nginx as the web server and letsencrypt TLS certificates.</p>
+<h3 id="install-nginx-and-allow-traffic">Install NGINX and allow traffic</h3>
+<ul>
+<li>SSH into your Jambonz SBC instance</li>
+<li>Install Nginx and certbot</li>
+</ul>
+<pre><code class="shell">    $ sudo apt update
+    $ sudo apt install nginx python3-certbot-nginx
 </code></pre>
 
-<p>The application, with knowledge of the password associated with the provided username and password, then performs <a href="https://tools.ietf.org/html/rfc2617">digest authentication</a> to authenticate the request using the information provided, including the calculated response value.</p>
-<p>Regardless of whether the request is authenticated or not, the application should respond with a 200 OK to the http POST and with a JSON body.</p>
-<p>The JSON body in the response if the request is authenticated should simply contain a <code>status</code> attribute with a value of <code>ok</code>, e.g.:</p>
-<pre><code>{
-  &quot;status&quot;: &quot;ok&quot;
-}
+<ul>
+<li>Navigate to your EC2 Dashboard in the AWS console</li>
+<li>Select your SBC instance</li>
+<li>In the bottom half of the screen, select the Security tab</li>
+<li>Under the Security Groups section select the SG link (allow_jambonz_sbc_sip_rtp) to make changes</li>
+<li>Under the inbound rules tab click the 'Edit inbound rules' button</li>
+<li>Click the 'Add rule' button to add the following rules:</li>
+</ul>
+<pre><code class="shell">    type: HTTP - source: Anywhere
+    type: HTTPS - source: Anywhere
 </code></pre>
 
-<p>If the application wishes to enforce a shorter expires value, it may include that value in the response, e.g.:</p>
-<pre><code>{
-  &quot;status&quot;: &quot;ok&quot;,
-  &quot;expires&quot;: 1800
-}
+<h3 id="create-dns-entries">Create DNS entries</h3>
+<ul>
+<li>Navigate to Route 53, or wherever you have your domains hosted</li>
+<li>
+<p>Add your desired domains and sub-domains (A records) and point them to the ip address of your SBC instance</p>
+<p>you will need to add a sub-domain for the api and the app, eg: </p>
+</li>
+</ul>
+<pre><code>  api.your-domain.com
+  app.your-domain.com
 </code></pre>
 
-<p>The JSON body in the response if the request is <em>not</em> authentication should contain a status of <code>fail</code>, and optionally a <code>msg</code> attribute, e.g.</p>
-<pre><code>{
-  &quot;status&quot;: &quot;fail&quot;,
-  &quot;msg&quot; : &quot;invalid password&quot;
-}
+<h3 id="configure-nginx">Configure NGINX</h3>
+<ul>
+<li>Return to your ssh session and navigate to your nginx sites-available folder</li>
+</ul>
+<pre><code class="shell">    $ cd /etc/nginx/sites-available
+</code></pre>
+
+<ul>
+<li>Make a copy of the default config</li>
+</ul>
+<pre><code class="shell">    $ sudo cp default default.bak
+</code></pre>
+
+<ul>
+<li>Edit the default config to look like below:</li>
+</ul>
+<pre><code class="shell">    $ sudo nano default
+
+    server {
+        listen 80;
+        server_name your_domain.com;  # enter the app sub-domain that you setup in 11
+        location / {
+            proxy_pass http://localhost:3001; # point the reverse proxy to the webapp on port 3001
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+</code></pre>
+
+<ul>
+<li>Save your new configuration</li>
+<li>Create another config in your sites-available folder that you are currently in:</li>
+</ul>
+<pre><code class="shell">    $ sudo nano jambonz-api
+
+    server {
+        listen 80;
+        server_name api.your_domain.com;  # enter the app sub-domain that you setup in 11
+        location / {
+            proxy_pass http://localhost:3000; # point the reverse proxy to the api server on port 3000
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+</code></pre>
+
+<ul>
+<li>Restart the nginx service</li>
+</ul>
+<pre><code class="shell">    $ sudo service nginx restart
+</code></pre>
+
+<h3 id="generate-tls-certificates">Generate TLS certificates</h3>
+<ul>
+<li>Install LetsEncrypt certificate using certbot</li>
+</ul>
+<pre><code class="shell">    $ certbot --nginx
+</code></pre>
+
+<ul>
+<li>Follow the prompts to select the domain/s you would like to create a certificate for</li>
+<li>At the end of the script choose option 2 to make all requests redirect to HTTPS</li>
+<li>Test that your new domain works and is certified</li>
+<li>Return to the security group settings as discussed above</li>
+<li>Change access to port 3000 and 3001 from everywhere to SG</li>
+</ul>
+<h3 id="modify-webapp-and-restart">Modify webapp and restart</h3>
+<ul>
+<li>Head back to your ssh terminal</li>
+<li>Change ownership of all the files in the app to admin</li>
+</ul>
+<pre><code>    $ cd ~/app
+    $ sudo chmod -R admin:admin . 
+</code></pre>
+
+<ul>
+<li>Edit the jambonz webapp env</li>
+</ul>
+<pre><code>    $ cd ~/app/jambonz-webapp
+    $ nano .env.local
+    change http://ip:3000/v1 to
+    https://api.your-domain.com/v1
+</code></pre>
+
+<ul>
+<li>Rebuild the app</li>
+</ul>
+<pre><code>    $ cd /home/admin/apps/jambonz-webapp &amp;&amp; sudo npm install --unsafe-perm &amp;&amp; npm run build
+</code></pre>
+
+<ul>
+<li>Restart the services using pm2</li>
+</ul>
+<pre><code>    $ pm2 restart all
 </code></pre></div>
         
         
