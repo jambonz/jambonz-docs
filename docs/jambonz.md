@@ -439,6 +439,11 @@ You can use the following options in the `dialogflow` verb:
 | thinkingMusic | A url to a .wav or .mp3 file to play as filler music while the dialogflow back-end is executing | no |
 | actionHook | A webhook invoke when operation completes.<br/>See below for specified request parameters.| no |
 | eventHook | A webhook to invoke when a dialogflow event occurs, such as an intent being detected or a speech transcription being returned.  <br/>The response to the event hook may contain a new jambonz application to execute| no|
+| tts | if provided, audio prompts will be played using text-to-speech rather than the dialogflow-provided audio clips | no |
+| tts.vendor | speech vendor to use: google, aws (alias: polly), or default (for application default) | no |
+| tts.language | language code to use.  | yes |
+| tts.gender | (google only) MALE, FEMALE, or NEUTRAL.  | no |
+| tts.voice | voice to use.  Note that the voice list differs whether you are using aws or google. Defaults to application setting, if provided. | no |
 
 The *actionHook* webhook will contain the following additional parameters:
 

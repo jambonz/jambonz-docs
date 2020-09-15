@@ -91,3 +91,22 @@ Enough already!  I just want to build one of these things and take it for a spin
 OK, gotcha - check out a short video showing a soup-to-nuts walkthrough of [how to deploy on AWS in 10 minutes or less](/tutorials), or review [instructions on how to build on your own infrastructure](/installing).
 
 Talk to us on our [slack channel](https://joinslack.jambonz.org/) to ask questions, learn more about jambonz, or find out how to contribute.
+
+## How you can support the effort
+
+This open source software is available to you at no cost with the most permissive licensing available (MIT).  Of course, the fact that it is free does not mean that it has no value: in fact it has proven to be of great value to many, and hopefully you will find it to be of value as well.  
+
+If you do, I hope you will consider sponsoring the project (and my related open source projects) by clicking the sponsor button below.  This allows me to spend more time adding new features, fixing bugs, creating new documentation so that this product -- and the associated community -- can really thrive.  Thanks for considering this.
+
+<iframe src="https://github.com/sponsors/drachtio/button" title="Sponsor drachtio" height="35" width="116" style="border: 0;"></iframe>
+
+<br/>
+Additionally, beyond sponsoring the project there are many ways to help drive this effort forward, and make it continually more useful for everyone.  Please consider some of the non-financial ways you may be able to contribute:
+
+- are you a Node.js developer who already has some familiarity with [drachtio Node.js framework](https://github.com/davehorton/drachtio-srf)?  If so, I would love for you to consider helping with core development.
+- have you come across a bug or an issue?  I'd love for you to file an issue in the appropriate [jambonz repo](https://github.com/jambonz) with as much detail as possible on how to recreate.
+- have you figured something out on your own that should really be documented?  You can probably guess what I'm going to ask you to do about that..
+
+Finally, if you are using this or any other VoIP or RTC open source project, then you are part of the greater VoIP/RTC ecosystem.  Be thoughtful about how we can all sustain and improve this ecosystem, because through our actions we all leave it in either a better or worse state as we pass through -- never unchanged.  Even relatively simple actions such as: sending employees to attend open source conferences, publicizing open source projects that perform a valuable role in your own commercial offerings, and sponsoring specific features under an open source license, are meaningful actions that are not all that difficult to do.  
+
+Thanks, and Namaste.
