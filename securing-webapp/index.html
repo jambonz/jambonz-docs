@@ -255,9 +255,15 @@
 </code></pre>
 
 <ul>
+<li>Create a link from the sites-enabled directory to the new configuration</li>
+</ul>
+<pre><code class="shell">    $ sudo ln -s /etc/nginx/sites-available/jambonz-api /etc/nginx/sites-enabled/jambonz-api 
+</code></pre>
+
+<ul>
 <li>Restart the nginx service</li>
 </ul>
-<pre><code class="shell">    $ sudo service nginx restart
+<pre><code class="shell">    $ sudo systemctl restart nginx
 </code></pre>
 
 <h3 id="generate-tls-certificates">Generate TLS certificates</h3>
@@ -268,9 +274,8 @@
 </code></pre>
 
 <ul>
-<li>Follow the prompts to select the domain/s you would like to create a certificate for</li>
+<li>Follow the prompts to create certificates for both the 'app' and the 'api' domains</li>
 <li>At the end of the script choose option 2 to make all requests redirect to HTTPS</li>
-<li>Test that your new domain works and is certified</li>
 <li>Return to the security group settings as discussed above</li>
 <li>Change access to port 3000 and 3001 from everywhere to SG</li>
 </ul>
@@ -280,7 +285,7 @@
 <li>Change ownership of all the files in the app to admin</li>
 </ul>
 <pre><code>    $ cd ~/app
-    $ sudo chmod -R admin:admin . 
+    $ sudo chown -R admin:admin . 
 </code></pre>
 
 <ul>
@@ -292,6 +297,9 @@
     https://api.your-domain.com/v1
 </code></pre>
 
+<blockquote>
+<p>Note: make sure to change the api URL above from http to https.  If you leave it http requests will fail since the browser will prevent a page retrieved over https from making unsecured http calls.</p>
+</blockquote>
 <ul>
 <li>Rebuild the app</li>
 </ul>
@@ -302,7 +310,9 @@
 <li>Restart the services using pm2</li>
 </ul>
 <pre><code>    $ pm2 restart all
-</code></pre></div>
+</code></pre>
+
+<p>Now navigate in your browser to https://app.yourdomain.com and test that your new domain works and is certified.</p></div>
         
         
     </div>
