@@ -77,9 +77,14 @@ The jambonz webapp is initially configured to run over http on port 3001 of the 
         }
     }
 ```
+* Create a link from the sites-enabled directory to the new configuration
+```shell
+    $ sudo ln -s /etc/nginx/sites-available/jambonz-api /etc/nginx/sites-enabled/jambonz-api 
+```
+
 * Restart the nginx service
 ```shell
-    $ sudo service nginx restart
+    $ sudo systemctl restart nginx
 ```
 
 ### Generate TLS certificates
@@ -88,9 +93,8 @@ The jambonz webapp is initially configured to run over http on port 3001 of the 
 ```shell
     $ certbot --nginx
 ```
-* Follow the prompts to select the domain/s you would like to create a certificate for
+* Follow the prompts to create certificates for both the 'app' and the 'api' domains
 * At the end of the script choose option 2 to make all requests redirect to HTTPS
-* Test that your new domain works and is certified
 * Return to the security group settings as discussed above
 * Change access to port 3000 and 3001 from everywhere to SG
 
@@ -100,7 +104,7 @@ The jambonz webapp is initially configured to run over http on port 3001 of the 
 * Change ownership of all the files in the app to admin
 ```
 	$ cd ~/app
-	$ sudo chmod -R admin:admin . 
+	$ sudo chown -R admin:admin . 
 ```
 * Edit the jambonz webapp env
 ```
@@ -109,6 +113,8 @@ The jambonz webapp is initially configured to run over http on port 3001 of the 
 	change http://ip:3000/v1 to
 	https://api.your-domain.com/v1
 ```
+> Note: make sure to change the api URL above from http to https.  If you leave it http requests will fail since the browser will prevent a page retrieved over https from making unsecured http calls.
+
 * Rebuild the app
 ```
 	$ cd /home/admin/apps/jambonz-webapp && sudo npm install --unsafe-perm && npm run build
@@ -117,3 +123,6 @@ The jambonz webapp is initially configured to run over http on port 3001 of the 
 ```
 	$ pm2 restart all
 ```
+
+Now navigate in your browser to https://app.yourdomain.com and test that your new domain works and is certified.
+
