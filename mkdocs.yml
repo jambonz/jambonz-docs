@@ -11,6 +11,7 @@ nav:
   - Installing: installing.md
   - Integrations:
     - Microsoft Teams: teams.md
+    - SMS: sms.md
   - Data architecture: data.md
   - Tutorials: tutorials.md
   - FAQs: faqs.md

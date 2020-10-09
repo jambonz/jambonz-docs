@@ -666,6 +666,28 @@ You can use the following options in the `listen` action:
 | wsAuth.username | HTTP basic auth username to use on websocket connection | no |
 | wsAuth.password | HTTP basic auth password to use on websocket connection | no |
 
+## message
+
+The message verb is used to send an outgoing SMS message.  In order to send (and receive) SMS messages, you must have established a commercial relationship with a Voip carrier or SMS provider that provides an HTTP(S)-based API, and the system must have been configured to integrate with that provider.  Please view the article describing how to enable SMS messaging on jambonz.
+
+```json
+{
+  "verb": "message",
+  "from": "12063345678",
+  "to": "15083084888",
+  "text": "Your reservation for tomorrow at 6PM has been confirmed."
+}
+```
+
+You can use the following options in the `message` action:
+
+| option        | description | required  |
+| ------------- |-------------| -----|
+| from | Originating phone number. | yes |
+| to | Mobile number to send SMS to | yes |
+| text | SMS message to send | yes |
+| provider | Name of the SMS provider to use for the outgoing message. Not required if you have only configured SMS provider on your system. | no |
+
 
 <!--
 ## park

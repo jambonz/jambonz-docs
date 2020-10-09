@@ -337,6 +337,48 @@ Content-Type: application/json
 }
 ```
 
+## Messages
+A message is an inbound or outbound SMS.
+
+### Create an SMS
+SMS are created from the REST API by sending an HTTP POST request. A successful HTTP 201 response will contain the Message Sid of the SMS along with any provider information received.
+
+An example is shown below:
+```json
+POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Messages HTTP/1.1
+Content-Length: 175
+Accept: application/json
+Authorization: Bearer 9404e5f7-9a77-4bcc-b0fa-5665ace28ab3
+Content-Type: application/json
+
+{
+	"from": "13322060388",
+	"to": "+15083084809",
+	"provider": "peerless",
+	"text": "please call when you can"
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+Content-Length: 46
+
+{
+  "sid":"6cc512e7-1dea-4cf6-bcca-e5a638884524",
+  "providerResponse": {
+    "responseText": "OK. Message Submitted Successfully"
+  }
+}
+```
+
+The Request-URI of the POST contains the Account Sid of the caller and JSON payload  may contain the following properties
+
+| property      | description | required  |
+| ------------- |-------------| -----|
+| from | Originating phone number. | yes |
+| to | Mobile number to send SMS to | yes |
+| text | SMS message to send | yes |
+| provider | Name of the SMS provider to use for the outgoing message. Not required if you have only configured SMS provider on your system. | no |
+
 ## Management API
 
 ### Accounts
