@@ -112,6 +112,12 @@
 </li>
 
                         
+                            
+<li >
+    <a href="../sms/">SMS</a>
+</li>
+
+                        
                         </ul>
                     </li>
                 
@@ -193,6 +199,8 @@
             <li class="second-level"><a href="#leave">leave</a></li>
                 
             <li class="second-level"><a href="#listen">listen</a></li>
+                
+            <li class="second-level"><a href="#message">message</a></li>
                 
             <li class="second-level"><a href="#pause">pause</a></li>
                 
@@ -1278,6 +1286,48 @@ if (evt.event === 'intent') {
 <tr>
 <td>wsAuth.password</td>
 <td>HTTP basic auth password to use on websocket connection</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="message">message</h2>
+<p>The message verb is used to send an outgoing SMS message.  In order to send (and receive) SMS messages, you must have established a commercial relationship with a Voip carrier or SMS provider that provides an HTTP(S)-based API, and the system must have been configured to integrate with that provider.  Please view the article describing how to enable SMS messaging on jambonz.</p>
+<pre><code class="json">{
+  &quot;verb&quot;: &quot;message&quot;,
+  &quot;from&quot;: &quot;12063345678&quot;,
+  &quot;to&quot;: &quot;15083084888&quot;,
+  &quot;text&quot;: &quot;Your reservation for tomorrow at 6PM has been confirmed.&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>message</code> action:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>from</td>
+<td>Originating phone number.</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>to</td>
+<td>Mobile number to send SMS to</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>text</td>
+<td>SMS message to send</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>provider</td>
+<td>Name of the SMS provider to use for the outgoing message. Not required if you have only configured SMS provider on your system.</td>
 <td>no</td>
 </tr>
 </tbody>

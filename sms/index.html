@@ -11,7 +11,7 @@
     <link rel="../img/favicon.ico">
 
     
-    <title>FAQs - jambonz</title>
+    <title>SMS - jambonz</title>
     
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
@@ -102,7 +102,7 @@
                 
                 
                 
-                    <li class="dropdown">
+                    <li class="dropdown active">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Integrations <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
@@ -113,8 +113,8 @@
 
                         
                             
-<li >
-    <a href="../sms/">SMS</a>
+<li class="active">
+    <a href="./">SMS</a>
 </li>
 
                         
@@ -135,8 +135,8 @@
                 
                 
                 
-                    <li class="active">
-                        <a href="./">FAQs</a>
+                    <li >
+                        <a href="../faqs/">FAQs</a>
                     </li>
                 
                 
@@ -149,12 +149,12 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="../tutorials/">
+                        <a rel="prev" href="../teams/">
                             <i class="fas fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li class="disabled">
-                        <a rel="next" >
+                    <li >
+                        <a rel="next" href="../data/">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -168,21 +168,121 @@
         
         <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="first-level active"><a href="#frequently-asked-questions-faqs">Frequently Asked Questions (FAQs)</a></li>
+        <li class="first-level active"><a href="#sending-and-receiving-sms">Sending and receiving SMS</a></li>
+            <li class="second-level"><a href="#configuration">Configuration</a></li>
+                
+            <li class="second-level"><a href="#receiving-sms-via-web-callback">Receiving SMS via web callback</a></li>
+                
+            <li class="second-level"><a href="#sending-sms-via-message-verb">Sending SMS via 'message' verb</a></li>
+                
+            <li class="second-level"><a href="#sending-sms-via-rest-api">Sending SMS via REST api</a></li>
+                
+            <li class="second-level"><a href="#adding-support-for-an-sms-provider">Adding support for an SMS provider</a></li>
+                
     </ul>
 </div></div>
         <div class="col-md-9" role="main">
 
-<h1 id="frequently-asked-questions-faqs">Frequently Asked Questions (FAQs)</h1>
+<h1 id="sending-and-receiving-sms">Sending and receiving SMS</h1>
+<p>The jambonz REST API and webhooks support sending and receiving SMS messages using HTTP-based APIs from SMS providers.  Since there is no such standard HTTP-based API across providers, it is necessary to build a small plug-in library that provides the glue needed to integrate with a specific provider.  </p>
+<p>Currently, plug-ins have been created for <a href="https://github.com/jambonz/messaging-peerless">Peerless Communications</a>, <a href="https://github.com/jambonz/messaging-382com">382 Communications</a>, and <a href="https://github.com/jambonz/messaging-simwood">Simwood</a>, so if you use any of these providers for SIP trunking you can also take advantage of sending and receiving SMS through them.  </p>
+<p>If you use any other provider you can create a plug-in for that, and instructions are given on how to do that at the end of this article.</p>
+<h2 id="configuration">Configuration</h2>
+<p>The jambonz session border controller (SBC) handles sending and receiving all SMS traffic to and from SMS providers.</p>
+<p>For inbound SMS, you will need to tell the SMS provider the HTTP endpoint/URL to make an HTTP(s) POST to when an incoming SMS is received to one of your numbers.</p>
+<p>For outbound SMS, the provider will provide you with a URL to make an HTTP(S) POST to when you want to send out an SMS, and optionally may provide you with username/password authentication credentials.</p>
+<p>This information is encoded into an environment variable that made available to the jambonz-api-server Node.js application.</p>
+<p>To configure the SBC to support SMS, then, you would perform the following steps:</p>
+<ol>
+<li>
+<p>Instruct your provider to send to an HTTP(s) POST requests to an endpoint on the SBC with path <code>/v1/messaging/{providerName}</code>.<br />
+For example, a full URL might be <code>https://api.mycompany.com/v1/messaging/peerless</code>, if you have set up DNS records for your SBC and secured it with https.</p>
+</li>
+<li>
+<p>Add an environment variable that is passed to the <code>jambonz-api-server</code> Node.js application that specifies which plugin module to invoke when an incoming SMS is received for the named partner, and which URL to send outgoing SMS to.  </p>
+</li>
+</ol>
+<p>The environment variable will be a JSON string representing an object with keys named after the provider(s), and value providing the needed information; e.g.</p>
+<pre><code>{
+    &quot;peerless&quot;: {
+        &quot;module&quot;: &quot;@jambonz/messaging-peerless&quot;,
+        &quot;options&quot;: {
+            &quot;url&quot;: &quot;https://BASEURL/partners/messageReceiving/your-account-no/submitMessage&quot;,
+            &quot;auth&quot;: {
+                &quot;username&quot;: &quot;your-user&quot;,
+                &quot;password&quot;: &quot;your-password&quot;
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>The stringified environment variable should appear in the <code>~admin/apps/ecosystem.config.js</code> configuration file on your SBC, and assigned to the JAMBONES_MESSAGING environment variable, e.g.:</p>
+<pre><code>  env: {
+    JAMBONES_MESSAGING: '{&quot;peerless&quot;:{&quot;module&quot;:&quot;@jambonz/messaging-peerless&quot;,&quot;options&quot;:{&quot;url&quot;:&quot;https://peerless-based-url:443/partners/messageReceiving/your-account-no/submitMessage&quot;,&quot;auth&quot;:{&quot;username&quot;:&quot;your-user&quot;,&quot;password&quot;:&quot;your-password&quot;}}}}'
+  }
+</code></pre>
+
+<p>It is possible to support multiple SMS providers by including each with a different key and configuration in the JSON string.</p>
+<p>Once this is done, and the jambonz-api-server is restarted with the new configuration, you will be able to receive and send SMS with your provider.</p>
+<h2 id="receiving-sms-via-web-callback">Receiving SMS via web callback</h2>
+<p>When an incoming SMS is received on one of your DIDs, the application associated with that DID is retrieved and the messaging webhook, if defined, is invoked with a payload like this:</p>
+<pre><code>{
+  provider: 'peerless',
+  from: '15083084809',
+  to: ['15085710838'],
+  text: 'Your reservation has been booked.'
+}
+</code></pre>
+
+<h2 id="sending-sms-via-message-verb">Sending SMS via 'message' verb</h2>
+<p>You can send an SMS from an application by using the <code>message</code> verb, e.g.</p>
+<pre><code>{
+  verb: 'message'
+  provider: 'peerless',
+  from: '15085710838',
+  to: '15083084809',
+  text: 'Thank you.'
+}
+</code></pre>
+
+<h2 id="sending-sms-via-rest-api">Sending SMS via REST api</h2>
+<p>You can send an SMS via the REST api as per this curl example:</p>
+<pre><code class="bash">curl -X POST &quot;https://api.jambonz.us/v1/Accounts/9351f46a-678c-43f5-b8a6-d4eb58d131af/Messages&quot; \
+-H  &quot;accept: application/json&quot; \
+-H  &quot;Authorization: Bearer 32006475-d3f5-44b6-a4bd-8aaa682d735b&quot; \
+-H  &quot;Content-Type: application/json&quot; \
+-d &quot;{\&quot;from\&quot;:\&quot;13322060388\&quot;,\&quot;to\&quot;:\&quot;+15083084809\&quot;,\&quot;provider\&quot;:\&quot;peerless\&quot;,\&quot;text\&quot;:\&quot;please call when you can\&quot;}
+</code></pre>
+
+<p>The response payload will provide a unique messageSid along with the raw response from the SMS provider:</p>
+<pre><code>{
+  &quot;sid&quot;:&quot;6cc512e7-1dea-4cf6-bcca-e5a638884524&quot;,
+  &quot;providerResponse&quot;: {
+    &quot;responseText&quot;:&quot;OK. Message Submitted Successfully&quot;
+  }
+}
+</code></pre>
+
+<h2 id="adding-support-for-an-sms-provider">Adding support for an SMS provider</h2>
+<p>To add support for a new SMS provider you must create a npmjs package that exports several functions:</p>
+<pre><code>fromProviderFormat(opts, url, payload)
+</code></pre>
+
+<p>translates an incoming SMS from the provider into a standard format for application processing.</p>
+<pre><code>formatProviderResponse(messageSid)
+</code></pre>
+
+<p>this function is optional; it should be exported if the provider requires any special content in the 200 OK response to an incoming SMS.</p>
+<pre><code>sendSms(opts, payload)
+</code></pre>
+
+<p>this function sends an outgoing SMS, translating the payload from standard application format to the provider-specified format.</p>
+<p>Please review the examples to get a sense of what is required:</p>
 <ul>
-<li>
-<p>The web app is using http.  Can I modify the configuration to serve the webapp over https?
-Yes, you can.  Check out the instructions for <a href="/securing-webapp">securing the webapp using nginx and letsencrypt</a></p>
-</li>
-<li>
-<p>Are there any plans to support SMS messaging in addition to voice?
-Yes, we have recently added support for sending and receiving SMS.  Check out the <a href="/sms">SMS configuration instructions</a></p>
-</li>
+<li><a href="https://github.com/jambonz/messaging-peerless">https://github.com/jambonz/messaging-peerless</a></li>
+<li><a href="https://github.com/jambonz/messaging-382com">https://github.com/jambonz/messaging-382com</a></li>
+<li><a href="https://github.com/jambonz/messaging-simwood">https://github.com/jambonz/messaging-simwood</a></li>
 </ul></div>
         
         
