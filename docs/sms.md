@@ -61,7 +61,7 @@ When an incoming SMS is received on one of your DIDs, the application associated
 ```
 
 ## Sending SMS via 'message' verb
-You can send an SMS from an application by using the `message` verb, e.g.
+You can send an SMS from an application by using the [message](/jambonz#message) verb, e.g.
 ```
 {
   verb: 'message'
