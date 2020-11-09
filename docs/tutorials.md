@@ -5,6 +5,10 @@ This video shows how to use the terraform scripts provided in the github [jambon
 <br/><br/>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Mniskl22GDI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+Now updated with [homer](https://github.com/sipcapture/homer) monitoring and [grafana](https://grafana.com/) dashboards, thanks to loads of help from [QXIP](http://qxip.net/)! 
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Hhsmd1gGNDQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ### Integrating with SIP Trunking Providers
 
 #### Voxbone
