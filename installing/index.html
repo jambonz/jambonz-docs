@@ -256,7 +256,6 @@
 <pre><code>ExecStart=/usr/local/bin/drachtio --daemon \
 --contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
 --contact sip:192.168.3.11;transport=tcp \
---http-method INVITE --http-handler http://127.0.0.1:4000 \
 --address 0.0.0.0 --port 9022
 </code></pre>
 
@@ -265,8 +264,13 @@
 --contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
 --contact sips:192.168.3.11:5061;transport=tls --external-ip 190.144.12.220 \
 --contact sip:192.168.3.11;transport=tcp \
---http-method INVITE --http-handler http://127.0.0.1:4000 \
 --address 0.0.0.0 --port 9022
+</code></pre>
+
+<p>Then, edit <code>/etc/drachtio/conf.xml</code> to uncomment the request-handler xml tag and edit it to look like this:</p>
+<pre><code class="xml">    &lt;request-handlers&gt;
+        &lt;request-handler sip-method=&quot;INVITE&quot;&gt;http://127.0.0.1:4000&lt;/request-handler&gt;
+    &lt;/request-handlers&gt;
 </code></pre>
 
 <p>Then, reload and restart the drachtio server</p>
