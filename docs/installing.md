@@ -95,7 +95,6 @@ to this:
 ExecStart=/usr/local/bin/drachtio --daemon \
 --contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
 --contact sip:192.168.3.11;transport=tcp \
---http-method INVITE --http-handler http://127.0.0.1:4000 \
 --address 0.0.0.0 --port 9022
 ```
 **or**, if you plan on enabling Microsoft Teams routing, to this:
@@ -104,9 +103,15 @@ ExecStart=/usr/local/bin/drachtio --daemon \
 --contact sip:192.168.3.11;transport=udp --external-ip 190.144.12.220 \
 --contact sips:192.168.3.11:5061;transport=tls --external-ip 190.144.12.220 \
 --contact sip:192.168.3.11;transport=tcp \
---http-method INVITE --http-handler http://127.0.0.1:4000 \
 --address 0.0.0.0 --port 9022
 ```
+Then, edit `/etc/drachtio/conf.xml` to uncomment the request-handler xml tag and edit it to look like this:
+```xml
+    <request-handlers>
+	    <request-handler sip-method="INVITE">http://127.0.0.1:4000</request-handler>
+    </request-handlers>
+```
+
 Then, reload and restart the drachtio server
 ```
 systemctl daemon-reload
