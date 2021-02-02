@@ -44,7 +44,7 @@ This video provides an introduction into how to build speech-driven applications
 <br/><br/>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/jyBe0qcEZA8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-#### Building voicebots using jambonz and dialogflow
+#### Building voicebot applications Google Dialogflow and Amazon Lex
 
 This video shows how to connect calls to dialogflow using jambonz.
 
@@ -60,3 +60,8 @@ This video shows how to connect calls to dialogflow using jambonz.
 
 <br/><br/>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ZDObg3_uaRM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+#### Building a voicebot application with Amazon Lex
+
+<br/><br/>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/k97DpGmDytg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
