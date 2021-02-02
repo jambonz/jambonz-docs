@@ -198,6 +198,8 @@
                 
             <li class="second-level"><a href="#leave">leave</a></li>
                 
+            <li class="second-level"><a href="#lex">lex</a></li>
+                
             <li class="second-level"><a href="#listen">listen</a></li>
                 
             <li class="second-level"><a href="#message">message</a></li>
@@ -849,7 +851,7 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 <p>The <code>confirmHook</code> property that can be optionally specified as part of the target types (with the exception of the <code>park</code> type) is a web callback that will be invoked when the outdial call is answered.  That callback should return an application that will run on the outbound call before bridging it to the inbound call.  If the application completes with the outbound call still in a stable/connected state, then the two calls will be bridged together.</p>
 <p>This allows you to easily implement call screening applications (e.g. "You have a call from so-and-so.  Press 1 to decline").</p>
 <h2 id="dialogflow">dialogflow</h2>
-<p>The <code>dialogflow</code> verb is used to connect a call to a dialogflow bot.</p>
+<p>The <code>dialogflow</code> verb is used to connect a call to a <a href="https://cloud.google.com/dialogflow">Google Dialogflow</a> bot.</p>
 <pre><code>{
   &quot;verb&quot;: &quot;dialogflow&quot;,
   &quot;project&quot;: &quot;ai-in-rtc-drachtio-tsjjpn&quot;,
@@ -934,6 +936,11 @@ Dialing to a parking slot allows you to pick up a call that has been parked in t
 <tr>
 <td>tts.vendor</td>
 <td>speech vendor to use: google, aws (alias: polly), or default (for application default)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>bargein</td>
+<td>if true, kill playback immediately when user begins speaking</td>
 <td>no</td>
 </tr>
 <tr>
@@ -1200,6 +1207,148 @@ if (evt.event === 'intent') {
 </code></pre>
 
 <p>There are no options for the <code>leave</code> verb.</p>
+<h2 id="lex">lex</h2>
+<p>The 'lex' verb connects a call to an <a href="https://aws.amazon.com/lex/">Amazon Lex</a> bot.  It supports the following features:</p>
+<ul>
+<li>optionally specify an initial, or "welcome" intent,</li>
+<li>pre-fill slot values for the initial intent,</li>
+<li>provide text for a spoken welcome message at the start of the conversation,</li>
+<li>play lex-generated audio, or use text-to-speech with either AWS/Polly or Google voices,</li>
+<li>receive real-time notifications of intents and transcriptions as the conversation progresses, and</li>
+<li>provide arbitrary context data to the lex backend to help guide the flow.</li>
+</ul>
+<pre><code>{
+  &quot;verb&quot;: &quot;lex&quot;,
+  &quot;botId&quot;: &quot;MTLNerCD9L&quot;,
+  &quot;botAliasId&quot;: &quot;z5yY1iYykE&quot;,
+  &quot;region&quot;: &quot;us-east-1&quot;,
+  &quot;locale&quot;: &quot;en_US&quot;,
+  &quot;credentials: {
+    &quot;accessKey: &quot;XXXX&quot;,
+    &quot;secretAccessKey&quot;: &quot;YYYY&quot;
+  },
+  &quot;passDtmf&quot;: true,
+  &quot;intent&quot;: &quot;BookHotel&quot;,
+  &quot;metadata&quot;: {
+    &quot;slots&quot;: {
+      &quot;Location&quot;: &quot;Los Angeles&quot;
+    },
+    &quot;context&quot;: {
+      &quot;callerId&quot;: &quot;+15083084909&quot;,
+      &quot;customerName&quot;: &quot;abc company&quot;
+    }
+  },
+  &quot;tts&quot;: {
+    &quot;vendor&quot;: &quot;google&quot;,
+    &quot;language&quot;: &quot;en-US&quot;,
+    &quot;voice&quot;: &quot;en-US-Wavenet-C&quot;
+  }
+  &quot;eventHook&quot;: &quot;/lex-events&quot;
+}
+</code></pre>
+
+<p>You can use the following options in the <code>lex</code> verb:</p>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>description</th>
+<th>required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>botID</td>
+<td>Lex bot ID</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>botAliasId</td>
+<td>Lex bot alias ID</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>region</td>
+<td>AWS region bot is running in</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>locale</td>
+<td>language code of speaker (currently supported languages re: "en_AU", "en_GB", "en_US", "fr_CA", "fr_FR", "es_ES", "es_US", "it_IT")</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>eventHook</td>
+<td>A webhook to invoke when a Lex event occurs (e.g intent detected, transcription, etc)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>intent</td>
+<td>initial intent to trigger (i.e. "welcome intent")</td>
+<td>no</td>
+</tr>
+<tr>
+<td>welcomeMessage</td>
+<td>text for a welcome message to play to the caller</td>
+<td>no</td>
+</tr>
+<tr>
+<td>noInputTimeout</td>
+<td>timeout in millseconds Lex will wait for a response before triggering fallback intent</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts</td>
+<td>if provided, playback will use text-to-speech rather than Lex-generated audio</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts.vendor</td>
+<td>'aws', 'google', or 'default'</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts.language</td>
+<td>language identifier or 'default'</td>
+<td>no</td>
+</tr>
+<tr>
+<td>tts.voice</td>
+<td>voice identifier or 'default'</td>
+<td>no</td>
+</tr>
+<tr>
+<td>metadata</td>
+<td>initial slot values and context data</td>
+<td>no</td>
+</tr>
+<tr>
+<td>metadata.slots</td>
+<td>key-value pairs for slot names and initial values to be pre-filled</td>
+<td>no</td>
+</tr>
+<tr>
+<td>metadata.context</td>
+<td>key-value pairs for context data to pass to Lex bot</td>
+<td>no</td>
+</tr>
+<tr>
+<td>metadata['x-amz-lex:channels:platform']</td>
+<td>name of voice platform</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>eventHook</em> webhook will contain two parameters: <code>event</code> and <code>data</code>.  The <code>event</code> parameter identifies the specific event and the <code>data</code> parameter is an object containng event data associated with the event.  The following events are supported:</p>
+<ul>
+<li><code>intent</code>: Lex detected an intent</li>
+<li><code>transcription</code>: a speech transcription was returned from Lex</li>
+<li><code>response-text</code>: Lex returned a response in the form of text</li>
+<li><code>dmtf</code>: a dtmf key was pressed by the caller</li>
+<li><code>start-play</code>: an audio segment returned from Lex or TTS started to play</li>
+<li><code>stop-play</code>: an audio segment returned from Lex or TTS completing playing</li>
+<li><code>play-interrupted</code>: an audio segment was interrupted</li>
+</ul>
 <h2 id="listen">listen</h2>
 <p>jambonz does not have a 'record' verb.    This is by design, for data privacy reasons.  </p>
 <blockquote>
