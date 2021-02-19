@@ -154,7 +154,20 @@ git clone https://github.com/jambonz/sbc-registrar.git
 git clone https://github.com/jambonz/sbc-call-router.git 
 git clone https://github.com/jambonz/jambonz-api-server.git 
 git clone https://github.com/jambonz/jambonz-webapp.git
+```
 
+Next, edit this file: `~/apps/jambonz-webapp/.env`.  Change this:
+```
+REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
+```
+to this:
+```
+REACT_APP_API_BASE_URL=http://190.144.12.220:3000/v1
+```
+> Note: again, substitute the public IP of your own SBC in the above
+
+Next, from the `~/apps/` folder execute the following
+```
 cd sbc-inbound && sudo npm install --unsafe-perm
 cd ../sbc-outbound && sudo npm install --unsafe-perm
 cd ../sbc-registrar && sudo npm install --unsafe-perm
@@ -169,15 +182,6 @@ sudo -u admin bash -c "pm2 set pm2-logrotate:compress true"
 
 sudo chown -R admin:admin  /home/admin/apps
 ```
-Next, edit this file: `~/apps/jambonz-webapp/.env`.  Change this:
-```
-REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
-```
-to this:
-```
-REACT_APP_API_BASE_URL=http://190.144.12.220:3000/v1
-```
-> Note: again, substitute the public IP of your own SBC in the above
 
 Next, copy this file below into `~/apps/ecosystem.config.js`.  
 
