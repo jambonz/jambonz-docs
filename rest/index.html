@@ -445,7 +445,7 @@ Content-Length: 46
 <p><strong>DELETE /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
 <p>Deletes a specific Call.</p>
 <h3 id="updating-a-call">Updating a Call</h3>
-<p><strong>POST /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
+<p><strong>PUT /v1/Accounts/{AccountSid}/Calls/{CallSid}</strong></p>
 <p>This operation allows you to modify certain aspects of an active call (aka "live call control").  The JSON payload can support the following properties:</p>
 <table>
 <thead>
@@ -486,7 +486,7 @@ Content-Length: 46
 <p>The call_status, listen_status, and mute_status properties are mutually exclusive -- only one may be provided in the same request.</p>
 <p>The whisper property may be provided alone, or together with a listen_status or mute_status property, in which case the whisper prompt is played after the listen_status or mute_status operation is complete.</p>
 <p>Finally, if call_hook is provided, then call_status_hook may also optionally be included.  This is used to specify a new callback to send call status events to.</p>
-<p>The response to a successful POST is a 202 Accepted.</p>
+<p>The response to a successful PUT is a 204 No Content.</p>
 <h4 id="providing-a-new-application">Providing a new application</h4>
 <pre><code class="xml">POST /v1/Accounts/fef61e75-cec3-496c-a7bc-8368e4d02a04/Calls/bd9a8d8d-bd55-4c53-a373-929e85c6db22 HTTP/1.1
 Authorization: Bearer 9604e5f7-9a77-4bcc-b0fa-5665ace28ab3
