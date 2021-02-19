@@ -309,8 +309,21 @@ git clone https://github.com/jambonz/sbc-registrar.git
 git clone https://github.com/jambonz/sbc-call-router.git 
 git clone https://github.com/jambonz/jambonz-api-server.git 
 git clone https://github.com/jambonz/jambonz-webapp.git
+</code></pre>
 
-cd sbc-inbound &amp;&amp; sudo npm install --unsafe-perm
+<p>Next, edit this file: <code>~/apps/jambonz-webapp/.env</code>.  Change this:</p>
+<pre><code>REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
+</code></pre>
+
+<p>to this:</p>
+<pre><code>REACT_APP_API_BASE_URL=http://190.144.12.220:3000/v1
+</code></pre>
+
+<blockquote>
+<p>Note: again, substitute the public IP of your own SBC in the above</p>
+</blockquote>
+<p>Next, from the <code>~/apps/</code> folder execute the following</p>
+<pre><code>cd sbc-inbound &amp;&amp; sudo npm install --unsafe-perm
 cd ../sbc-outbound &amp;&amp; sudo npm install --unsafe-perm
 cd ../sbc-registrar &amp;&amp; sudo npm install --unsafe-perm
 cd ../sbc-call-router &amp;&amp; sudo npm install --unsafe-perm
@@ -325,17 +338,6 @@ sudo -u admin bash -c &quot;pm2 set pm2-logrotate:compress true&quot;
 sudo chown -R admin:admin  /home/admin/apps
 </code></pre>
 
-<p>Next, edit this file: <code>~/apps/jambonz-webapp/.env</code>.  Change this:</p>
-<pre><code>REACT_APP_API_BASE_URL=http://[ip]:[port]/v1
-</code></pre>
-
-<p>to this:</p>
-<pre><code>REACT_APP_API_BASE_URL=http://190.144.12.220:3000/v1
-</code></pre>
-
-<blockquote>
-<p>Note: again, substitute the public IP of your own SBC in the above</p>
-</blockquote>
 <p>Next, copy this file below into <code>~/apps/ecosystem.config.js</code>.  </p>
 <p><strong>Note:</strong> Make sure to edit the file to have the correct connectivity information for your mysql and redis servers, and also if you have installed under a user other than 'admin' make sure to update the file paths accordingly (e.g. in the properties below such as 'cwd', 'out_file' etc).</p>
 <pre><code class="js">module.exports = {
