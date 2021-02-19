@@ -202,7 +202,7 @@ Deletes a specific Call.
 
 ### Updating a Call
 
-**POST /v1/Accounts/{AccountSid}/Calls/{CallSid}**
+**PUT /v1/Accounts/{AccountSid}/Calls/{CallSid}**
 
 This operation allows you to modify certain aspects of an active call (aka "live call control").  The JSON payload can support the following properties:
 
@@ -220,7 +220,7 @@ The whisper property may be provided alone, or together with a listen_status or 
 
 Finally, if call_hook is provided, then call_status_hook may also optionally be included.  This is used to specify a new callback to send call status events to.
 
-The response to a successful POST is a 202 Accepted.
+The response to a successful PUT is a 204 No Content.
 
 #### Providing a new application
 ```xml
